@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ef74a8745a28385e26b7cf9a6de3ced6",
-    "content-hash": "b9c4018e1765abb8739fc99cd2c33961",
+    "hash": "75f9f24598d3aa984992bb2f5958611f",
+    "content-hash": "094f3a28fa486c0c261599d2d0e326cf",
     "packages": [
         {
             "name": "easyrdf/easyrdf",
@@ -296,59 +296,8 @@
             "time": "2016-04-29 02:25:55"
         },
         {
-            "name": "islandora/collection-service",
-            "version": "dev-sprint-002",
-            "dist": {
-                "type": "path",
-                "url": "CollectionService",
-                "reference": "3b8d55953d3916ebdce5c454d2c70dd364185661",
-                "shasum": null
-            },
-            "require": {
-                "easyrdf/easyrdf": "^0.9.1",
-                "islandora/chullo": "^0.0",
-                "islandora/resource-service": "dev-sprint-002",
-                "islandora/transaction-service": "dev-sprint-002",
-                "ml/json-ld": "^1.0",
-                "silex/silex": "^1.3",
-                "symfony/config": "^3.0",
-                "symfony/yaml": "^3.0",
-                "twig/twig": "^1.23"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.8",
-                "squizlabs/php_codesniffer": "^2.0@dev"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Islandora\\CollectionService\\": "src/"
-                }
-            },
-            "authors": [
-                {
-                    "name": "Islandora Foundation",
-                    "email": "community@islandora.ca",
-                    "role": "Owner"
-                },
-                {
-                    "name": "Diego Pino Navarro",
-                    "email": "dpino@krayon.cl"
-                },
-                {
-                    "name": "Jared Whiklo",
-                    "email": "jwhiklo@gmail.com"
-                },
-                {
-                    "name": "Nick Ruest",
-                    "email": "ruestn@gmail.com"
-                }
-            ],
-            "description": "RESTful service providing PCDM Collections in Fedora 4"
-        },
-        {
             "name": "islandora/resource-service",
-            "version": "dev-sprint-002",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "ResourceService",
@@ -396,16 +345,16 @@
         },
         {
             "name": "islandora/transaction-service",
-            "version": "dev-sprint-002",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "TransactionService",
-                "reference": "ae5a46f9221abc2005217811cf1faf5d513b96fd",
+                "reference": "d0ec3bdefa103d251780da32ea065a315de26dac",
                 "shasum": null
             },
             "require": {
                 "islandora/chullo": "^0.0",
-                "islandora/resource-service": "dev-sprint-002",
+                "islandora/resource-service": "master",
                 "silex/silex": "^1.3"
             },
             "require-dev": {
@@ -941,12 +890,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/debug.git",
-                "reference": "5f4f7b4aaf3615f62183e818f5efa542d4fb95f2"
+                "reference": "61c2c5bde2c32fdb8e60a03644e99451d7a069c8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/debug/zipball/5f4f7b4aaf3615f62183e818f5efa542d4fb95f2",
-                "reference": "5f4f7b4aaf3615f62183e818f5efa542d4fb95f2",
+                "url": "https://api.github.com/repos/symfony/debug/zipball/61c2c5bde2c32fdb8e60a03644e99451d7a069c8",
+                "reference": "61c2c5bde2c32fdb8e60a03644e99451d7a069c8",
                 "shasum": ""
             },
             "require": {
@@ -990,7 +939,7 @@
             ],
             "description": "Symfony Debug Component",
             "homepage": "https://symfony.com",
-            "time": "2016-03-30 10:41:47"
+            "time": "2016-05-12 15:59:27"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -2393,12 +2342,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "e2e47568fcdc8b5f18f1dca088659944681e9ab5"
+                "reference": "0434c489d21e402199fb0b4ab581af5009cb706d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/e2e47568fcdc8b5f18f1dca088659944681e9ab5",
-                "reference": "e2e47568fcdc8b5f18f1dca088659944681e9ab5",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/0434c489d21e402199fb0b4ab581af5009cb706d",
+                "reference": "0434c489d21e402199fb0b4ab581af5009cb706d",
                 "shasum": ""
             },
             "require": {
@@ -2463,14 +2412,12 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2016-05-06 21:49:43"
+            "time": "2016-05-12 04:41:00"
         }
     ],
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "islandora/resource-service": 20,
-        "islandora/collection-service": 20,
         "squizlabs/php_codesniffer": 20
     },
     "prefer-stable": false,
