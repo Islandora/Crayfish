@@ -1,8 +1,8 @@
 {
-    "name": "islandora/services",
+    "name": "islandora/crayfish",
     "description": "RESTful services container",
     "support": {
-        "issues": "https://github.com/islandora-claw/CLAW/issues",
+        "issues": "https://github.com/islandora-claw/crayfish/issues",
         "irc": "irc://irc.freenode.net/islandora"
     },
     "repositories": [
@@ -34,9 +34,10 @@
         "squizlabs/php_codesniffer": "^2.0@dev"
     },
     "autoload": {
-        "psr-4": {"Islandora\\Services\\": "src/"}
+        "psr-4": {"Islandora\\Crayfish\\": "src/"}
     },
     "minimum-stability" : "dev",
+    "license": "MIT",
     "authors": [
         {
             "name": "Islandora Foundation",

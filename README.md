@@ -1,9 +1,16 @@
-# Services
+# Crayfish 
 
-This is a top level container for the various Islandora CLAW microservices. It allows you to mount the various endpoints at one port on one machine and makes a development vagrant/docker configuration easier to produce.
+[![Latest Stable Version](https://img.shields.io/packagist/v/Islandora/crayfish.svg?style=flat-square)](https://packagist.org/packages/islandora/crayfish)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.5-8892BF.svg?style=flat-square)](https://php.net/)
+[![Downloads](https://img.shields.io/packagist/dt/islandora/crayfish.svg?style=flat-square)](https://packagist.org/packages/islandora/crayfish)
+[![Build Status](https://travis-ci.org/ruebot/crayfish.svg?branch=master)](https://travis-ci.org/ruebot/crayfish)
+
+This is a top level container for the various Islandora CLAW microservices, lovingly known as Crayfish. It allows you to mount the various endpoints at one port on one machine and makes a development vagrant/docker configuration easier to produce.
 
 ## Requirements
 
+* PHP 5.5+
+* [Composer](https://getcomposer.org/)
 * [Chullo](https://github.com/Islandora-CLAW/chullo)
 * [ResourceService](./ResourceService/)
 * [TransactionService](./TransactionService/)
