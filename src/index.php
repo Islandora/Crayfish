@@ -1,6 +1,6 @@
 <?php
 
-namespace Islandora\Services;
+namespace Islandora\Crayfish\Services;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
@@ -10,9 +10,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Psr\Http\Message\ResponseInterface;
 use Silex\Provider\TwigServiceProvider;
-use Islandora\ResourceService\Provider\ResourceServiceProvider;
-use Islandora\CollectionService\Provider\CollectionServiceProvider;
-use Islandora\TransactionService\Provider\TransactionServiceProvider;
+use Islandora\Crayfish\ResourceService\Provider\ResourceServiceProvider;
+use Islandora\Crayfish\CollectionService\Provider\CollectionServiceProvider;
+use Islandora\Crayfish\TransactionService\Provider\TransactionServiceProvider;
 
 date_default_timezone_set('UTC');
 
@@ -23,8 +23,8 @@ $app->register(new \Silex\Provider\ServiceControllerServiceProvider());
 // TODO: Not register all template directories right now.
 $app->register(new \Silex\Provider\TwigServiceProvider(), array(
   'twig.path' => array(
-    __DIR__ . '/../ResourceService/templates',
-    __DIR__ . '/../CollectionService/templates',
+    __DIR__ . 'ResourceService/templates',
+    __DIR__ . 'CollectionService/templates',
   ),
 ));
 
