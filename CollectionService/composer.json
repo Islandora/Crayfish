@@ -27,6 +27,7 @@
     "autoload": {
         "psr-4": {"Islandora\\CollectionService\\": "src/"}
     },
+    "license": "MIT",
     "authors": [
         {
             "name": "Islandora Foundation",
