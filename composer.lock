@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "75f9f24598d3aa984992bb2f5958611f",
-    "content-hash": "094f3a28fa486c0c261599d2d0e326cf",
+    "hash": "9f02e35a4e7bd2e26140db43eff232c7",
+    "content-hash": "0905e173dc93c5b7247bae5718a367a2",
     "packages": [
         {
             "name": "easyrdf/easyrdf",
@@ -294,6 +294,57 @@
             "description": "A PHP client for interacting with a Fedora 4 server.",
             "homepage": "https://github.com/islandora-claw/chullo",
             "time": "2016-04-29 02:25:55"
+        },
+        {
+            "name": "islandora/collection-service",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "CollectionService",
+                "reference": "280f93c58aa5d6ab89d7e608f78f8e3f15aa8a8a",
+                "shasum": null
+            },
+            "require": {
+                "easyrdf/easyrdf": "^0.9.1",
+                "islandora/chullo": "^0.0",
+                "islandora/resource-service": "master",
+                "islandora/transaction-service": "master",
+                "ml/json-ld": "^1.0",
+                "silex/silex": "^1.3",
+                "symfony/config": "^3.0",
+                "symfony/yaml": "^3.0",
+                "twig/twig": "^1.23"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8",
+                "squizlabs/php_codesniffer": "^2.0@dev"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Islandora\\CollectionService\\": "src/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "Islandora Foundation",
+                    "email": "community@islandora.ca",
+                    "role": "Owner"
+                },
+                {
+                    "name": "Diego Pino Navarro",
+                    "email": "dpino@krayon.cl"
+                },
+                {
+                    "name": "Jared Whiklo",
+                    "email": "jwhiklo@gmail.com"
+                },
+                {
+                    "name": "Nick Ruest",
+                    "email": "ruestn@gmail.com"
+                }
+            ],
+            "description": "RESTful service providing PCDM Collections in Fedora 4"
         },
         {
             "name": "islandora/resource-service",
@@ -1056,12 +1107,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "18b24bc32d2495ae79d76e777368786a6536fe31"
+                "reference": "bf70183fee96c62cc63bcf0f600ad1fcc23e8cd0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/18b24bc32d2495ae79d76e777368786a6536fe31",
-                "reference": "18b24bc32d2495ae79d76e777368786a6536fe31",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/bf70183fee96c62cc63bcf0f600ad1fcc23e8cd0",
+                "reference": "bf70183fee96c62cc63bcf0f600ad1fcc23e8cd0",
                 "shasum": ""
             },
             "require": {
@@ -1101,7 +1152,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2016-04-12 18:09:53"
+            "time": "2016-05-11 13:57:40"
         },
         {
             "name": "symfony/http-kernel",
@@ -1109,12 +1160,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-kernel.git",
-                "reference": "710fdc71161656d48cff0d788c5c3a2886e4ee40"
+                "reference": "80001c27501d33a46d2fff4f4615358612d87b1c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-kernel/zipball/710fdc71161656d48cff0d788c5c3a2886e4ee40",
-                "reference": "710fdc71161656d48cff0d788c5c3a2886e4ee40",
+                "url": "https://api.github.com/repos/symfony/http-kernel/zipball/80001c27501d33a46d2fff4f4615358612d87b1c",
+                "reference": "80001c27501d33a46d2fff4f4615358612d87b1c",
                 "shasum": ""
             },
             "require": {
@@ -1183,7 +1234,7 @@
             ],
             "description": "Symfony HttpKernel Component",
             "homepage": "https://symfony.com",
-            "time": "2016-05-09 22:35:04"
+            "time": "2016-05-11 13:57:40"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -1748,20 +1799,23 @@
         },
         {
             "name": "phpunit/php-timer",
-            "version": "1.0.7",
+            "version": "1.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-timer.git",
-                "reference": "3e82f4e9fc92665fafd9157568e4dcb01d014e5b"
+                "reference": "38e9124049cf1a164f1e4537caf19c99bf1eb260"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-timer/zipball/3e82f4e9fc92665fafd9157568e4dcb01d014e5b",
-                "reference": "3e82f4e9fc92665fafd9157568e4dcb01d014e5b",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-timer/zipball/38e9124049cf1a164f1e4537caf19c99bf1eb260",
+                "reference": "38e9124049cf1a164f1e4537caf19c99bf1eb260",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4|~5"
             },
             "type": "library",
             "autoload": {
@@ -1785,7 +1839,7 @@
             "keywords": [
                 "timer"
             ],
-            "time": "2015-06-21 08:01:12"
+            "time": "2016-05-12 18:03:57"
         },
         {
             "name": "phpunit/php-token-stream",
