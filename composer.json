@@ -21,8 +21,8 @@
     ],
     "require": {
         "islandora/chullo": "^0.0",
-        "islandora/resource-service": "dev-sprint-002",
-        "islandora/collection-service": "dev-sprint-002",
+        "islandora/resource-service" : "^0.0",
+        "islandora/collection-service" : "^0.0",
         "silex/silex": "^1.3",
         "symfony/config": "^3.0",
         "twig/twig": "^1.23",
@@ -46,11 +46,19 @@
         },
         {
             "name": "Jared Whiklo",
-            "email": "jwhiklo@gmail.com"
+            "email": "jwhiklo@gmail.com",
+            "role": "Maintainer"
         },
         {
             "name": "Nick Ruest",
-            "email": "ruestn@gmail.com"
+            "email": "ruestn@gmail.com",
+            "role": "Maintainer"
+        },
+        {
+            "name": "Diego Pino",
+            "email": "dpino@krayon.cl",
+            "role": "Maintainer"
         }
+
     ]
 }

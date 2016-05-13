@@ -39,6 +39,26 @@ This mounts all the various individual microservices under the `/islandora` URL,
 
 See the individual services for more information on their endpoints.
 
+## Maintainers/Sponsors
+
+* UPEI
+* discoverygarden inc.
+* LYRASIS
+* McMaster University
+* University of Limerick
+* York University
+* University of Manitoba
+* Simon Fraser University
+* PALS
+* American Philosophical Society
+* common media inc.
+
+Maintainers:
+
+* [Jared Whiklo](https://github.com/whikloj)
+* [Diego Pino](https://github.com/diegopino)
+* [Nick Ruest](https://github.com/ruebot)
+
 ## License
 
 [MIT](https://opensource.org/licenses/MIT)
