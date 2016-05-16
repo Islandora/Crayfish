@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "9f02e35a4e7bd2e26140db43eff232c7",
-    "content-hash": "0905e173dc93c5b7247bae5718a367a2",
+    "hash": "8b6230f13a53f7b4073bb3bba77e4a00",
+    "content-hash": "f80c99bb5d36aed6a575d35b071e6513",
     "packages": [
         {
             "name": "easyrdf/easyrdf",
@@ -294,150 +294,6 @@
             "description": "A PHP client for interacting with a Fedora 4 server.",
             "homepage": "https://github.com/islandora-claw/chullo",
             "time": "2016-04-29 02:25:55"
-        },
-        {
-            "name": "islandora/collection-service",
-            "version": "dev-master",
-            "dist": {
-                "type": "path",
-                "url": "CollectionService",
-                "reference": "280f93c58aa5d6ab89d7e608f78f8e3f15aa8a8a",
-                "shasum": null
-            },
-            "require": {
-                "easyrdf/easyrdf": "^0.9.1",
-                "islandora/chullo": "^0.0",
-                "islandora/resource-service": "master",
-                "islandora/transaction-service": "master",
-                "ml/json-ld": "^1.0",
-                "silex/silex": "^1.3",
-                "symfony/config": "^3.0",
-                "symfony/yaml": "^3.0",
-                "twig/twig": "^1.23"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.8",
-                "squizlabs/php_codesniffer": "^2.0@dev"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Islandora\\CollectionService\\": "src/"
-                }
-            },
-            "authors": [
-                {
-                    "name": "Islandora Foundation",
-                    "email": "community@islandora.ca",
-                    "role": "Owner"
-                },
-                {
-                    "name": "Diego Pino Navarro",
-                    "email": "dpino@krayon.cl"
-                },
-                {
-                    "name": "Jared Whiklo",
-                    "email": "jwhiklo@gmail.com"
-                },
-                {
-                    "name": "Nick Ruest",
-                    "email": "ruestn@gmail.com"
-                }
-            ],
-            "description": "RESTful service providing PCDM Collections in Fedora 4"
-        },
-        {
-            "name": "islandora/resource-service",
-            "version": "dev-master",
-            "dist": {
-                "type": "path",
-                "url": "ResourceService",
-                "reference": "18e07ef879707404a549ba5f071c244c78184a3c",
-                "shasum": null
-            },
-            "require": {
-                "islandora/chullo": "^0.0",
-                "ramsey/uuid": "^3.1",
-                "silex/silex": "^1.3",
-                "symfony/config": "^3.0",
-                "symfony/yaml": "^3.0",
-                "twig/twig": "^1.23"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.8",
-                "squizlabs/php_codesniffer": "^2.0@dev"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Islandora\\ResourceService\\": "src/"
-                }
-            },
-            "authors": [
-                {
-                    "name": "Islandora Foundation",
-                    "email": "community@islandora.ca",
-                    "role": "Owner"
-                },
-                {
-                    "name": "Diego Pino Navarro",
-                    "email": "dpino@krayon.cl"
-                },
-                {
-                    "name": "Jared Whiklo",
-                    "email": "jwhiklo@gmail.com"
-                },
-                {
-                    "name": "Nick Ruest",
-                    "email": "ruest@gmail.com"
-                }
-            ],
-            "description": "RESTful service providing resources in Fedora 4"
-        },
-        {
-            "name": "islandora/transaction-service",
-            "version": "dev-master",
-            "dist": {
-                "type": "path",
-                "url": "TransactionService",
-                "reference": "d0ec3bdefa103d251780da32ea065a315de26dac",
-                "shasum": null
-            },
-            "require": {
-                "islandora/chullo": "^0.0",
-                "islandora/resource-service": "master",
-                "silex/silex": "^1.3"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.8",
-                "squizlabs/php_codesniffer": "^2.0@dev"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Islandora\\TransactionService\\": "src/"
-                }
-            },
-            "authors": [
-                {
-                    "name": "Islandora Foundation",
-                    "email": "community@islandora.ca",
-                    "role": "Owner"
-                },
-                {
-                    "name": "Daniel Lamb",
-                    "email": "daniel@discoverygarden.ca"
-                },
-                {
-                    "name": "Jared Whiklo",
-                    "email": "jwhiklo@gmail.com"
-                },
-                {
-                    "name": "Nick Ruest",
-                    "email": "ruestn@gmail.com"
-                }
-            ],
-            "description": "RESTful service providing transactions in Fedora 4"
         },
         {
             "name": "ml/iri",
@@ -811,12 +667,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/silexphp/Silex.git",
-                "reference": "22d47c898b865b909ae1f9e8dc64baca4b74d3ee"
+                "reference": "895ae4685c583396416e10478362d7d5bc59fd74"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silexphp/Silex/zipball/22d47c898b865b909ae1f9e8dc64baca4b74d3ee",
-                "reference": "22d47c898b865b909ae1f9e8dc64baca4b74d3ee",
+                "url": "https://api.github.com/repos/silexphp/Silex/zipball/895ae4685c583396416e10478362d7d5bc59fd74",
+                "reference": "895ae4685c583396416e10478362d7d5bc59fd74",
                 "shasum": ""
             },
             "require": {
@@ -880,7 +736,7 @@
             "keywords": [
                 "microframework"
             ],
-            "time": "2016-05-05 07:33:53"
+            "time": "2016-05-16 17:06:54"
         },
         {
             "name": "symfony/config",
@@ -888,12 +744,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/config.git",
-                "reference": "1c01ac3d32124d922e1676aa09b550d0fa4b6f7a"
+                "reference": "79ab1a8f4988972a349e2cdcda1b6951a85659c1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/config/zipball/1c01ac3d32124d922e1676aa09b550d0fa4b6f7a",
-                "reference": "1c01ac3d32124d922e1676aa09b550d0fa4b6f7a",
+                "url": "https://api.github.com/repos/symfony/config/zipball/79ab1a8f4988972a349e2cdcda1b6951a85659c1",
+                "reference": "79ab1a8f4988972a349e2cdcda1b6951a85659c1",
                 "shasum": ""
             },
             "require": {
@@ -906,7 +762,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.1-dev"
+                    "dev-master": "3.2-dev"
                 }
             },
             "autoload": {
@@ -933,7 +789,7 @@
             ],
             "description": "Symfony Config Component",
             "homepage": "https://symfony.com",
-            "time": "2016-04-20 18:54:21"
+            "time": "2016-05-13 18:13:23"
         },
         {
             "name": "symfony/debug",
@@ -941,12 +797,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/debug.git",
-                "reference": "61c2c5bde2c32fdb8e60a03644e99451d7a069c8"
+                "reference": "7f932c43491d7d0f33308c880a2ad4f100804307"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/debug/zipball/61c2c5bde2c32fdb8e60a03644e99451d7a069c8",
-                "reference": "61c2c5bde2c32fdb8e60a03644e99451d7a069c8",
+                "url": "https://api.github.com/repos/symfony/debug/zipball/7f932c43491d7d0f33308c880a2ad4f100804307",
+                "reference": "7f932c43491d7d0f33308c880a2ad4f100804307",
                 "shasum": ""
             },
             "require": {
@@ -963,7 +819,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.1-dev"
+                    "dev-master": "3.2-dev"
                 }
             },
             "autoload": {
@@ -990,7 +846,7 @@
             ],
             "description": "Symfony Debug Component",
             "homepage": "https://symfony.com",
-            "time": "2016-05-12 15:59:27"
+            "time": "2016-05-13 18:13:23"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -1058,12 +914,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "5751e80d6f94b7c018f338a4a7be0b700d6f3058"
+                "reference": "ae26c574678c9494f3a6fdbd790ff26f8b8846c0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/5751e80d6f94b7c018f338a4a7be0b700d6f3058",
-                "reference": "5751e80d6f94b7c018f338a4a7be0b700d6f3058",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/ae26c574678c9494f3a6fdbd790ff26f8b8846c0",
+                "reference": "ae26c574678c9494f3a6fdbd790ff26f8b8846c0",
                 "shasum": ""
             },
             "require": {
@@ -1072,7 +928,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.1-dev"
+                    "dev-master": "3.2-dev"
                 }
             },
             "autoload": {
@@ -1099,7 +955,7 @@
             ],
             "description": "Symfony Filesystem Component",
             "homepage": "https://symfony.com",
-            "time": "2016-04-12 18:27:47"
+            "time": "2016-05-13 18:13:23"
         },
         {
             "name": "symfony/http-foundation",
@@ -1107,12 +963,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "bf70183fee96c62cc63bcf0f600ad1fcc23e8cd0"
+                "reference": "7cb53fb8f6b8150dd07d9710922b21ba6bf6d90c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/bf70183fee96c62cc63bcf0f600ad1fcc23e8cd0",
-                "reference": "bf70183fee96c62cc63bcf0f600ad1fcc23e8cd0",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/7cb53fb8f6b8150dd07d9710922b21ba6bf6d90c",
+                "reference": "7cb53fb8f6b8150dd07d9710922b21ba6bf6d90c",
                 "shasum": ""
             },
             "require": {
@@ -1152,7 +1008,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2016-05-11 13:57:40"
+            "time": "2016-05-13 18:03:36"
         },
         {
             "name": "symfony/http-kernel",
@@ -1376,12 +1232,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "407e31ad9742ace5c3d01642f02a3b2e6062bae5"
+                "reference": "641bbd0fc1b671f896f7815169587dced3588f5c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/407e31ad9742ace5c3d01642f02a3b2e6062bae5",
-                "reference": "407e31ad9742ace5c3d01642f02a3b2e6062bae5",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/641bbd0fc1b671f896f7815169587dced3588f5c",
+                "reference": "641bbd0fc1b671f896f7815169587dced3588f5c",
                 "shasum": ""
             },
             "require": {
@@ -1390,7 +1246,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.1-dev"
+                    "dev-master": "3.2-dev"
                 }
             },
             "autoload": {
@@ -1417,7 +1273,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2016-03-30 14:44:34"
+            "time": "2016-05-14 15:06:20"
         },
         {
             "name": "twig/twig",
@@ -1425,12 +1281,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "f167cc0a65ab0a2a53558c9385b4a324c1a36b02"
+                "reference": "71ad9ff322e9ef99465ccc26f704d706d76e0eea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/f167cc0a65ab0a2a53558c9385b4a324c1a36b02",
-                "reference": "f167cc0a65ab0a2a53558c9385b4a324c1a36b02",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/71ad9ff322e9ef99465ccc26f704d706d76e0eea",
+                "reference": "71ad9ff322e9ef99465ccc26f704d706d76e0eea",
                 "shasum": ""
             },
             "require": {
@@ -1478,7 +1334,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2016-04-24 13:54:56"
+            "time": "2016-05-13 19:46:43"
         }
     ],
     "packages-dev": [
@@ -1896,12 +1752,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "cb07302bcc264a177461bd8112c73eb2cd19aed6"
+                "reference": "9f44734d4814d0a5632745bbd71ded5817a8b002"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/cb07302bcc264a177461bd8112c73eb2cd19aed6",
-                "reference": "cb07302bcc264a177461bd8112c73eb2cd19aed6",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/9f44734d4814d0a5632745bbd71ded5817a8b002",
+                "reference": "9f44734d4814d0a5632745bbd71ded5817a8b002",
                 "shasum": ""
             },
             "require": {
@@ -1960,7 +1816,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2016-05-10 17:50:22"
+            "time": "2016-05-12 16:52:51"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
