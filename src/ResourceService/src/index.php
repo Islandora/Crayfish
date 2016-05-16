@@ -1,6 +1,6 @@
 <?php
 
-namespace Islandora\ResourceService;
+namespace Islandora\Crayfish\ResourceService;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Psr\Http\Message\ResponseInterface;
 use Silex\Provider\TwigServiceProvider;
-use Islandora\ResourceService\Provider\ResourceServiceProvider;
+use Islandora\Crayfish\ResourceService\Provider\ResourceServiceProvider;
 
 date_default_timezone_set('UTC');
 
@@ -27,7 +27,7 @@ $app->register(
     )
 );
 
-$islandoraResourceServiceProvider = new \Islandora\ResourceService\Provider\ResourceServiceProvider;
+$islandoraResourceServiceProvider = new \Islandora\Crayfish\ResourceService\Provider\ResourceServiceProvider;
 
 $app->register($islandoraResourceServiceProvider);
 $app->mount("/islandora", $islandoraResourceServiceProvider);

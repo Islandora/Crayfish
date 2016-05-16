@@ -11,7 +11,6 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Psr\Http\Message\ResponseInterface;
 use Silex\Provider\TwigServiceProvider;
 use Islandora\Crayfish\ResourceService\Provider\ResourceServiceProvider;
-use Islandora\Crayfish\CollectionService\Provider\CollectionServiceProvider;
 use Islandora\Crayfish\TransactionService\Provider\TransactionServiceProvider;
 
 date_default_timezone_set('UTC');
@@ -24,12 +23,10 @@ $app->register(new \Silex\Provider\ServiceControllerServiceProvider());
 $app->register(new \Silex\Provider\TwigServiceProvider(), array(
   'twig.path' => array(
     __DIR__ . 'ResourceService/templates',
-    __DIR__ . 'CollectionService/templates',
   ),
 ));
 
 $islandoraResourceServiceProvider = new ResourceServiceProvider;
-$islandoraCollectionServiceProvider = new CollectionServiceProvider;
 $islandoraTransactionServiceProvider = new TransactionServiceProvider;
 
 $basepath = array(
@@ -37,10 +34,8 @@ $basepath = array(
 );
 
 $app->register($islandoraResourceServiceProvider, $basepath);
-$app->register($islandoraCollectionServiceProvider, $basepath);
 $app->register($islandoraTransactionServiceProvider, $basepath);
 $app->mount("/islandora", $islandoraResourceServiceProvider);
-$app->mount("/islandora", $islandoraCollectionServiceProvider);
 $app->mount("/islandora", $islandoraTransactionServiceProvider);
 
 /**

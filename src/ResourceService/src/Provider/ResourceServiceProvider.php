@@ -1,6 +1,6 @@
 <?php
 
-namespace Islandora\ResourceService\Provider;
+namespace Islandora\Crayfish\ResourceService\Provider;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Yaml\Yaml;
-use Islandora\ResourceService\Controller\ResourceController;
+use Islandora\Crayfish\ResourceService\Controller\ResourceController;
 
 class ResourceServiceProvider implements ServiceProviderInterface, ControllerProviderInterface
 {
@@ -30,7 +30,7 @@ class ResourceServiceProvider implements ServiceProviderInterface, ControllerPro
         }
         $app['islandora.resourcecontroller'] = $app->share(
             function () use ($app) {
-                return new \Islandora\ResourceService\Controller\ResourceController($app);
+                return new \Islandora\Crayfish\ResourceService\Controller\ResourceController($app);
             }
         );
         if (!isset($app['twig'])) {

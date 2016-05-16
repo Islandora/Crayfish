@@ -1,6 +1,6 @@
 <?php
 
-namespace Islandora\TransactionService\Provider;
+namespace Islandora\Crayfish\TransactionService\Provider;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -10,8 +10,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Yaml\Yaml;
-use Islandora\ResourceService\Controller\ResourceController;
-use Islandora\TransactionService\Controller\TransactionController;
+use Islandora\Crayfish\ResourceService\Controller\ResourceController;
+use Islandora\Crayfish\TransactionService\Controller\TransactionController;
 
 class TransactionServiceProvider implements ServiceProviderInterface, ControllerProviderInterface
 {
@@ -30,14 +30,14 @@ class TransactionServiceProvider implements ServiceProviderInterface, Controller
     
         $app['islandora.transactioncontroller'] = $app->share(
             function () use ($app) {
-                return new \Islandora\TransactionService\Controller\TransactionController($app);
+                return new \Islandora\Crayfish\TransactionService\Controller\TransactionController($app);
             }
         );
     
         if (!isset($app['islandora.resourcecontroller'])) {
             $app['islandora.resourcecontroller'] = $app->share(
                 function () use ($app) {
-                    return new \Islandora\ResourceService\Controller\ResourceController($app);
+                    return new \Islandora\Crayfish\ResourceService\Controller\ResourceController($app);
                 }
             );
         }

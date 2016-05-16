@@ -1,6 +1,6 @@
 <?php
 
-namespace Islandora\TransactionService\Controller;
+namespace Islandora\Crayfish\TransactionService\Controller;
 
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;

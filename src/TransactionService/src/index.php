@@ -1,6 +1,6 @@
 <?php
 
-namespace Islandora\TransactionService;
+namespace Islandora\Crayfish\TransactionService;
 
 require_once __DIR__.'/../vendor/autoload.php';
 
@@ -19,7 +19,7 @@ $app['debug'] = true;
 
 $app->register(new \Silex\Provider\ServiceControllerServiceProvider());
 
-$islandoraTransactionService = new \Islandora\TransactionService\Provider\TransactionServiceProvider;
+$islandoraTransactionService = new \Islandora\Crayfish\TransactionService\Provider\TransactionServiceProvider;
 
 $app->register($islandoraTransactionService);
 $app->mount("/islandora", $islandoraTransactionService);
