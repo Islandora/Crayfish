@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "8b6230f13a53f7b4073bb3bba77e4a00",
-    "content-hash": "f80c99bb5d36aed6a575d35b071e6513",
+    "hash": "8ad97bae0fd06dcdae368892a3b8d75e",
+    "content-hash": "bfe85726748321bb2ecb283ad3cdf736",
     "packages": [
         {
             "name": "easyrdf/easyrdf",
@@ -667,12 +667,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/silexphp/Silex.git",
-                "reference": "895ae4685c583396416e10478362d7d5bc59fd74"
+                "reference": "142189672963a5dde679685a999b71fc45752611"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/silexphp/Silex/zipball/895ae4685c583396416e10478362d7d5bc59fd74",
-                "reference": "895ae4685c583396416e10478362d7d5bc59fd74",
+                "url": "https://api.github.com/repos/silexphp/Silex/zipball/142189672963a5dde679685a999b71fc45752611",
+                "reference": "142189672963a5dde679685a999b71fc45752611",
                 "shasum": ""
             },
             "require": {
@@ -736,7 +736,7 @@
             "keywords": [
                 "microframework"
             ],
-            "time": "2016-05-16 17:06:54"
+            "time": "2016-05-16 17:51:55"
         },
         {
             "name": "symfony/config",

@@ -5,20 +5,6 @@
         "issues": "https://github.com/islandora-claw/CLAW/issues",
         "irc": "irc://irc.freenode.net/islandora"
     },
-    "repositories": [
-      {
-                "type": "path",
-                "url": "ResourceService"
-      },
-      {
-                "type": "path",
-                "url": "CollectionService"
-      },
-      {
-                "type": "path",
-                "url": "TransactionService"
-      }
-    ],
     "require": {
         "islandora/chullo": "^0.0",
         "silex/silex": "^1.3",
