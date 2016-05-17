@@ -104,7 +104,7 @@ The TransactionService provides the following endpoints for HTTP requests.
 
     to rollback a transaction
 
-## Maintainers/Sponsors
+## Sponsors
 
 * UPEI
 * discoverygarden inc.
@@ -118,7 +118,7 @@ The TransactionService provides the following endpoints for HTTP requests.
 * American Philosophical Society
 * common media inc.
 
-Maintainers:
+## Maintainers
 
 * [Jared Whiklo](https://github.com/whikloj)
 * [Diego Pino](https://github.com/diegopino)

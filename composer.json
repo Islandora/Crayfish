@@ -1,6 +1,8 @@
 {
     "name": "islandora/crayfish",
-    "description": "RESTful services container",
+    "description": "Top level container for the various Islandora CLAW microservices, lovingly known as Crayfish.",
+    "type": "library",
+    "homepage": "http://islandora.ca/CLAW",
     "support": {
         "issues": "https://github.com/islandora-claw/CLAW/issues",
         "irc": "irc://irc.freenode.net/islandora"
