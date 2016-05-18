@@ -136,20 +136,14 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
                             'uuid' => $id,
                         )
                     );
-                    error_log("Query $sparql_query");
                     try {
                         $sparql_result = $app['triplestore']->query($sparql_query);
                     } catch (\Exception $e) {
                         $app->abort(503, 'Chullo says "Triple Store Not available"');
                     }
-                    ob_start();
-                    print_r($sparql_result);
-                    $v = ob_get_clean();
-                    error_log("sparql $v");
                     // We only assign one in case of multiple ones
                     // Will have to check for edge cases?
                     foreach ($sparql_result as $triple) {
-                        error_log("s is " . $triple->s->getUri());
                         return $triple->s->getUri();
                     }
                     // Abort the routes if we don't get a subject from the tripple.
