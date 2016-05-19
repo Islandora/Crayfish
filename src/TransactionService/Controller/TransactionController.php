@@ -124,7 +124,9 @@ class TransactionController
     {
         $loadTransform = false;
         if (TransactionController::$transformsInstalled === false) {
-            $response = $app['api']->getResourceHeaders("fedora:system/fedora:transform/fedora:ldpath/" . TransactionController::$uuidTransformKey);
+            $response = $app['api']->getResourceHeaders(
+                "fedora:system/fedora:transform/fedora:ldpath/" . TransactionController::$uuidTransformKey
+            );
             if ($response->getStatusCode() == 200) {
                 // This variable is reset at server restart, no need to re-upload the transform.
                 TransactionController::$transformsInstalled = true;
@@ -151,8 +153,13 @@ class TransactionController
                 if ($loadTransform) {
                     $ldpath_content = file_get_contents(__DIR__ . '/../../resources/islandora_uuid.txt');
                     if ($ldpath_content !== false) {
-                        $url = '/fedora:system/fedora:transform/fedora:ldpath/' . TransactionController::$uuidTransformKey . '/fedora:Resource';
-                        $response = $app['api']->saveResource($url, $ldpath_content, array('Content-type' => 'application/rdf+ldpath'));
+                        $url = '/fedora:system/fedora:transform/fedora:ldpath/' .
+                        TransactionController::$uuidTransformKey . '/fedora:Resource';
+                        $response = $app['api']->saveResource(
+                            $url,
+                            $ldpath_content,
+                            array('Content-type' => 'application/rdf+ldpath')
+                        );
                         if ($response->getStatusCode() == 201) {
                             TransactionController::$transformsInstalled = true;
                             return true;
