@@ -7,6 +7,7 @@ use Silex\ServiceProviderInterface;
 use Silex\ControllerProviderInterface;
 use Islandora\Chullo\FedoraApi;
 use Islandora\Chullo\TriplestoreClient;
+use Islandora\Chullo\KeyCache\RedisKeyCache;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -43,6 +44,13 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
                 return new TransactionController($app);
             }
         );
+        
+        # Register the KeyCache if not done.
+        if (!isset($app['islandora.keyCache'])) {
+            $app['islandora.keyCache'] = $app->share($app->share(function () use ($app) {
+                return RedisKeyCache::create();
+            }));
+        }
         
         if (!isset($app['twig'])) {
             $app['twig'] = $app->share(
@@ -143,6 +151,16 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
                     // Will have to check for edge cases?
                     foreach ($sparql_result as $triple) {
                         return $triple->s->getUri();
+                    }
+                    // If we didn't find the path in the triplestore
+                    // and we have a transaction id, we should check in
+                    // the UuidKeyCache.
+                    $tx = $request->query->get('tx', "");
+                    if (isset($tx) && !empty($tx)) {
+                        $path = $app['islandora.keyCache']->getByUuid($tx, $id);
+                        if (!is_null($path)) {
+                            return $path;
+                        }
                     }
                     // Abort the routes if we don't get a subject from the tripple.
                     $app->abort(404, sprintf('Failed getting resource Path for "%s" from triple store', $id));
