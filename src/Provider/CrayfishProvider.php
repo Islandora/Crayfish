@@ -180,25 +180,33 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
         // Define routing referring to controller services
         //
         $controllers
-            ->convert('id', $app['islandora.idToUri'])
-            ->assert('id', $app['config']['islandora']['resourceIdRegex'])
             ->before($app['islandora.hostHeaderNormalize'])
             ->before($app['islandora.htmlHeaderToTurtle'])
             ->value('id', "");
     
         # ResourceService routes.
         $controllers->get("/resource/{id}/{child}", "islandora.resourcecontroller:get")
+            ->convert('id', $app['islandora.idToUri'])
+            ->assert('id', $app['config']['islandora']['resourceIdRegex'])
             ->value('child', "")
             ->bind('islandora.resourceGet');
         $controllers->post("/resource/{id}", "islandora.resourcecontroller:post")
+            ->convert('id', $app['islandora.idToUri'])
+            ->assert('id', $app['config']['islandora']['resourceIdRegex'])
             ->bind('islandora.resourcePost');
         $controllers->put("/resource/{id}/{child}", "islandora.resourcecontroller:put")
+            ->convert('id', $app['islandora.idToUri'])
+            ->assert('id', $app['config']['islandora']['resourceIdRegex'])
             ->value('child', "")
             ->bind('islandora.resourcePut');
         $controllers->patch("/resource/{id}/{child}", "islandora.resourcecontroller:patch")
+            ->convert('id', $app['islandora.idToUri'])
+            ->assert('id', $app['config']['islandora']['resourceIdRegex'])
             ->value('child', "")
             ->bind('islandora.resourcePatch');
         $controllers->delete("/resource/{id}/{child}", "islandora.resourcecontroller:delete")
+            ->convert('id', $app['islandora.idToUri'])
+            ->assert('id', $app['config']['islandora']['resourceIdRegex'])
             ->value('child', "")
             ->bind('islandora.resourceDelete');
         
