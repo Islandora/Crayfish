@@ -1,6 +1,6 @@
 <?php
 
-namespace Islandora\ResourceService\Provider;
+namespace Islandora\Crayfish\Provider;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
@@ -11,13 +11,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Yaml\Yaml;
-use Islandora\ResourceService\Controller\ResourceController;
+use Islandora\Crayfish\ResourceService\Controller\ResourceController;
+use Islandora\Crayfish\TransactionService\Controller\TransactionController;
 
-class ResourceServiceProvider implements ServiceProviderInterface, ControllerProviderInterface
+class CrayfishProvider implements ServiceProviderInterface, ControllerProviderInterface
 {
     /**
-   * Part of ServiceProviderInterface
-   */
+     * Part of ServiceProviderInterface
+     */
     public function register(Application $app)
     {
         //
@@ -28,11 +29,21 @@ class ResourceServiceProvider implements ServiceProviderInterface, ControllerPro
         if (!isset($app['islandora.BasePath'])) {
             $app['islandora.BasePath'] = __DIR__.'/..';
         }
+        
+        # Register the ResourceService
         $app['islandora.resourcecontroller'] = $app->share(
             function () use ($app) {
-                return new \Islandora\ResourceService\Controller\ResourceController($app);
+                return new ResourceController($app);
             }
         );
+        
+        # Register the TransactionService
+        $app['islandora.transactioncontroller'] = $app->share(
+            function () use ($app) {
+                return new TransactionController($app);
+            }
+        );
+        
         if (!isset($app['twig'])) {
             $app['twig'] = $app->share(
                 $app->extend(
@@ -69,17 +80,15 @@ class ResourceServiceProvider implements ServiceProviderInterface, ControllerPro
             );
         }
         /**
-    * Ultra simplistic YAML settings loader.
-    */
+         * Ultra simplistic YAML settings loader.
+         */
         if (!isset($app['config'])) {
             $app['config'] = $app->share(
                 function () use ($app) {
-                    {
                     if ($app['debug']) {
                         $configFile = $app['islandora.BasePath'].'/../config/settings.dev.yml';
                     } else {
                         $configFile = $app['islandora.BasePath'].'/../config/settings.yml';
-                    }
                     }
                     $settings = Yaml::parse(file_get_contents($configFile));
                     return $settings;
@@ -87,11 +96,11 @@ class ResourceServiceProvider implements ServiceProviderInterface, ControllerPro
             );
         }
         /**
-   * Make our middleware callback functions protected
-   */
+         * Make our middleware callback functions protected
+         */
         /**
-    * before middleware to handle browser requests.
-    */
+         * before middleware to handle browser requests.
+         */
         $app['islandora.htmlHeaderToTurtle'] = $app->protect(
             function (Request $request) {
                 // In case the request was made by a browser, avoid
@@ -103,9 +112,9 @@ class ResourceServiceProvider implements ServiceProviderInterface, ControllerPro
         );
 
 
-    /**
-     * Before middleware to normalize host header to same as fedora's running instance.
-     */
+        /**
+         * Before middleware to normalize host header to same as fedora's running instance.
+         */
         $app['islandora.hostHeaderNormalize'] = $app->protect(
             function (Request $request) use ($app) {
                 // Normalize Host header to Repo's real location
@@ -113,9 +122,9 @@ class ResourceServiceProvider implements ServiceProviderInterface, ControllerPro
             }
         );
 
-    /**
-     * Converts request $id (uuid) into a fedora4 resourcePath
-     */
+        /**
+         * Converts request $id (uuid) into a fedora4 resourcePath
+         */
         $app['islandora.idToUri'] = $app->protect(
             function ($id) use ($app) {
                 // Run only if $id given /can also be refering root resource,
@@ -162,36 +171,77 @@ class ResourceServiceProvider implements ServiceProviderInterface, ControllerPro
     }
 
     /**
-   * Part of ControllerProviderInterface
-   */
+     * Part of ControllerProviderInterface
+     */
     public function connect(Application $app)
     {
-        $ResourceControllers = $app['controllers_factory'];
+        $controllers = $app['controllers_factory'];
         //
         // Define routing referring to controller services
         //
-        $ResourceControllers
-            ->convert('id', $app['islandora.idToUri'])
-            ->assert('id', $app['config']['islandora']['resourceIdRegex'])
+        $controllers
             ->before($app['islandora.hostHeaderNormalize'])
             ->before($app['islandora.htmlHeaderToTurtle'])
             ->value('id', "");
     
-    
-        $ResourceControllers->get("/resource/{id}/{child}", "islandora.resourcecontroller:get")
+        # ResourceService routes.
+        $controllers->get("/resource/{id}/{child}", "islandora.resourcecontroller:get")
+            ->convert('id', $app['islandora.idToUri'])
+            ->assert('id', $app['config']['islandora']['resourceIdRegex'])
             ->value('child', "")
             ->bind('islandora.resourceGet');
-        $ResourceControllers->post("/resource/{id}", "islandora.resourcecontroller:post")
+        $controllers->post("/resource/{id}", "islandora.resourcecontroller:post")
+            ->convert('id', $app['islandora.idToUri'])
+            ->assert('id', $app['config']['islandora']['resourceIdRegex'])
             ->bind('islandora.resourcePost');
-        $ResourceControllers->put("/resource/{id}/{child}", "islandora.resourcecontroller:put")
+        $controllers->put("/resource/{id}/{child}", "islandora.resourcecontroller:put")
+            ->convert('id', $app['islandora.idToUri'])
+            ->assert('id', $app['config']['islandora']['resourceIdRegex'])
             ->value('child', "")
             ->bind('islandora.resourcePut');
-        $ResourceControllers->patch("/resource/{id}/{child}", "islandora.resourcecontroller:patch")
+        $controllers->patch("/resource/{id}/{child}", "islandora.resourcecontroller:patch")
+            ->convert('id', $app['islandora.idToUri'])
+            ->assert('id', $app['config']['islandora']['resourceIdRegex'])
             ->value('child', "")
             ->bind('islandora.resourcePatch');
-        $ResourceControllers->delete("/resource/{id}/{child}", "islandora.resourcecontroller:delete")
+        $controllers->delete("/resource/{id}/{child}", "islandora.resourcecontroller:delete")
+            ->convert('id', $app['islandora.idToUri'])
+            ->assert('id', $app['config']['islandora']['resourceIdRegex'])
             ->value('child', "")
             ->bind('islandora.resourceDelete');
-        return $ResourceControllers;
+        
+        # TransactionService routes.
+        $controllers->get("/transaction/{id}", "islandora.resourcecontroller:get")
+            ->value('id', "")
+            ->value('child', "")
+            ->before(
+                function (Request $request) {
+                    if (isset($request->attributes->parameters) && $request->attributes->parameters->has('id')) {
+                        // To get this to work we need to GET /islandora/resource//tx:id
+                        // So we move the $id to the $child parameter.
+                        $id = $request->attributes->parameters->get('id');
+                        $request->attributes->parameters->set('child', $id);
+                        $request->attributes->parameters->set('id', '');
+                    }
+                }
+            )
+        ->bind('islandora.transactionGet');
+
+        $controllers->post("/transaction", "islandora.transactioncontroller:create")
+            ->bind('islandora.transactionCreate');
+
+        $controllers->post("/transaction/{id}/extend", "islandora.transactioncontroller:extend")
+            ->value('id', "")
+            ->bind('islandora.transactionExtend');
+
+        $controllers->post("/transaction/{id}/commit", "islandora.transactioncontroller:commit")
+            ->value('id', "")
+            ->bind('islandora.transactionCommit');
+
+        $controllers->post("/transaction/{id}/rollback", "islandora.transactioncontroller:rollback")
+            ->value('id', "")
+            ->bind('islandora.transactionRollback');
+        
+        return $controllers;
     }
 }

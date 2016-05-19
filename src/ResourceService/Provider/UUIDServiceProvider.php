@@ -1,6 +1,6 @@
 <?php
 
-namespace Islandora\ResourceService\Provider;
+namespace Islandora\Crayfish\ResourceService\Provider;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;

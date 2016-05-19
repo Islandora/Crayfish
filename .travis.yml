@@ -14,9 +14,6 @@ before_install:
 
 script:
   - php vendor/bin/phpcs --standard=PSR2 src
-  - php vendor/bin/phpcs --standard=PSR2 TransactionService/src
-  - php vendor/bin/phpcs --standard=PSR2 ResourceService/src
-  - php vendor/bin/phpcs --standard=PSR2 TransactionService/src
 
 notifications:
   irc: "irc.freenode.org#islandora"
