@@ -173,39 +173,38 @@ class ResourceController
      * @var string $txId
      *     The transaction ID.
      */
-      private function storeUuid(Application $app, $id, $txId)
-      {
-          if (isset($app['islandora.keyCache'])) {
-              try {
-                  $transform = $id . '/fcr:transform/' . TransactionController::$uuidTransformKey;
-                  $response = $app['api']->getResource(
-                      $app->escape($transform),
-                      array('Accept' => 'application/json'),
-                      $txId
-                  );
-                  if ($response->getStatusCode() == 200) {
-                      $json_response = json_decode($response->getBody(), true);
-                      if (count($json_response) > 0) {
-                          foreach ($json_response as $entry) {
-                              $path = reset($entry['id']);
-                              $uuid = reset($entry['uuid']);
-                              if (isset($path) && $path !== false && isset($uuid) && $uuid !== false) {
-                                  $response = $app['islandora.keyCache']->set($txId, $uuid, $path);
-                                  if ($response === false) {
-                                      error_log("Got FALSE back from Redis");
-                                  }
-                              } else {
-                                  error_log("Can't store UUID and path in keyCache");
-                              }
-                          }
-                      }
-                  } else {
-                      error_log("Failed to get transform for $transform : " . $response->getStatusCode());
-                  }
-              } catch (\Exception $e) {
-                  $app->abort(503, "Error storing to keyCache: " . $e->getMessage());
-              }
-          }
-      }
-
+    private function storeUuid(Application $app, $id, $txId)
+    {
+        if (isset($app['islandora.keyCache'])) {
+            try {
+                $transform = $id . '/fcr:transform/' . TransactionController::$uuidTransformKey;
+                $response = $app['api']->getResource(
+                    $app->escape($transform),
+                    array('Accept' => 'application/json'),
+                    $txId
+                );
+                if ($response->getStatusCode() == 200) {
+                    $json_response = json_decode($response->getBody(), true);
+                    if (count($json_response) > 0) {
+                        foreach ($json_response as $entry) {
+                            $path = reset($entry['id']);
+                            $uuid = reset($entry['uuid']);
+                            if (isset($path) && $path !== false && isset($uuid) && $uuid !== false) {
+                                $response = $app['islandora.keyCache']->set($txId, $uuid, $path);
+                                if ($response === false) {
+                                    error_log("Got FALSE back from Redis");
+                                }
+                            } else {
+                                error_log("Can't store UUID and path in keyCache");
+                            }
+                        }
+                    }
+                } else {
+                    error_log("Failed to get transform for $transform : " . $response->getStatusCode());
+                }
+            } catch (\Exception $e) {
+                $app->abort(503, "Error storing to keyCache: " . $e->getMessage());
+            }
+        }
+    }
 }
