@@ -14,12 +14,14 @@ class CrayfishTest extends WebTestCase
     
     protected $triplestore;
     
-    protected static $today;
+    private static $today;
     
-    protected static $rootRdf;
+    private static $rootRdf;
     
-    protected static $rootHeaders = array(
-        'Server' => 'Apache-Coyote/1.1',
+    private static $serverHeader = 'Server: Jetty(9.2.3.v20140905)';
+    
+    private static $rootHeaders = array(
+        'Server' => 'update',
         'Link' => '<http://www.w3.org/ns/ldp#Resource>;rel="type"',
         'Link' => '<http://www.w3.org/ns/ldp#Container>;rel="type"',
         'Link' => '<http://www.w3.org/ns/ldp#BasicContainer>;rel="type"',
@@ -34,6 +36,7 @@ class CrayfishTest extends WebTestCase
     public function __construct()
     {
         CrayfishTest::setVar('rootRdf', file_get_contents(__DIR__ . '/rootRdf.txt'));
+        CrayfishTest::setVar('rootHeaders', CrayfishTest::$serverHeader, 'Server');
         CrayfishTest::setVar('rootHeaders', implode(',', array(
             'text/turtle',
             'text/rdf+n3',
@@ -118,7 +121,7 @@ class CrayfishTest extends WebTestCase
     public function testGetResource()
     {
         $headers = array(
-            'Server' => 'Apache-Coyote/1.1',
+            'Server' => CrayfishTest::$serverHeader,
             'ETag' => "4e98ff87ecceab2aa535f606fef7b7cde38ab8b9",
             'Content-Type' => 'text/plain',
             'Content-Length' => 46,
@@ -166,7 +169,7 @@ class CrayfishTest extends WebTestCase
     public function testPostResourceToRoot()
     {
         $headers = array(
-            'Server' => 'Apache-Coyote/1.1',
+            'Server' => CrayfishTest::$serverHeader,
             'ETag' => "ba88cf750cf2e170dc01830931a727427795747f",
             'Last-Modified' => 'Fri, 20 May 2016 15:42:01 GMT',
             'Location' => "http://localhost:8080/fcrepo/rest/28/c3/7c/25/28c37c25-8c48-46b8-a00c-5df9af261b8b",
@@ -192,7 +195,7 @@ class CrayfishTest extends WebTestCase
     public function testPostResource()
     {
         $headers = array(
-            'Server' => 'Apache-Coyote/1.1',
+            'Server' => CrayfishTest::$serverHeader,
             'ETag' => "ba88cf750cf2e170dc01830931a727427795747f",
             'Last-Modified' => 'Fri, 20 May 2016 15:42:01 GMT',
             'Location' => "http://localhost:8080/fcrepo/rest/28/c3/7c/25/28c37c25-8c48-46b8-a00c-5df9af261b8b",
@@ -236,7 +239,7 @@ class CrayfishTest extends WebTestCase
     public function testPutResource()
     {
         $headers = array(
-            'Server' => 'Apache-Coyote/1.1',
+            'Server' => CrayfishTest::$serverHeader,
             'ETag' => "04fd070cc35e916f359fa46f51008481e6596e91",
             'Last-Modified' => 'Fri, 20 May 2016 15:42:01 GMT',
             'Location' => 'http://localhost:8080/fcrepo/rest/new/test/object',
@@ -272,7 +275,7 @@ class CrayfishTest extends WebTestCase
         );
         
         $headers = array(
-            'Server' => 'Apache-Coyote/1.1',
+            'Server' => CrayfishTest::$serverHeader,
             'ETag' => "81798b3c24bce2eacbbe58e76d7bf590a97736f0",
             'Last-Modified' => 'Fri, 20 May 2016 15:42:01 GMT',
             'Date' => CrayfishTest::$today,
@@ -318,7 +321,7 @@ class CrayfishTest extends WebTestCase
     public function testDeleteResource()
     {
         $headers = array(
-            'Server' => 'Apache-Coyote/1.1',
+            'Server' => CrayfishTest::$serverHeader,
             'Date' => CrayfishTest::$today,
         );
 
