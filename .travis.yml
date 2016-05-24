@@ -13,7 +13,9 @@ before_install:
   - composer install
 
 script:
-  - php vendor/bin/phpcs --standard=PSR2 src
+  - cp config/example.settings.yml config/settings.dev.yml
+  - php vendor/bin/phpunit --group UnitTest
+  - php vendor/bin/phpcs --standard=PSR2 src test
 
 notifications:
   irc: "irc.freenode.org#islandora"
