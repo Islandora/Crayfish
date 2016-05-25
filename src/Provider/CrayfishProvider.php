@@ -56,6 +56,9 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
                     }
                 )
             );
+        } else {
+            # Add our templates to the existing twig instance.
+            $app['twig.loader']->addLoader(new \Twig_Loader_Filesystem(__DIR__ . '/../ResourceService/templates'));
         }
         if (!isset($app['api'])) {
             $app['api'] =  $app->share(
