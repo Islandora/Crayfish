@@ -56,6 +56,9 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
                     }
                 )
             );
+        } else {
+            # Add our templates to the existing twig instance.
+            $app['twig.loader']->addLoader(new \Twig_Loader_Filesystem(__DIR__ . '/../ResourceService/templates'));
         }
         if (!isset($app['api'])) {
             $app['api'] =  $app->share(
@@ -147,14 +150,7 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
                         return $triple->s->getUri();
                     }
                     // Abort the routes if we don't get a subject from the tripple.
-                    //$app->abort(404, sprintf('Failed getting resource Path for "%s" from triple store', $id));
-                    return Response::create(
-                        sprintf(
-                            'Failed getting resource Path for "%s" from triple store',
-                            $id
-                        ),
-                        404
-                    );
+                    $app->abort(404, sprintf('Failed getting resource Path for "%s" from triple store', $id));
                 } else {
                     // If $id is empty then assume we are dealing with fedora base rest endpoint
                     return $app['config']['islandora']['fedoraProtocol']
