@@ -16,6 +16,8 @@ class CrayfishTest extends WebTestCase
     
     private static $today;
     
+    private $today_dt;
+    
     private static $rootRdf;
     
     private static $serverHeader = 'Server: Jetty(9.2.3.v20140905)';
@@ -48,6 +50,7 @@ class CrayfishTest extends WebTestCase
         )), 'Accept-Post');
         $date = new \DateTime("now", new \DateTimeZone('UTC'));
         CrayfishTest::setVar('today', $date->format('r'));
+        $this->today_dt = $date;
 
         CrayfishTest::setVar('rootHeaders', strlen(CrayfishTest::$rootRdf), 'Content-Length');
         CrayfishTest::setVar('rootHeaders', CrayfishTest::$today, 'Date');
@@ -78,7 +81,17 @@ class CrayfishTest extends WebTestCase
         
         $this->api = $this->getMockBuilder('\Islandora\Chullo\FedoraApi')
         ->disableOriginalConstructor()
-        ->setMethods(array("getResource", "saveResource", "createResource", "modifyResource", "deleteResource"))
+        ->setMethods(array(
+            "getResource",
+            "saveResource",
+            "createResource",
+            "modifyResource",
+            "deleteResource",
+            "createTransaction",
+            "commitTransaction",
+            "extendTransaction",
+            "rollbackTransaction")
+        )
         ->getMock();
         
         $this->triplestore = $this->getMockBuilder('\Islandora\Chullo\TriplestoreClient')
@@ -104,7 +117,7 @@ class CrayfishTest extends WebTestCase
     {
         $getResponse = Response::create(CrayfishTest::$rootRdf, 200, CrayfishTest::$rootHeaders);
 
-        $this->api->expects($this->once())->method('getResource')->will($this->returnValue($getResponse));
+        $this->api->expects($this->once())->method('getResource')->willReturn($getResponse);
         // Symfony BrowserKit Client
         // @link http://api.symfony.com/2.3/Symfony/Component/BrowserKit/Client.html
         $client = $this->createClient();
@@ -132,7 +145,7 @@ class CrayfishTest extends WebTestCase
         
         $getResponse = Response::create($headers["Location"], 200, $headers);
 
-        $this->api->expects($this->once())->method('getResource')->will($this->returnValue($getResponse));
+        $this->api->expects($this->once())->method('getResource')->willReturn($getResponse);
 
         $query_result = '{
   "head" : {
@@ -150,7 +163,7 @@ class CrayfishTest extends WebTestCase
         
         $result = new \EasyRdf_Sparql_Result($query_result, 'application/sparql-results+json');
         
-        $this->triplestore->expects($this->once())->method('query')->will($this->returnValue($result));
+        $this->triplestore->expects($this->once())->method('query')->willReturn($result);
         $client = $this->createClient();
         $crawler = $client->request('GET', '/islandora/resource/f218d271-98ee-4a90-a06a-03420a96d5af');
         $this->assertEquals($client->getResponse()->getStatusCode(), 200, "Did not get resource");
@@ -180,7 +193,7 @@ class CrayfishTest extends WebTestCase
         
         $postResponse = Response::create($headers['Location'], 201, $headers);
         
-        $this->api->expects($this->once())->method('createResource')->will($this->returnValue($postResponse));
+        $this->api->expects($this->once())->method('createResource')->willReturn($postResponse);
        
         $client = $this->createClient();
         $crawler = $client->request("POST", "/islandora/resource");
@@ -206,7 +219,7 @@ class CrayfishTest extends WebTestCase
         
         $postResponse = Response::create($headers['Location'], 201, $headers);
         
-        $this->api->expects($this->once())->method('createResource')->will($this->returnValue($postResponse));
+        $this->api->expects($this->once())->method('createResource')->willReturn($postResponse);
         
         $query_result = '{
   "head" : {
@@ -224,7 +237,7 @@ class CrayfishTest extends WebTestCase
         
         $result = new \EasyRdf_Sparql_Result($query_result, 'application/sparql-results+json');
         
-        $this->triplestore->expects($this->once())->method('query')->will($this->returnValue($result));
+        $this->triplestore->expects($this->once())->method('query')->willReturn($result);
        
         $client = $this->createClient();
         $crawler = $client->request("POST", "/islandora/resource/f218d271-98ee-4a90-a06a-03420a96d5af");
@@ -250,7 +263,7 @@ class CrayfishTest extends WebTestCase
         
         $putResponse = Response::create($headers['Location'], 201, $headers);
         
-        $this->api->expects($this->once())->method('saveResource')->will($this->returnValue($putResponse));
+        $this->api->expects($this->once())->method('saveResource')->willReturn($putResponse);
         
         $client = $this->createClient();
         $crawler = $client->request('PUT', '/islandora/resource/');
@@ -283,7 +296,7 @@ class CrayfishTest extends WebTestCase
         
         $patchResponse = Response::create('', 204, $headers);
         
-        $this->api->expects($this->once())->method('modifyResource')->will($this->returnValue($patchResponse));
+        $this->api->expects($this->once())->method('modifyResource')->willReturn($patchResponse);
         
         $query_result = '{
   "head" : {
@@ -301,7 +314,7 @@ class CrayfishTest extends WebTestCase
         
         $result = new \EasyRdf_Sparql_Result($query_result, 'application/sparql-results+json');
         
-        $this->triplestore->expects($this->once())->method('query')->will($this->returnValue($result));
+        $this->triplestore->expects($this->once())->method('query')->willReturn($result);
         
         $client = $this->createClient();
         $crawler = $client->request(
@@ -327,10 +340,152 @@ class CrayfishTest extends WebTestCase
 
         $deleteResponse = Response::create('', 204, $headers);
         
-        $this->api->expects($this->once())->method('deleteResource')->will($this->returnValue($deleteResponse));
+        $this->api->expects($this->once())->method('deleteResource')->willReturn($deleteResponse);
         
         $client = $this->createClient();
         $crawler = $client->request('DELETE', '/islandora/resource/');
         $this->assertEquals($client->getResponse()->getStatusCode(), 204, "Did not delete resource");
+    }
+
+    /**
+     * @group UnitTest
+     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::get
+     */
+    public function testGetTransaction()
+    {
+        $txID1 = "tx:f218d271-98ee-4a90-a06a-03420a96d5af";
+        $location1 = "http://localhost:8080/fcrepo/rest/$txID1";
+        $headers = array(
+            'Server' => CrayfishTest::$serverHeader,
+            'Date' => CrayfishTest::$today,
+        );
+
+        $responseOK = Response::create('', 200, $headers);
+
+        $responseGone = Response::create('', 410, $headers);
+
+        $txID2 = "tx:f218d271-98ee-4a90-a06a-badTxID";
+        $location2 = "http://localhost:8080/fcrepo/rest/$txID2";
+        
+        $map = array(
+          array($location1, $responseOK),
+          array($txID2, $responseGone)
+        );
+        
+        $this->markTestSkipped('Need to fix mocking.');
+
+        $this->api->method('getResource')->will($this->returnValueMap($map));
+
+        $client = $this->createClient();
+        $crawler = $client->request('GET', "/islandora/transaction/${txID1}");
+        $this->assertEquals($client->getResponse()->getStatusCode(), 200, "Did not get transaction status. " . $client->getResponse()->getContent());
+
+        $crawler = $client->request('GET', "/islandora/transaction/${txID2}");
+        $this->assertEquals($client->getResponse()->getStatusCode(), 410, "This transaction should not exist.");
+
+    }
+
+
+    /**
+     * @group UnitTest
+     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::create
+     */
+    public function testCreateTransaction()
+    {
+        $txID = "tx:f218d271-98ee-4a90-a06a-03420a96d5af";
+        $location = "http://localhost:8080/fcrepo/rest/$txID";
+        $headers = array(
+            'Server' => CrayfishTest::$serverHeader,
+            'Location' => $location,
+            'Content-Type' => 'text/plain',
+            'Content-Length' => strlen($location),
+            'Expires' => $this->today_dt->add(new \DateInterval("P3M"))->format('r'),
+            'Date' => CrayfishTest::$today,
+        );
+
+        $response = Response::create($location, 201, $headers);
+        
+        $this->api->expects($this->once())->method("createTransaction")->willReturn($response);
+        
+        $client = $this->createClient();
+        $crawler = $client->request('POST', '/islandora/transaction');
+        $this->assertEquals($client->getResponse()->getStatusCode(), 201, "Did not create a transaction");
+        
+        $tempController = new \Islandora\Crayfish\TransactionService\Controller\TransactionController();
+        $this->assertEquals(
+            $tempController->getId($client->getResponse()),
+            $txID,
+            "Did not get expected transaction ID from response"
+        );
+    }
+
+    /**
+     * @group UnitTest
+     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::extend
+     */
+    public function testExtendTransaction()
+    {
+        $txID = "tx:f218d271-98ee-4a90-a06a-03420a96d5af";
+        $location = "http://localhost:8080/fcrepo/rest/$txID";
+        $headers = array(
+            'Server' => CrayfishTest::$serverHeader,
+            'Location' => $location,
+            'Expires' => $this->today_dt->add(new \DateInterval("P3M"))->format('r'),
+            'Date' => CrayfishTest::$today,
+        );
+
+        $response = Response::create('', 204, $headers);
+        
+        $this->api->expects($this->once())->method('extendTransaction')->willReturn($response);
+        
+        $client = $this->createClient();
+        $crawler = $client->request('POST', "/islandora/transaction/${txID}/extend");
+        $this->assertEquals($client->getResponse()->getStatusCode(), 204, "Did not extend transaction");
+        $expires = new \DateTime($client->getResponse()->headers->get('expires'));
+        $this->assertTrue($expires > new \DateTime(), "New transaction expiry is not in the future");
+
+    }
+
+    /**
+     * @group UnitTest
+     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::commit
+     */
+    public function testCommitTransaction()
+    {
+        $txID1 = "tx:f218d271-98ee-4a90-a06a-03420a96d5af";
+        $location1 = "http://localhost:8080/fcrepo/rest/$txID1";
+        $headers = array(
+            'Server' => CrayfishTest::$serverHeader,
+            'Location' => $location1,
+            'Date' => CrayfishTest::$today,
+        );
+
+        $responseOK = Response::create('', 204, $headers);
+
+        unset($headers['Location']);
+        $responseGone = Response::create('', 410, $headers);
+        
+        $txID2 = "tx:f218d271-98ee-4a90-a06a-badTxID";
+        
+        $map = array(
+          array($txID1, $responseOK),
+          array($txID2, $responseGone)
+        );
+        
+        $this->api->method('commitTransaction')->will($this->returnValueMap($map));
+        
+        $client = $this->createClient();
+        $crawler = $client->request('POST', "/islandora/transaction/${txID1}/commit");
+        $this->assertEquals($client->getResponse()->getStatusCode(), 204, "Did not commit transaction.");
+        
+        $crawler2 = $client->request('POST', "/islandora/transaction/${txID2}/commit");
+        $this->assertEquals($client->getResponse()->getStatusCode(), 410, "Transaction should be gone.");
+    }
+
+    public function testRollbackTransaction ()
+    {
+        $txID = "tx:8b188218-6f03-4e08-a1b5-bdacb0f66d5b";
+        $location = "http://localhost:8080/fcrepo/rest/$txID";
+        
     }
 }
