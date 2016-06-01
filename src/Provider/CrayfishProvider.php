@@ -8,6 +8,7 @@ use Silex\ControllerProviderInterface;
 use Islandora\Chullo\FedoraApi;
 use Islandora\Chullo\TriplestoreClient;
 use Islandora\Chullo\KeyCache\RedisKeyCache;
+use Islandora\Chullo\Uuid\UuidGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -41,7 +42,7 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
         # Register the TransactionService
         $app['islandora.transactioncontroller'] = $app->share(
             function () use ($app) {
-                return new TransactionController($app);
+                return new TransactionController($app, $app['islandora.keyCache']);
             }
         );
         
@@ -87,6 +88,15 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
                         '://'.$app['config']['islandora']['tripleHost'].
                         $app['config']['islandora']['triplePath']
                     );
+                }
+            );
+        }
+        # Register a UUID generator
+        if (!isset($app['UuidGenerator'])) {
+        //made shared, only need to make one instance of the base uuid
+            $app['UuidGenerator'] = $app->share(
+                function () use ($app) {
+                    return new UuidGenerator();
                 }
             );
         }
@@ -137,7 +147,7 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
          * Converts request $id (uuid) into a fedora4 resourcePath
          */
         $app['islandora.idToUri'] = $app->protect(
-            function ($id) use ($app) {
+            function ($id, Request $request) use ($app) {
                 // Run only if $id given /can also be refering root resource,
                 // we accept only UUID V4 or empty
                 if (null != $id) {

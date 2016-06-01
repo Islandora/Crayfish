@@ -8,7 +8,6 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Psr\Http\Message\ResponseInterface;
 use Silex\Provider\TwigServiceProvider;
 use Islandora\Crayfish\Provider\CrayfishProvider;
-use Islandora\Crayfish\ResourceService\Provider\UUIDServiceProvider;
 
 date_default_timezone_set('UTC');
 
@@ -28,7 +27,6 @@ $crayfishProvider = new CrayfishProvider();
 
 $app->register($crayfishProvider);
 $app->mount("/islandora", $crayfishProvider);
-$app->register(new UUIDServiceProvider());
 
 /**
  * Convert returned Guzzle responses to Symfony responses, type hinted.

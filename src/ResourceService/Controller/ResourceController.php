@@ -4,6 +4,7 @@ namespace Islandora\Crayfish\ResourceService\Controller;
 
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
+use Islandora\Crayfish\TransactionService\Controller\TransactionController;
 
 class ResourceController
 {

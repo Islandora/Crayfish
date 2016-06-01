@@ -151,7 +151,7 @@ class TransactionController
                     $loadTransform = true;
                 }
                 if ($loadTransform) {
-                    $ldpath_content = file_get_contents(__DIR__ . '/../../resources/islandora_uuid.txt');
+                    $ldpath_content = file_get_contents(__DIR__ . '/../resources/islandora_uuid.txt');
                     if ($ldpath_content !== false) {
                         $url = '/fedora:system/fedora:transform/fedora:ldpath/' .
                         TransactionController::$uuidTransformKey . '/fedora:Resource';
