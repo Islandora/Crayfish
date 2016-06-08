@@ -14,9 +14,8 @@ before_install:
 
 script:
   - cp config/example.settings.yml config/settings.dev.yml
-  - php vendor/bin/phpunit --group UnitTest
+  - php vendor/bin/phpunit --group UnitTest --coverage-clover=coverage.xml
   - php vendor/bin/phpcs --standard=PSR2 src test
-  - php vendor/bin/phpunit --coverage-clover=coverage.xml
 
 notifications:
   irc: "irc.freenode.org#islandora"
