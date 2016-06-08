@@ -98,7 +98,7 @@ class CrayfishTest extends WebTestCase
     
     /**
      * @group UnitTest
-     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceServiceController::get
+     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::get
      */
     public function testGetRootResource()
     {
@@ -116,7 +116,7 @@ class CrayfishTest extends WebTestCase
     
     /**
      * @group UnitTest
-     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceServiceController::get
+     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::get
      */
     public function testGetResource()
     {
@@ -164,7 +164,7 @@ class CrayfishTest extends WebTestCase
     
     /**
      * @group UnitTest
-     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceServiceController::post
+     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::post
      */
     public function testPostResourceToRoot()
     {
@@ -190,7 +190,7 @@ class CrayfishTest extends WebTestCase
     
     /**
      * @group UnitTest
-     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceServiceController::post
+     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::post
      */
     public function testPostResource()
     {
@@ -234,7 +234,7 @@ class CrayfishTest extends WebTestCase
     
     /**
      * @group UnitTest
-     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceServiceController::put
+     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::put
      */
     public function testPutResource()
     {
@@ -264,7 +264,7 @@ class CrayfishTest extends WebTestCase
 
     /**
      * @group UnitTest
-     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceServiceController::patch
+     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::patch
      */
     public function testPatchResource()
     {
@@ -316,7 +316,7 @@ class CrayfishTest extends WebTestCase
     
     /**
      * @group UnitTest
-     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceServiceController::delete
+     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::delete
      */
     public function testDeleteResource()
     {
