@@ -133,12 +133,7 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
                 // Run only if $id given /can also be refering root resource,
                 // we accept only UUID V4 or empty
                 if (null != $id) {
-                    $sparql_query = $app['twig']->render(
-                        'getResourceByUUIDfromTS.sparql',
-                        array(
-                            'uuid' => $id,
-                        )
-                    );
+                    $sparql_query = $app['twig']->render('getResourceByUUIDfromTS.sparql', array('uuid' => $id));
                     try {
                         $sparql_result = $app['triplestore']->query($sparql_query);
                     } catch (\Exception $e) {
@@ -162,12 +157,19 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
   
     }
 
+    /**
+     * Inherits from ServiceProviderInterface
+     *
+     * @codeCoverageIgnore
+     */
     public function boot(Application $app)
     {
     }
 
     /**
      * Part of ControllerProviderInterface
+     *
+     * @codeCoverageIgnore
      */
     public function connect(Application $app)
     {
@@ -212,15 +214,16 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
             ->value('child', "")
             ->before(
                 function (Request $request) {
-                    if (isset($request->attributes->parameters) && $request->attributes->parameters->has('id')) {
+                    if (isset($request->attributes) && $request->attributes->has('id')) {
                         // To get this to work we need to GET /islandora/resource//tx:id
                         // So we move the $id to the $child parameter.
-                        $id = $request->attributes->parameters->get('id');
-                        $request->attributes->parameters->set('child', $id);
-                        $request->attributes->parameters->set('id', '');
+                        $id = $request->attributes->get('id');
+                        $request->attributes->set('child', $id);
+                        $request->attributes->set('id', '');
                     }
                 }
             )
+            ->convert('id', $app['islandora.idToUri'])
         ->bind('islandora.transactionGet');
 
         $controllers->post("/transaction", "islandora.transactioncontroller:create")
