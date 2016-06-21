@@ -6,6 +6,8 @@ use Islandora\Chullo\FedoraApi;
 use Islandora\Chullo\TriplestoreClient;
 use Symfony\Component\HttpFoundation\Response;
 use Islandora\Crayfish\Test\CrayfishWebTestCase;
+use Islandora\Crayfish\TransactionService\Controller\TransactionController;
+use Islandora\Crayfish\KeyCache\UuidCache;
 
 class CreateTransactionTest extends CrayfishWebTestCase
 {
@@ -46,7 +48,9 @@ class CreateTransactionTest extends CrayfishWebTestCase
         $crawler = $client->request('POST', '/islandora/transaction');
         $this->assertEquals($client->getResponse()->getStatusCode(), 201, "Did not create a transaction");
         
-        $tempController = new \Islandora\Crayfish\TransactionService\Controller\TransactionController();
+        $application = $this->createApplication();
+        $cache = new UuidCache(new \Moust\Silex\Cache\ArrayCache());
+        $tempController = new TransactionController($application, $cache);
         $this->assertEquals(
             $tempController->getId($client->getResponse()),
             $txID,

@@ -12,6 +12,7 @@ class CommitTransactionTest extends CrayfishWebTestCase
     public function setUp()
     {
         parent::setUp();
+        $this->api->method('getResourceHeaders')->willReturn(Response::create("", 200));
     }
     
     public function createApplication()

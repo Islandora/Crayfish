@@ -86,6 +86,7 @@ class CrayfishWebTestCase extends WebTestCase
         ->setMethods(
             array(
             "getResource",
+            "getResourceHeaders",
             "saveResource",
             "createResource",
             "modifyResource",
