@@ -7,7 +7,6 @@ use Silex\ServiceProviderInterface;
 use Silex\ControllerProviderInterface;
 use Islandora\Chullo\FedoraApi;
 use Islandora\Chullo\TriplestoreClient;
-use Islandora\Chullo\KeyCache\RedisKeyCache;
 use Islandora\Chullo\Uuid\UuidGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +14,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Yaml\Yaml;
 use Islandora\Crayfish\ResourceService\Controller\ResourceController;
 use Islandora\Crayfish\TransactionService\Controller\TransactionController;
+use Islandora\Crayfish\KeyCache\UuidCache;
 
 class CrayfishProvider implements ServiceProviderInterface, ControllerProviderInterface
 {
@@ -46,11 +46,15 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
             }
         );
         
-        # Register the KeyCache if not done.
+        # If the Cache has not been defined we can't start.
         if (!isset($app['islandora.keyCache'])) {
-            $app['islandora.keyCache'] = $app->share($app->share(function () use ($app) {
-                return RedisKeyCache::create();
-            }));
+            if (!isset($app['cache']) || !is_a($app['cache'], 'Moust\Silex\Cache\AbstractCache') ||
+            is_a($app['cache'], 'Moust\Silex\Cache\ArrayCache')) {
+                $app->abort(500, "Cache has not been registered or is not an instance of Moust\Silex\Cache\AbstractCache, but not an ArrayCache.");
+            } elseif (isset($app['cache'])) {
+                // Setup our UuidCache.
+                $app['islandora.keyCache'] = new UuidCache($app['cache']);
+            }
         }
         
         if (!isset($app['twig'])) {

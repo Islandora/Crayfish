@@ -5,7 +5,7 @@ namespace Islandora\Crayfish\TransactionService\Controller;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Islandora\Chullo\KeyCache\IUuidCache;
+use Islandora\Crayfish\KeyCache\UuidCache;
 
 class TransactionController
 {
@@ -26,7 +26,7 @@ class TransactionController
      */
     public static $uuidTransformKey = 'isl_uuid';
 
-    public function __construct(Application $app, IUuidCache $keyCache)
+    public function __construct(Application $app, UuidCache $keyCache)
     {
         $this->keyCache = $keyCache;
         if (TransactionController::$transformsInstalled === false) {
