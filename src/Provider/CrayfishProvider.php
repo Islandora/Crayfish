@@ -50,7 +50,10 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
         if (!isset($app['islandora.keyCache'])) {
             if (!isset($app['cache']) || !is_a($app['cache'], 'Moust\Silex\Cache\AbstractCache') ||
             is_a($app['cache'], 'Moust\Silex\Cache\ArrayCache')) {
-                $app->abort(500, "Cache has not been registered or is not an instance of Moust\Silex\Cache\AbstractCache, but not an ArrayCache.");
+                $app->abort(
+                    500,
+                    "Cache is not registered, is not instance of AbstractCache, or is an ArrayCache."
+                );
             } elseif (isset($app['cache'])) {
                 // Setup our UuidCache.
                 $app['islandora.keyCache'] = new UuidCache($app['cache']);

@@ -21,9 +21,9 @@ class UuidCache
 {
 
     /**
-     * @var AbstractCache $_cache
+     * @var AbstractCache $cache
      */
-    private $_cache;
+    private $cache;
 
     /**
      * Construtor
@@ -33,7 +33,7 @@ class UuidCache
      */
     public function __construct(AbstractCache $cache)
     {
-       $this->_cache = $cache; 
+        $this->cache = $cache;
     }
 
     /**
@@ -52,14 +52,14 @@ class UuidCache
      */
     public function set($txID, $uuid, $path, $expire = 3600)
     {
-        $cache_content = $this->_cache->fetch($txID);
+        $cache_content = $this->cache->fetch($txID);
         if ($cache_content) {
             $cache_content = unserialize($cache_content);
             $cache_content[$uuid] = $path;
         } else {
             $cache_content = array($uuid => $path);
         }
-        return $this->_cache->store($txID, serialize($cache_content), $expire);
+        return $this->cache->store($txID, serialize($cache_content), $expire);
     }
 
     /**
@@ -74,7 +74,7 @@ class UuidCache
      */
     public function getByUuid($txID, $uuid)
     {
-        $cache_content = $this->_cache->fetch($txID);
+        $cache_content = $this->cache->fetch($txID);
         if ($cache_content) {
             $cache_content = unserialize($cache_content);
             if (isset($cache_content[$uuid])) {
@@ -96,7 +96,7 @@ class UuidCache
      */
     public function getByPath($txID, $path)
     {
-        $cache_content = $this->_cache->fetch($txID);
+        $cache_content = $this->cache->fetch($txID);
         if ($cache_content) {
             $cache_content = unserialize($cache_content);
             $cache_content_flip = array_flip($cache_content);
@@ -116,7 +116,7 @@ class UuidCache
      */
     public function delete($txID)
     {
-        $cache_content = $this->_cache->delete($txID);
+        $cache_content = $this->cache->delete($txID);
     }
 
     /**
@@ -131,11 +131,10 @@ class UuidCache
      */
     public function extend($txID, $seconds)
     {
-        $cache_content = $this->_cache->fetch($txID);
+        $cache_content = $this->cache->fetch($txID);
         if ($cache_content) {
-            return $this->_cache->store($txID, $cache_content, $seconds);
+            return $this->cache->store($txID, $cache_content, $seconds);
         }
         return false;
     }
-
 }
