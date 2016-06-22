@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c0889f895ac61c90a7956cd230c377c9",
-    "content-hash": "f9d6dafe42c034f02b4a098f2cccf088",
+    "hash": "85c846278d7467d3a45a2cda24d5c3e8",
+    "content-hash": "dcfaba024d821751ef723839f21139e4",
     "packages": [
         {
             "name": "easyrdf/easyrdf",
@@ -2395,12 +2395,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "00b22c705e694d4165728383673d7307112519a4"
+                "reference": "ed73bd3bc8228e9fd07d8b933ef97fdbacec9430"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/00b22c705e694d4165728383673d7307112519a4",
-                "reference": "00b22c705e694d4165728383673d7307112519a4",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/ed73bd3bc8228e9fd07d8b933ef97fdbacec9430",
+                "reference": "ed73bd3bc8228e9fd07d8b933ef97fdbacec9430",
                 "shasum": ""
             },
             "require": {
@@ -2465,7 +2465,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2016-06-14 22:46:27"
+            "time": "2016-06-22 06:05:02"
         },
         {
             "name": "symfony/browser-kit",

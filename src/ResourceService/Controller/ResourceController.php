@@ -57,7 +57,8 @@ class ResourceController
         }
         if (!empty($tx)) {
             // If we are in a transaction store the UUID -> path.
-            $returnID = reset($response->getHeader('Location'));
+            $headers = $response->getHeader('Location');
+            $returnID = is_array($headers) ? reset($headers) : $headers;
             if ($returnID !== false) {
                 $this->storeUuid($app, $returnID, $tx);
             }
