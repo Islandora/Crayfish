@@ -123,6 +123,4 @@ class GetUuidCacheTest extends CrayfishWebTestCase
         $response = $this->cache->getByPath($txId, $path2);
         $this->assertEquals($response, null, "Got a result when we shouldn't have");
     }
-
-
 }
