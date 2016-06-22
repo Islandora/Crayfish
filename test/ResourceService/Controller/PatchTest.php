@@ -70,4 +70,40 @@ class PatchTest extends CrayfishWebTestCase
         );
         $this->assertEquals($client->getResponse()->getStatusCode(), 204, "Did not patch resource");
     }
+
+    /**
+     * @group UnitTest
+     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::patch
+     * @expectedException \Symfony\Component\HttpKernel\Exception\HttpException
+     */
+    public function testPatchResourceException()
+    {
+        $headers = array(
+            'Server' => CrayfishWebTestCase::$serverHeader,
+            'Date' => CrayfishWebTestCase::$today,
+        );
+        $uuid = $this->uuid_gen->generateV4();
+
+        $query_result = '{
+  "head" : {
+    "vars" : [ "s" ]
+  },
+  "results" : {
+    "bindings" : [ {
+      "s" : {
+        "type" : "uri",
+        "value" : "http://localhost:8080/fcrepo/rest/object1"
+      }
+    } ]
+  }
+}';
+        
+        $result = new \EasyRdf_Sparql_Result($query_result, 'application/sparql-results+json');
+        $this->triplestore->expects($this->once())->method('query')->willReturn($result);
+        
+        $this->api->expects($this->any())->method('modifyResource')->will($this->throwException(new \Exception));
+
+        $client = $this->createClient();
+        $crawler = $client->request('PATCH', "/islandora/resource/" . $uuid);
+    }
 }

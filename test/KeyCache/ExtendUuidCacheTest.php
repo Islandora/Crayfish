@@ -7,20 +7,16 @@ use Islandora\Chullo\TriplestoreClient;
 use Symfony\Component\HttpFoundation\Response;
 use Islandora\Crayfish\CrayfishWebTestCase;
 use Moust\Silex\Cache\ArrayCache;
-use Islandora\Chullo\Uuid\UuidGenerator;
 
 class ExtendUuidCacheTest extends CrayfishWebTestCase
 {
 
     private $cache;
 
-    private $uuid_gen;
-
     public function setUp()
     {
         parent::setUp();
         $this->cache = new UuidCache(new ArrayCache());
-        $this->uuid_gen = new UuidGenerator();
     }
 
     public function createApplication()

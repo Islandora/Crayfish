@@ -3,12 +3,15 @@
 namespace Islandora\Crayfish;
 
 use Silex\WebTestCase;
+use Islandora\Chullo\Uuid\UuidGenerator;
 
 class CrayfishWebTestCase extends WebTestCase
 {
     protected $api;
     
     protected $triplestore;
+
+    protected $uuid_gen;
     
     protected static $today;
     
@@ -50,6 +53,7 @@ class CrayfishWebTestCase extends WebTestCase
 
         CrayfishWebTestCase::setVar('rootHeaders', strlen(CrayfishWebTestCase::$rootRdf), 'Content-Length');
         CrayfishWebTestCase::setVar('rootHeaders', CrayfishWebTestCase::$today, 'Date');
+        $this->uuid_gen = new UuidGenerator();
     }
     
     public function createApplication()

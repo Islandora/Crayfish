@@ -88,4 +88,21 @@ class PostTest extends CrayfishWebTestCase
         $this->assertEquals($client->getResponse()->getStatusCode(), 201, "Did not create new node");
         $this->assertEquals($client->getResponse()->getContent(), $headers['Location'], "Created URL does not match");
     }
+
+    /**
+     * @group UnitTest
+     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::post
+     * @expectedException \Symfony\Component\HttpKernel\Exception\HttpException
+     */
+    public function testPostResourceException()
+    {
+        $headers = array(
+            'Server' => CrayfishWebTestCase::$serverHeader,
+            'Date' => CrayfishWebTestCase::$today,
+        );
+        $this->api->expects($this->any())->method('createResource')->will($this->throwException(new \Exception));
+
+        $client = $this->createClient();
+        $crawler = $client->request('POST', "/islandora/resource/");
+    }
 }
