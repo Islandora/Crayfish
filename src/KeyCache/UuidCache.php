@@ -30,6 +30,8 @@ class UuidCache
      *
      * @var AbstractCache $cache
      *   The supplied cache type.
+     *
+     * @codeCoverageIgnore
      */
     public function __construct(AbstractCache $cache)
     {

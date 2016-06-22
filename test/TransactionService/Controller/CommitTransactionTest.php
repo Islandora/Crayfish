@@ -1,11 +1,11 @@
 <?php
 
-namespace Islandora\Crayfish\Test\TransactionService\Controller;
+namespace Islandora\Crayfish\TransactionService\Controller;
 
 use Islandora\Chullo\FedoraApi;
 use Islandora\Chullo\TriplestoreClient;
 use Symfony\Component\HttpFoundation\Response;
-use Islandora\Crayfish\Test\CrayfishWebTestCase;
+use Islandora\Crayfish\CrayfishWebTestCase;
 
 class CommitTransactionTest extends CrayfishWebTestCase
 {

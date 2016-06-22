@@ -1,6 +1,6 @@
 <?php
 
-namespace Islandora\Crayfish\Test;
+namespace Islandora\Crayfish;
 
 use Silex\WebTestCase;
 

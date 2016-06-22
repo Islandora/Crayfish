@@ -1,11 +1,11 @@
 <?php
     
-namespace Islandora\Crayfish\Test\ResourceService\Controller;
+namespace Islandora\Crayfish\ResourceService\Controller;
 
 use Islandora\Chullo\FedoraApi;
 use Islandora\Chullo\TriplestoreClient;
 use Symfony\Component\HttpFoundation\Response;
-use Islandora\Crayfish\Test\CrayfishWebTestCase;
+use Islandora\Crayfish\CrayfishWebTestCase;
 
 class PostTest extends CrayfishWebTestCase
 {
