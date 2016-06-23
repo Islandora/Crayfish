@@ -79,7 +79,6 @@ class CommitTransactionTest extends CrayfishWebTestCase
      * @group UnitTest
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::commit
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
-     * @expectedException \Symfony\Component\HttpKernel\Exception\HttpException
      */
     public function testCommitTransactionException()
     {
@@ -100,5 +99,6 @@ class CommitTransactionTest extends CrayfishWebTestCase
 
         $client = $this->createClient();
         $crawler = $client->request('POST', "/islandora/transaction/{$txID}/commit");
+        $this->assertEquals($client->getResponse()->getStatusCode(), 503, "Should have aborted route.");
     }
 }

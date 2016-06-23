@@ -74,7 +74,6 @@ class PatchTest extends CrayfishWebTestCase
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::patch
-     * @expectedException \Symfony\Component\HttpKernel\Exception\HttpException
      */
     public function testPatchResourceException()
     {
@@ -105,5 +104,6 @@ class PatchTest extends CrayfishWebTestCase
 
         $client = $this->createClient();
         $crawler = $client->request('PATCH', "/islandora/resource/" . $uuid);
+        $this->assertEquals($client->getResponse()->getStatusCode(), 503, "Should have aborted route.");
     }
 }

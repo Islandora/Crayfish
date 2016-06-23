@@ -78,7 +78,6 @@ class RollbackTransactionTest extends CrayfishWebTestCase
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::rollback
-     * @expectedException \Symfony\Component\HttpKernel\Exception\HttpException
      */
     public function testRollbackTransactionException()
     {
@@ -99,5 +98,6 @@ class RollbackTransactionTest extends CrayfishWebTestCase
 
         $client = $this->createClient();
         $crawler = $client->request('POST', "/islandora/transaction/{$txID}/rollback");
+        $this->assertEquals($client->getResponse()->getStatusCode(), 503, "Should have aborted route.");
     }
 }

@@ -52,7 +52,6 @@ class PutTest extends CrayfishWebTestCase
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::put
-     * @expectedException \Symfony\Component\HttpKernel\Exception\HttpException
      */
     public function testPutResourceException()
     {
@@ -83,5 +82,6 @@ class PutTest extends CrayfishWebTestCase
 
         $client = $this->createClient();
         $crawler = $client->request('PUT', "/islandora/resource/" . $uuid . "/object2");
+        $this->assertEquals($client->getResponse()->getStatusCode(), 503, "Should have aborted route.");
     }
 }

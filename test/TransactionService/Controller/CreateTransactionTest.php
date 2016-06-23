@@ -135,7 +135,6 @@ class CreateTransactionTest extends CrayfishWebTestCase
      * @group UnitTest
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::create
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
-     * @expectedException \Symfony\Component\HttpKernel\Exception\HttpException
      */
     public function testCreateTransactionException()
     {
@@ -155,6 +154,9 @@ class CreateTransactionTest extends CrayfishWebTestCase
         $this->api->expects($this->once())->method('createTransaction')->will($this->throwException(new \Exception));
 
         $client = $this->createClient();
+
         $crawler = $client->request('POST', "/islandora/transaction");
+        
+        $this->assertEquals($client->getResponse()->getStatusCode(), 503, "Should have aborted route.");
     }
 }

@@ -92,7 +92,6 @@ class PostTest extends CrayfishWebTestCase
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::post
-     * @expectedException \Symfony\Component\HttpKernel\Exception\HttpException
      */
     public function testPostResourceException()
     {
@@ -104,5 +103,6 @@ class PostTest extends CrayfishWebTestCase
 
         $client = $this->createClient();
         $crawler = $client->request('POST', "/islandora/resource/");
+        $this->assertEquals($client->getResponse()->getStatusCode(), 503, "Should have aborted route.");
     }
 }

@@ -144,7 +144,6 @@ class DeleteTest extends CrayfishWebTestCase
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::delete
-     * @expectedException \Symfony\Component\HttpKernel\Exception\HttpException
      */
     public function testDeleteResourceException()
     {
@@ -186,12 +185,12 @@ class DeleteTest extends CrayfishWebTestCase
 
         $client = $this->createClient();
         $crawler = $client->request('DELETE', "/islandora/resource/" . $uuid);
+        $this->assertEquals($client->getResponse()->getStatusCode(), 503, "Should have aborted route.");
     }
 
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::delete
-     * @expectedException \Symfony\Component\HttpKernel\Exception\HttpException
      */
     public function testDeleteSparqlException()
     {
@@ -221,12 +220,12 @@ class DeleteTest extends CrayfishWebTestCase
         
         $client = $this->createClient();
         $crawler = $client->request('DELETE', "/islandora/resource/" . $uuid);
+        $this->assertEquals($client->getResponse()->getStatusCode(), 503, "Should have aborted route.");
     }
 
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::delete
-     * @expectedException \Symfony\Component\HttpKernel\Exception\HttpException
      */
     public function testDeleteFailureCode()
     {
