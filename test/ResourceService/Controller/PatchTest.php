@@ -1,11 +1,11 @@
 <?php
     
-namespace Islandora\Crayfish\Test\ResourceService\Controller;
+namespace Islandora\Crayfish\ResourceService\Controller;
 
 use Islandora\Chullo\FedoraApi;
 use Islandora\Chullo\TriplestoreClient;
 use Symfony\Component\HttpFoundation\Response;
-use Islandora\Crayfish\Test\CrayfishWebTestCase;
+use Islandora\Crayfish\CrayfishWebTestCase;
 
 class PatchTest extends CrayfishWebTestCase
 {
@@ -69,5 +69,41 @@ class PatchTest extends CrayfishWebTestCase
             $patch_headers
         );
         $this->assertEquals($client->getResponse()->getStatusCode(), 204, "Did not patch resource");
+    }
+
+    /**
+     * @group UnitTest
+     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::patch
+     */
+    public function testPatchResourceException()
+    {
+        $headers = array(
+            'Server' => CrayfishWebTestCase::$serverHeader,
+            'Date' => CrayfishWebTestCase::$today,
+        );
+        $uuid = $this->uuid_gen->generateV4();
+
+        $query_result = '{
+  "head" : {
+    "vars" : [ "s" ]
+  },
+  "results" : {
+    "bindings" : [ {
+      "s" : {
+        "type" : "uri",
+        "value" : "http://localhost:8080/fcrepo/rest/object1"
+      }
+    } ]
+  }
+}';
+        
+        $result = new \EasyRdf_Sparql_Result($query_result, 'application/sparql-results+json');
+        $this->triplestore->expects($this->once())->method('query')->willReturn($result);
+        
+        $this->api->expects($this->any())->method('modifyResource')->will($this->throwException(new \Exception));
+
+        $client = $this->createClient();
+        $crawler = $client->request('PATCH', "/islandora/resource/" . $uuid);
+        $this->assertEquals($client->getResponse()->getStatusCode(), 503, "Should have aborted route.");
     }
 }

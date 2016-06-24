@@ -1,6 +1,4 @@
 vendor
-CollectionService/config/settings.dev.yml
-ResourceService/config/settings.dev.yml
-TransactionService/config/settings.dev.yml
 config/settings.dev.yml
+config/settings.yml
 coverage.xml

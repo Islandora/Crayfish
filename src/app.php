@@ -8,7 +8,6 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Psr\Http\Message\ResponseInterface;
 use Silex\Provider\TwigServiceProvider;
 use Islandora\Crayfish\Provider\CrayfishProvider;
-use Islandora\Crayfish\ResourceService\Provider\UUIDServiceProvider;
 
 date_default_timezone_set('UTC');
 
@@ -23,12 +22,20 @@ $app->register(new \Silex\Provider\TwigServiceProvider(), array(
     __DIR__ . '/ResourceService/templates',
   ),
 ));
+// Cache for TransactionService
+$app->register(new \Moust\Silex\Provider\CacheServiceProvider(), array(
+    'caches.options' => array(
+        'filesystem' => array(
+            'driver' => 'file',
+            'cache_dir' => '/tmp',
+        ),
+    ),
+));
 
 $crayfishProvider = new CrayfishProvider();
 
 $app->register($crayfishProvider);
 $app->mount("/islandora", $crayfishProvider);
-$app->register(new UUIDServiceProvider());
 
 /**
  * Convert returned Guzzle responses to Symfony responses, type hinted.

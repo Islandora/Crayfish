@@ -4,6 +4,7 @@ namespace Islandora\Crayfish\ResourceService\Controller;
 
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
+use Islandora\Crayfish\TransactionService\Controller\TransactionController;
 
 class ResourceController
 {
@@ -54,6 +55,14 @@ class ResourceController
                 '"Chullo says Fedora4 Repository is Not available"'
             );
         }
+        if (!empty($tx)) {
+            // If we are in a transaction store the UUID -> path.
+            $headers = $response->getHeader('Location');
+            $returnID = is_array($headers) ? reset($headers) : $headers;
+            if ($returnID !== false) {
+                $this->storeUuid($app, $returnID, $tx);
+            }
+        }
         return $response;
     }
 
@@ -79,8 +88,14 @@ class ResourceController
         } catch (\Exception $e) {
             $app->abort(503, '"Chullo says Fedora4 Repository is Not available"');
         }
+        if (!empty($tx)) {
+            // If we are in a transaction store the UUID -> path.
+            $this->storeUuid($app, $id . '/' . $child, $tx);
+        }
         return $response;
     }
+
+
     public function patch(Application $app, Request $request, $id, $child)
     {
         $tx = $request->query->get('tx', "");
@@ -148,5 +163,50 @@ class ResourceController
         // Return the last response since, in theory, if we've come this far we've removed everything.
         // If we don't get this far its because we never got a 204/410 or Fedora is down.
         return $response;
+    }
+
+    /**
+     * Store the UUID -> Fedora Path for this transaction.
+     *
+     * @var Application $app
+     *     The silex application.
+     * @var string $id
+     *     The Fedora Path of the new object.
+     * @var string $txId
+     *     The transaction ID.
+     */
+    private function storeUuid(Application $app, $id, $txId)
+    {
+        if (isset($app['islandora.keyCache'])) {
+            try {
+                $transform = $id . '/fcr:transform/' . TransactionController::$uuidTransformKey;
+                $response = $app['api']->getResource(
+                    $app->escape($transform),
+                    array('Accept' => 'application/json'),
+                    $txId
+                );
+                if ($response->getStatusCode() == 200) {
+                    $json_response = json_decode($response->getBody(), true);
+                    if (count($json_response) > 0) {
+                        foreach ($json_response as $entry) {
+                            $path = reset($entry['id']);
+                            $uuid = reset($entry['uuid']);
+                            if (isset($path) && $path !== false && isset($uuid) && $uuid !== false) {
+                                $response = $app['islandora.keyCache']->set($txId, $uuid, $path);
+                                if ($response === false) {
+                                    error_log("Got FALSE back from Redis");
+                                }
+                            } else {
+                                error_log("Can't store UUID and path in keyCache");
+                            }
+                        }
+                    }
+                } else {
+                    error_log("Failed to get transform for $transform : " . $response->getStatusCode());
+                }
+            } catch (\Exception $e) {
+                $app->abort(503, "Error storing to keyCache: " . $e->getMessage());
+            }
+        }
     }
 }

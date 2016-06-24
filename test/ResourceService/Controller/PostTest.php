@@ -1,11 +1,11 @@
 <?php
     
-namespace Islandora\Crayfish\Test\ResourceService\Controller;
+namespace Islandora\Crayfish\ResourceService\Controller;
 
 use Islandora\Chullo\FedoraApi;
 use Islandora\Chullo\TriplestoreClient;
 use Symfony\Component\HttpFoundation\Response;
-use Islandora\Crayfish\Test\CrayfishWebTestCase;
+use Islandora\Crayfish\CrayfishWebTestCase;
 
 class PostTest extends CrayfishWebTestCase
 {
@@ -87,5 +87,22 @@ class PostTest extends CrayfishWebTestCase
         $crawler = $client->request("POST", "/islandora/resource/f218d271-98ee-4a90-a06a-03420a96d5af");
         $this->assertEquals($client->getResponse()->getStatusCode(), 201, "Did not create new node");
         $this->assertEquals($client->getResponse()->getContent(), $headers['Location'], "Created URL does not match");
+    }
+
+    /**
+     * @group UnitTest
+     * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::post
+     */
+    public function testPostResourceException()
+    {
+        $headers = array(
+            'Server' => CrayfishWebTestCase::$serverHeader,
+            'Date' => CrayfishWebTestCase::$today,
+        );
+        $this->api->expects($this->any())->method('createResource')->will($this->throwException(new \Exception));
+
+        $client = $this->createClient();
+        $crawler = $client->request('POST', "/islandora/resource/");
+        $this->assertEquals($client->getResponse()->getStatusCode(), 503, "Should have aborted route.");
     }
 }

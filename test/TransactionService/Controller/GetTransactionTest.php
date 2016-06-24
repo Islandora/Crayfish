@@ -1,11 +1,11 @@
 <?php
 
-namespace Islandora\Crayfish\Test\TransactionService\Controller;
+namespace Islandora\Crayfish\TransactionService\Controller;
 
 use Islandora\Chullo\FedoraApi;
 use Islandora\Chullo\TriplestoreClient;
 use Symfony\Component\HttpFoundation\Response;
-use Islandora\Crayfish\Test\CrayfishWebTestCase;
+use Islandora\Crayfish\CrayfishWebTestCase;
 
 class GetTransactionTest extends CrayfishWebTestCase
 {
@@ -22,11 +22,12 @@ class GetTransactionTest extends CrayfishWebTestCase
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::get
+     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
      * @covers \Islandora\Crayfish\Provider\CrayfishProvider::register
      */
     public function testGetTransactionOk()
     {
-        $txID1 = "tx:f218d271-98ee-4a90-a06a-03420a96d5af";
+        $txID1 = "tx:" . $this->uuid_gen->generateV4();
         $location1 = "http://localhost:8080/fcrepo/rest/$txID1";
         $headers = array(
             'Server' => CrayfishWebTestCase::$serverHeader,
@@ -49,10 +50,11 @@ class GetTransactionTest extends CrayfishWebTestCase
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::get
+     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
      */
     public function testGetTransactionGone()
     {
-        $txID2 = "tx:f218d271-98ee-4a90-a06a-badTxID";
+        $txID2 = "tx:" . $this->uuid_gen->generateV4();
         $location2 = "http://localhost:8080/fcrepo/rest/$txID2";
         $headers = array(
             'Server' => CrayfishWebTestCase::$serverHeader,
@@ -60,11 +62,9 @@ class GetTransactionTest extends CrayfishWebTestCase
         );
         $responseGone = Response::create('', 410, $headers);
         
-        $client = $this->createClient();
-        $crawler = $client->request('GET', "/islandora/transaction/${txID2}");
-        
         $this->api->expects($this->once())->method('getResource')->willReturn($responseGone);
 
+        $client = $this->createClient();
         $crawler = $client->request('GET', "/islandora/transaction/${txID2}");
         $this->assertEquals($client->getResponse()->getStatusCode(), 410, "This transaction should not exist.");
         

@@ -7,12 +7,14 @@ use Silex\ServiceProviderInterface;
 use Silex\ControllerProviderInterface;
 use Islandora\Chullo\FedoraApi;
 use Islandora\Chullo\TriplestoreClient;
+use Islandora\Chullo\Uuid\UuidGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Yaml\Yaml;
 use Islandora\Crayfish\ResourceService\Controller\ResourceController;
 use Islandora\Crayfish\TransactionService\Controller\TransactionController;
+use Islandora\Crayfish\KeyCache\UuidCache;
 
 class CrayfishProvider implements ServiceProviderInterface, ControllerProviderInterface
 {
@@ -40,9 +42,23 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
         # Register the TransactionService
         $app['islandora.transactioncontroller'] = $app->share(
             function () use ($app) {
-                return new TransactionController($app);
+                return new TransactionController($app, $app['islandora.keyCache']);
             }
         );
+        
+        # If the Cache has not been defined we can't start.
+        if (!isset($app['islandora.keyCache'])) {
+            if (!isset($app['cache']) || !is_a($app['cache'], 'Moust\Silex\Cache\AbstractCache') ||
+            is_a($app['cache'], 'Moust\Silex\Cache\ArrayCache')) {
+                $app->abort(
+                    500,
+                    "Cache is not registered, is not instance of AbstractCache, or is an ArrayCache."
+                );
+            } elseif (isset($app['cache'])) {
+                // Setup our UuidCache.
+                $app['islandora.keyCache'] = new UuidCache($app['cache']);
+            }
+        }
         
         if (!isset($app['twig'])) {
             $app['twig'] = $app->share(
@@ -79,6 +95,15 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
                         '://'.$app['config']['islandora']['tripleHost'].
                         $app['config']['islandora']['triplePath']
                     );
+                }
+            );
+        }
+        # Register a UUID generator
+        if (!isset($app['UuidGenerator'])) {
+        //made shared, only need to make one instance of the base uuid
+            $app['UuidGenerator'] = $app->share(
+                function () use ($app) {
+                    return new UuidGenerator();
                 }
             );
         }
@@ -129,7 +154,7 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
          * Converts request $id (uuid) into a fedora4 resourcePath
          */
         $app['islandora.idToUri'] = $app->protect(
-            function ($id) use ($app) {
+            function ($id, Request $request) use ($app) {
                 // Run only if $id given /can also be refering root resource,
                 // we accept only UUID V4 or empty
                 if (null != $id) {
@@ -143,6 +168,16 @@ class CrayfishProvider implements ServiceProviderInterface, ControllerProviderIn
                     // Will have to check for edge cases?
                     foreach ($sparql_result as $triple) {
                         return $triple->s->getUri();
+                    }
+                    // If we didn't find the path in the triplestore
+                    // and we have a transaction id, we should check in
+                    // the UuidKeyCache.
+                    $tx = $request->query->get('tx', "");
+                    if (isset($tx) && !empty($tx)) {
+                        $path = $app['islandora.keyCache']->getByUuid($tx, $id);
+                        if (!is_null($path)) {
+                            return $path;
+                        }
                     }
                     // Abort the routes if we don't get a subject from the tripple.
                     $app->abort(404, sprintf('Failed getting resource Path for "%s" from triple store', $id));
