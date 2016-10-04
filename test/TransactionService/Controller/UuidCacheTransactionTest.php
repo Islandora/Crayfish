@@ -36,7 +36,36 @@ class UuidCacheTransactionTest extends CrayfishWebTestCase
             'Location' => $location1,
         );
 
-        $uuid_json = '[{"id":["' . $location1 .'"],"uuid":["' . $uuid1 .'"]}]';
+        $uuid_json = '[ {
+      "@id" : "' . $location1 .'",
+  "@type" : [ "http://fedora.info/definitions/v4/repository#Container",
+    "http://fedora.info/definitions/v4/repository#Resource",
+    "http://www.w3.org/ns/ldp#RDFSource",
+    "http://www.w3.org/ns/ldp#Container" ],
+  "http://fedora.info/definitions/v4/repository#created" : [ {
+        "@type" : "http://www.w3.org/2001/XMLSchema#dateTime",
+    "@value" : "2016-10-04T17:57:53.508Z"
+  } ],
+  "http://fedora.info/definitions/v4/repository#createdBy" : [ {
+        "@value" : "fedoraAdmin"
+  } ],
+  "http://fedora.info/definitions/v4/repository#hasParent" : [ {
+        "@id" : "http://localhost:8080/fcrepo/rest/"
+  } ],
+  "http://fedora.info/definitions/v4/repository#lastModified" : [ {
+        "@type" : "http://www.w3.org/2001/XMLSchema#dateTime",
+    "@value" : "2016-10-04T17:57:53.508Z"
+  } ],
+  "http://fedora.info/definitions/v4/repository#lastModifiedBy" : [ {
+        "@value" : "fedoraAdmin"
+  } ],
+  "http://fedora.info/definitions/v4/repository#writable" : [ {
+        "@type" : "http://www.w3.org/2001/XMLSchema#boolean",
+    "@value" : "true"
+  } ],
+  "' . TransactionController::$uuidPredicate . '" : [ {
+    "@value" : "' . $uuid1 . '"
+} ]';
 
         $responseOK = new Response(201, $headers, $location1);
         
@@ -73,7 +102,36 @@ class UuidCacheTransactionTest extends CrayfishWebTestCase
             'Location' => $location,
         );
 
-        $uuid_json = '[{"id":["' . $location .'"],"uuid":["' . $uuid .'"]}]';
+        $uuid_json = '[ {
+      "@id" : "' . $location .'",
+  "@type" : [ "http://fedora.info/definitions/v4/repository#Container",
+    "http://fedora.info/definitions/v4/repository#Resource",
+    "http://www.w3.org/ns/ldp#RDFSource",
+    "http://www.w3.org/ns/ldp#Container" ],
+  "http://fedora.info/definitions/v4/repository#created" : [ {
+        "@type" : "http://www.w3.org/2001/XMLSchema#dateTime",
+    "@value" : "2016-10-04T17:57:53.508Z"
+  } ],
+  "http://fedora.info/definitions/v4/repository#createdBy" : [ {
+        "@value" : "fedoraAdmin"
+  } ],
+  "http://fedora.info/definitions/v4/repository#hasParent" : [ {
+        "@id" : "http://localhost:8080/fcrepo/rest/"
+  } ],
+  "http://fedora.info/definitions/v4/repository#lastModified" : [ {
+        "@type" : "http://www.w3.org/2001/XMLSchema#dateTime",
+    "@value" : "2016-10-04T17:57:53.508Z"
+  } ],
+  "http://fedora.info/definitions/v4/repository#lastModifiedBy" : [ {
+        "@value" : "fedoraAdmin"
+  } ],
+  "http://fedora.info/definitions/v4/repository#writable" : [ {
+        "@type" : "http://www.w3.org/2001/XMLSchema#boolean",
+    "@value" : "true"
+  } ],
+  "' . TransactionController::$uuidPredicate . '" : [ {
+    "@value" : "' . $uuid . '"
+} ]';
 
         $responseOK = new Response(201, $headers, $location);
 
