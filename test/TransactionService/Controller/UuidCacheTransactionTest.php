@@ -24,7 +24,6 @@ class UuidCacheTransactionTest extends CrayfishWebTestCase
      * @group UnitTest
      * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::post
      * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::storeUuid
-     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
      */
     public function testPostInsideTransactionOk()
     {
@@ -62,7 +61,6 @@ class UuidCacheTransactionTest extends CrayfishWebTestCase
      * @group UnitTest
      * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::put
      * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::storeUuid
-     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
      */
     public function testPutInsideTransactionOk()
     {

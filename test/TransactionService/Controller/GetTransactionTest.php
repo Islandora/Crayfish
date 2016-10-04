@@ -22,7 +22,6 @@ class GetTransactionTest extends CrayfishWebTestCase
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::get
-     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
      * @covers \Islandora\Crayfish\Provider\CrayfishProvider::register
      */
     public function testGetTransactionOk()
@@ -50,7 +49,6 @@ class GetTransactionTest extends CrayfishWebTestCase
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\ResourceService\Controller\ResourceController::get
-     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
      */
     public function testGetTransactionGone()
     {
