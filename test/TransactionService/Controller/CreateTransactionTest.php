@@ -28,7 +28,6 @@ class CreateTransactionTest extends CrayfishWebTestCase
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::create
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::getId
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::parseTransactionId
-     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
      */
     public function testCreateTransaction()
     {
@@ -70,7 +69,6 @@ class CreateTransactionTest extends CrayfishWebTestCase
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::getId
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::parseTransactionId
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::__construct
-     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
      */
     public function testParseTransactionIdGuzzle()
     {
@@ -102,7 +100,6 @@ class CreateTransactionTest extends CrayfishWebTestCase
      * @group UnitTest
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::getId
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::parseTransactionId
-     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
      */
     public function testParseTransactionIdUnknown()
     {
@@ -134,7 +131,6 @@ class CreateTransactionTest extends CrayfishWebTestCase
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::create
-     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
      */
     public function testCreateTransactionException()
     {

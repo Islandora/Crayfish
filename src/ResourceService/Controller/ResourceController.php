@@ -175,18 +175,17 @@ class ResourceController
     {
         if (isset($app['islandora.keyCache'])) {
             try {
-                $transform = $id . '/fcr:transform/' . TransactionController::$uuidTransformKey;
                 $response = $app['api']->getResource(
-                    $app->escape($transform),
-                    array('Accept' => 'application/json'),
+                    $app->escape($id),
+                    array('Accept' => 'application/ld+json'),
                     $txId
                 );
                 if ($response->getStatusCode() == 200) {
                     $json_response = json_decode($response->getBody(), true);
                     if (count($json_response) > 0) {
                         foreach ($json_response as $entry) {
-                            $path = reset($entry['id']);
-                            $uuid = reset($entry['uuid']);
+                            $path = $entry['@id'];
+                            $uuid = reset($entry[TransactionController::$uuidPredicate])['@value'];
                             if (isset($path) && $path !== false && isset($uuid) && $uuid !== false) {
                                 $response = $app['islandora.keyCache']->set($txId, $uuid, $path);
                                 if ($response === false) {

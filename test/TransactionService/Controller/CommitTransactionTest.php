@@ -22,7 +22,6 @@ class CommitTransactionTest extends CrayfishWebTestCase
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::commit
-     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
      */
     public function testCommitTransactionOk()
     {
@@ -50,7 +49,6 @@ class CommitTransactionTest extends CrayfishWebTestCase
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::commit
-     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
      */
     public function testCommitTransactionGone()
     {
@@ -78,7 +76,6 @@ class CommitTransactionTest extends CrayfishWebTestCase
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::commit
-     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
      */
     public function testCommitTransactionException()
     {

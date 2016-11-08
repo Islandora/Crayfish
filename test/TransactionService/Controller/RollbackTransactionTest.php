@@ -22,7 +22,6 @@ class RollbackTransactionTest extends CrayfishWebTestCase
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::rollback
-     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
      */
     public function testRollbackTransactionOk()
     {
@@ -49,7 +48,6 @@ class RollbackTransactionTest extends CrayfishWebTestCase
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::rollback
-     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
      */
     public function testRollbackTransactionGone()
     {

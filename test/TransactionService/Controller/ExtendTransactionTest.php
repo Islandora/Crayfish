@@ -22,7 +22,6 @@ class ExtendTransactionTest extends CrayfishWebTestCase
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::extend
-     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
      */
     public function testExtendTransaction()
     {
@@ -52,7 +51,6 @@ class ExtendTransactionTest extends CrayfishWebTestCase
     /**
      * @group UnitTest
      * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::extend
-     * @covers \Islandora\Crayfish\TransactionService\Controller\TransactionController::installUuidTransform
      */
     public function testExtendTransactionException()
     {
