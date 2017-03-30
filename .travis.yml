@@ -1,24 +1,37 @@
+sudo: true
 language: php
 php:
-    - 5.5
-    - 5.6
-    - 7.0
-    - hhvm
+  - 5.6
+  - 7.0
+  - 7.1
 
 matrix:
-    allow_failures:
-        - php: hhvm
+    fast_finish: true
+
+branches:
+  only:
+    - /master/
 
 before_install:
-  - composer install
+  - export SCRIPT_DIR=$TRAVIS_BUILD_DIR/.scripts
+
+install:
+  - $SCRIPT_DIR/travis_setup.sh
+  - cd Hypercube; composer install
 
 script:
-  - cp config/example.settings.yml config/settings.dev.yml
-  - php vendor/bin/phpunit --group UnitTest 
-  - php vendor/bin/phpcs --standard=PSR2 src test
+  - $SCRIPT_DIR/line_endings.sh $TRAVIS_BUILD_DIR
+  - cd $TRAVIS_BUILD_DIR/Hypercube; vendor/bin/phpcs --standard=PSR2 src tests
+  - cd $TRAVIS_BUILD_DIR/Hypercube; vendor/bin/phpcpd --names *.php src
+  - cd $TRAVIS_BUILD_DIR/Hypercube; vendor/bin/phpunit --verbose
 
 notifications:
-  irc: "irc.freenode.org#islandora"
+  irc:
+    channels:
+      - "irc.freenode.org#islandora"
+    on_success: change
+    on_failure: always
+    skip_join: true
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

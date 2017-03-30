@@ -1,111 +1,39 @@
 # ![Crayfish](https://cloud.githubusercontent.com/assets/2371345/15409657/2dfb463a-1dec-11e6-9089-06df94ef3f37.png) Crayfish
 
-[![Latest Stable Version](https://img.shields.io/packagist/v/Islandora/crayfish.svg?style=flat-square)](https://packagist.org/packages/islandora/crayfish)
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.5-8892BF.svg?style=flat-square)](https://php.net/)
-[![Downloads](https://img.shields.io/packagist/dt/islandora/crayfish.svg?style=flat-square)](https://packagist.org/packages/islandora/crayfish)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg?style=flat-square)](https://php.net/)
 [![Build Status](https://travis-ci.org/Islandora-CLAW/Crayfish.svg?branch=master)](https://travis-ci.org/Islandora-CLAW/Crayfish)
 [![Contribution Guidelines](http://img.shields.io/badge/CONTRIBUTING-Guidelines-blue.svg)](./CONTRIBUTING.md)
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
 [![codecov](https://codecov.io/gh/Islandora-CLAW/Crayfish/branch/master/graph/badge.svg)](https://codecov.io/gh/Islandora-CLAW/Crayfish)
 
-This is a top level container for the various Islandora CLAW microservices, lovingly known as Crayfish. It allows you to mount the various endpoints at one port on one machine and makes a development vagrant/docker configuration easier to produce.
-
-PCDM specific services are available with [PDX](https://github.com/Islandora-CLAW/PDX).
+A collection of Islandora CLAW microservices, lovingly known as Crayfish.  Some of the microservices are built specifically for use with a Fedora Repository and API-X, while others are just for general use within CLAW.
 
 ## Requirements
 
-* PHP 5.5+
+The minimum requirements for any microservice are
+
+* PHP 5.6+
 * [Composer](https://getcomposer.org/)
-* [Chullo](https://github.com/Islandora-CLAW/chullo)
-* [Fedora 4](https://github.com/fcrepo4/fcrepo4)
-* A triplestore (i.e. [BlazeGraph](https://www.blazegraph.com/download/), [Fuseki](https://jena.apache.org/documentation/fuseki2/), etc)
 
-## Installation
-
-You will need to copy the configuration file [_example.settings.yml_](config/example.settings.yml) to either **settings.yml** or **settings.dev.yml** (if $app['debug'] = TRUE) and change any required settings.
-
-You can run just this service using PHP by executing 
-
-```
-php -S localhost:<some port> -t src/ src/index.php
-```
-from this directory to start it running.
+Many microservices have extra installation requirements.  Please see the README of each microservice for additional details.
 
 ## Services
 
-This mounts all the various individual microservices under the `/islandora` URL, so you currently have access to 
+Crayfish contains the following services
 
-* ResourceService at `/islandora/resource`
-* TransactionService at `/islandora/transaction`
+* [Hypercube](./Hypercube)
 
 See the individual services for more information on their endpoints.
 
-### ResourceService
+## Development
 
-This an Islandora PHP Microservice to perform some middleware functions such as
+If you would like to contribute, please get involved by attending our weekly 
+[Tech Call][5]. We love to hear from you!
 
-1. UUID -> Fedora4 path translation
-2. UUID validation
-3. Host header normalization
-
-and pass the request to Chullo.
-
-#### Services
-
-The ResourceService provides the following endpoints for HTTP requests. 
-
-**Note**: The UUID is of the form `18c67794-366c-a6d9-af13-b3464a1fb9b5`
-
-1. GET from `/resource/{uuid}/{child}`
-
-    for getting the Fedora Resource from either {uuid} (if {child} is left off), or {child} if both are provided.
-    
-
-1. POST to `/resource`
-
-    for creating a new Resource at the root level
-
-2. POST to `/resource/{uuid}`
-
-    for creating a new Resource as a child of resource {uuid}
-
-3. PUT to `/resource/{uuid}/{child}`
-
-    for creating a new Resource with a predefined name {child} under the parent {uuid}, to PUT at root leave the {uuid} blank (ie. //).
-
-1. PATCH to `/resource/{uuid}/{child}`
-
-    for patching a resource at either {uuid} (if {child} is left off), or {child} if both are provided.
-    
-2. DELETE to `/resource/{uuid}/{child}`
-
-    for deleting a resource at either {uuid} (if {child} is left off), or {child} if both are provided.
-
-### TransactionService
-
-This an Islandora PHP Microservice to create/extend/commit or rollback Fedora 4 transactions
-
-#### Services
-
-The TransactionService provides the following endpoints for HTTP requests. 
-
-**Note**: The transaction ID (or txID) is of the form `tx:83e34464-144e-43d9-af13-b3464a1fb9b5`
-
-1. POST to `/transaction`
-
-    for creating a new transaction. It returns the transaction ID in the Location: header. It can be retrieved by passing the Response to the `getId()` function.
-    
-2. POST to `/transaction/{txID}/extend`
-
-    for extending a transaction. Normally a transaction will expire once it has sat for approximately 3 minutes without any interactions. This allows you to extend the transaction without performing any other interaction.
-    
-3. POST to `/transaction/{txID}/commit`
-
-    to commit the transaction.
-    
-4. POST to `/transaction/{txID}/rollback`
-
-    to rollback a transaction
+If you would like to contribute code to the project, you need to be covered by 
+an Islandora Foundation [Contributor License Agreement][6] or 
+[Corporate Contributor License Agreement][7]. Please see the 
+[Contributors][8] pages on Islandora.ca for more information.
 
 ## Sponsors
 
@@ -130,3 +58,8 @@ The TransactionService provides the following endpoints for HTTP requests.
 ## License
 
 [MIT](https://opensource.org/licenses/MIT)
+
+[5]: https://github.com/Islandora-CLAW/CLAW/wiki
+[6]: http://islandora.ca/sites/default/files/islandora_cla.pdf
+[7]: http://islandora.ca/sites/default/files/islandora_ccla.pdf
+[8]: http://islandora.ca/resources/contributors
