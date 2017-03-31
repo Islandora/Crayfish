@@ -1,0 +1,33 @@
+{
+    "name": "islandora/crayfish",
+    "description": "Collection of Islandora CLAW microservices, lovingly known as Crayfish.",
+    "type": "project",
+    "homepage": "http://islandora.ca/CLAW",
+    "support": {
+        "issues": "https://github.com/islandora-claw/CLAW/issues",
+        "irc": "irc://irc.freenode.net/islandora"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Islandora Foundation",
+            "email": "community@islandora.ca",
+            "role": "Owner"
+        },
+        {
+            "name": "Jared Whiklo",
+            "email": "jwhiklo@gmail.com",
+            "role": "Maintainer"
+        },
+        {
+            "name": "Nick Ruest",
+            "email": "ruestn@gmail.com",
+            "role": "Maintainer"
+        },
+        {
+            "name": "Diego Pino",
+            "email": "dpino@krayon.cl",
+            "role": "Maintainer"
+        }
+    ]
+}

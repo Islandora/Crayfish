@@ -17,13 +17,13 @@ before_install:
 
 install:
   - $SCRIPT_DIR/travis_setup.sh
-  - cd Hypercube; composer install
+  - for D in */; do (cd $D; composer install) done
 
 script:
   - $SCRIPT_DIR/line_endings.sh $TRAVIS_BUILD_DIR
-  - cd $TRAVIS_BUILD_DIR/Hypercube; vendor/bin/phpcs --standard=PSR2 src tests
-  - cd $TRAVIS_BUILD_DIR/Hypercube; vendor/bin/phpcpd --names *.php src
-  - cd $TRAVIS_BUILD_DIR/Hypercube; vendor/bin/phpunit --verbose
+  - for D in */; do (cd $D; vendor/bin/phpcs --standard=PSR2 src tests) done
+  - for D in */; do (cd $D; vendor/bin/phpcpd --names *.php src) done
+  - for D in */; do (cd $D; vendor/bin/phpunit --verbose) done
 
 notifications:
   irc:
