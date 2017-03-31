@@ -17,13 +17,13 @@ before_install:
 
 install:
   - $SCRIPT_DIR/travis_setup.sh
-  - for D in $TRAVIS_BUILD_DIR/; do (cd D; composer install) done
+  - for D in $TRAVIS_BUILD_DIR/; do (cd $D; composer install) done
 
 script:
   - $SCRIPT_DIR/line_endings.sh $TRAVIS_BUILD_DIR
-  - for D in $TRAVIS_BUILD_DIR/; do (cd D; vendor/bin/phpcs --standard=PSR2 src tests) done
-  - for D in $TRAVIS_BUILD_DIR/; do (cd D; vendor/bin/phpcpd --names *.php src) done
-  - for D in $TRAVIS_BUILD_DIR/; do (cd D; vendor/bin/phpunit --verbose) done
+  - for D in $TRAVIS_BUILD_DIR/; do (cd $D; vendor/bin/phpcs --standard=PSR2 src tests) done
+  - for D in $TRAVIS_BUILD_DIR/; do (cd $D; vendor/bin/phpcpd --names *.php src) done
+  - for D in $TRAVIS_BUILD_DIR/; do (cd $D; vendor/bin/phpunit --verbose) done
 
 notifications:
   irc:
