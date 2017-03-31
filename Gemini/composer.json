@@ -1,6 +1,6 @@
 {
     "name": "islandora/gemini",
-    "description": "ID Mapping Service between Fedora and Drupalf or Islandora",
+    "description": "Path mapping Service between Fedora and Drupal",
     "require": {
         "silex/silex": "^2.0",
         "doctrine/dbal": "~2.2"
@@ -18,8 +18,14 @@
     "license": "MIT",
     "authors": [
         {
+            "name": "Islandora Foundation",
+            "email": "community@islandora.ca",
+            "role": "Owner"
+        },
+        {
             "name": "Daniel Lamb",
-            "email": "dlamb@islandora.ca"
+            "email": "dlamb@islandora.ca",
+            "role": "Maintainer"
         }
     ]
 }
