@@ -1,4 +1,4 @@
-# Gemini 
+# ![image](https://cloud.githubusercontent.com/assets/2371345/24554336/902613ac-1603-11e7-9c4f-1c79204388e7.png) Gemini 
 [![Contribution Guidelines][2]](./CONTRIBUTING.md)
 [![LICENSE][3]](./LICENSE)
 
