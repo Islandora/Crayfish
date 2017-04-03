@@ -2,6 +2,8 @@
 
 namespace Islandora\Hypercube\Controller;
 
+use GuzzleHttp\Psr7\StreamWrapper;
+use Psr\Http\Message\ResponseInterface;
 use Islandora\Hypercube\Service\HypercubeServiceInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,25 +31,22 @@ class HypercubeController
     }
 
     /**
+     * @param \Psr\Http\Message\ResponseInterface $fedora_resource
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\StreamedResponse
      */
-    public function post(Request $request)
+    public function get(ResponseInterface $fedora_resource, Request $request)
     {
-        // Filter out non-TIFFs, returning 400
-        $content_type = $request->headers->get("Content-Type");
-        if (strcmp($content_type, "image/tiff") != 0) {
-            return new Response("Hypercube only works on tiffs", 400);
-        }
-
-        // Filter out empty requests, returning 400
-        $size = intval($request->headers->get('Content-Length'));
-        if ($size == 0) {
-            return new Response("No TIFF image provided in request.", 400);
+        $status = $fedora_resource->getStatusCode();
+        if ($status != 200) {
+            return new Response(
+                $fedora_resource->getReasonPhrase(),
+                $status
+            );
         }
 
         // Get tiff as a resource.
-        $body = $request->getContent(true);
+        $body = StreamWrapper::getResource($fedora_resource->getBody());
 
         // Arguments to OCR command are sent as a custom header
         $args = $request->headers->get('X-Islandora-Args');
