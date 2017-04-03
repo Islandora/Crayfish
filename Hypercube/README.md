@@ -18,22 +18,24 @@
 
 ## Configuration
 
-If your tesseract installation is on your PATH, no configuration of the application is required.  If it is not, then you can configure Hypercube to use a specific executable by editing `executable` entry in [cfg.php](./cfg/cfg.php).
+If your tesseract installation is not on your path, then you can configure Hypercube to use a specific executable by editing `executable` entry in [cfg.php](./cfg/cfg.php).
+
+You also will need to set the `fedora base url` entry to point to your Fedora installation.
 
 In order to work on larger images, be sure `post_max_size` is sufficiently large and `max_execution_time` is set to 0 in your PHP installation's ini file.  You can determine which ini file is getting used by running the command `$ php --ini`.
 
 ## Usage
 
-Hypercube only accepts one request, a `POST` containing a TIFF image.
+Hypercube only accepts one request, a `GET` containing the path a TIFF in Fedora.
 
-For example, if running the PHP built-in server command described in the Installation section:
+For example, suppose if you have a TIFF in Fedora at `http://localhost:8080/fcrepo/rest/foo/bar`.  If running the PHP built-in server command described in the Installation section:
 ```
-$ curl -X POST -H "Content-Type: image/tiff" --data-binary @ocr-sample.tiff "localhost:8888/"
+$ curl -H "Authorization: Bearer blabhlahblah" "localhost:8888/foo/bar"
 ```
 
-Additional arguments to `tesseract` can be provided using the `X-Islandora-Args` header.  For example, to change the page layout:
+This will return the OCR generated from the TIFF in Fedora.  Additional arguments to `tesseract` can be provided using the `X-Islandora-Args` header.  For example, to change the page layout:
 ```
-$ curl -X POST -H "Content-Type: image/tiff" -H "X-Islandora-Args: -psm 9" --data-binary @ocr-sample.tiff "localhost:8888/"
+$ curl -H "Authorization: Bearer blabhlahblah" -H "X-Islandora-Args: -psm 9" "localhost:8888/foo/bar"
 ```
 
 ## Maintainers
