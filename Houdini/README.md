@@ -1,4 +1,4 @@
-# Houdini
+# ![Houdini](https://cloud.githubusercontent.com/assets/2371345/24676060/e247a284-1957-11e7-95a3-f4c419b3ef20.png) Houdini
 
 ## Introduction
 
