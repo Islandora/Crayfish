@@ -19,9 +19,9 @@ $app['hypercube.controller'] = function () use ($config) {
     );
 };
 $app['fedora_resource.converter'] = function () use ($config) {
-   return new FedoraResourceConverter(
-       FedoraApi::create($config['fedora base url'])
-   );
+    return new FedoraResourceConverter(
+        FedoraApi::create($config['fedora base url'])
+    );
 };
 
 $app->get('/{fedora_resource}', "hypercube.controller:get")
