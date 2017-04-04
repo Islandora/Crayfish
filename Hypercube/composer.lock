@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "e4e3dbf7b34640b847c16bd39a3cf293",
-    "content-hash": "0e03263e27a015453906dab0f5a51fe9",
+    "hash": "bef60a162c9f9c416d78f1a33f80cf76",
+    "content-hash": "16600eb30d182b42430862e68b1fbd54",
     "packages": [
         {
             "name": "easyrdf/easyrdf",
@@ -307,11 +307,16 @@
         {
             "name": "islandora/crayfish-commons",
             "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Islandora-CLAW/Crayfish-Commons.git",
+                "reference": "47e90a22b2381afc02efd032995b6708d8d3baa8"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../Crayfish-Commons/",
-                "reference": "e40796e700c05bf25439aafa5c066a5fda5308e5",
-                "shasum": null
+                "type": "zip",
+                "url": "https://api.github.com/repos/Islandora-CLAW/Crayfish-Commons/zipball/47e90a22b2381afc02efd032995b6708d8d3baa8",
+                "reference": "47e90a22b2381afc02efd032995b6708d8d3baa8",
+                "shasum": ""
             },
             "require": {
                 "islandora/chullo": "^0.0.8",
@@ -328,16 +333,24 @@
                     "Islandora\\Crayfish\\Commons\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
             "authors": [
                 {
                     "name": "Islandora Foundation",
-                    "email": "community@islandora.ca"
+                    "email": "community@islandora.ca",
+                    "role": "Owner"
+                },
+                {
+                    "name": "Daniel Lamb",
+                    "email": "dlamb@islandora.ca",
+                    "role": "Maintainer"
                 }
             ],
-            "description": "Shared code amongst Islandora Crayfish microservices"
+            "description": "Shared code amongst Islandora Crayfish microservices",
+            "time": "2017-04-03 19:14:58"
         },
         {
             "name": "ml/iri",
@@ -1737,16 +1750,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "5.7.18",
+            "version": "5.7.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "c6884c0d4b8a7277de7ae3c9e597aff138c6365f"
+                "reference": "69c4f49ff376af2692bad9cebd883d17ebaa98a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/c6884c0d4b8a7277de7ae3c9e597aff138c6365f",
-                "reference": "c6884c0d4b8a7277de7ae3c9e597aff138c6365f",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/69c4f49ff376af2692bad9cebd883d17ebaa98a1",
+                "reference": "69c4f49ff376af2692bad9cebd883d17ebaa98a1",
                 "shasum": ""
             },
             "require": {
@@ -1815,7 +1828,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-04-02 15:44:48"
+            "time": "2017-04-03 02:22:27"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
