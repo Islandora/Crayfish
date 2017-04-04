@@ -13,10 +13,11 @@ branches:
     - /master/
 
 before_install:
-  - export SCRIPT_DIR=$TRAVIS_BUILD_DIR/.scripts
+  - export SCRIPT_DIR=$HOME/CLAW/.scripts
 
 install:
-  - $SCRIPT_DIR/travis_setup.sh
+  - git clone https://github.com/Islandora-CLAW/CLAW.git $HOME/CLAW
+  - $SCRIPT_DIR/travis_setup_php.sh
   - for D in */; do (cd $D; composer install) done
 
 script:
