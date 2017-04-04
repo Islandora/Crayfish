@@ -2,8 +2,8 @@
 
 namespace Islandora\Hypercube\Tests;
 
+use Islandora\Crayfish\Commons\CmdExecuteService;
 use Islandora\Hypercube\Controller\HypercubeController;
-use Islandora\Hypercube\Service\TesseractService;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -13,18 +13,18 @@ class HypercubeControllerTest extends \PHPUnit_Framework_TestCase
 {
     public function testReturnsFedoraError()
     {
-      // Mock a TesseractService to create a controller.
-        $prophecy = $this->prophesize(TesseractService::class);
+        // Mock a TesseractService to create a controller.
+        $prophecy = $this->prophesize(CmdExecuteService::class);
         $mock_service = $prophecy->reveal();
-        $controller = new HypercubeController($mock_service);
+        $controller = new HypercubeController($mock_service, '');
 
-      // Mock a Fedora response.
+        // Mock a Fedora response.
         $prophecy = $this->prophesize(ResponseInterface::class);
         $prophecy->getStatusCode()->willReturn(401);
         $prophecy->getReasonPhrase()->willReturn("Unauthorized");
         $mock_fedora_response = $prophecy->reveal();
 
-      // Create a Request.
+        // Create a Request.
         $request = Request::create(
             "/foo",
             "GET"
@@ -44,10 +44,10 @@ class HypercubeControllerTest extends \PHPUnit_Framework_TestCase
     public function testTesseractErrorReturns500()
     {
         // Mock a TesseractService to create a controller.
-        $prophecy = $this->prophesize(TesseractService::class);
+        $prophecy = $this->prophesize(CmdExecuteService::class);
         $prophecy->execute(Argument::any(), Argument::any())->willThrow(new \RuntimeException("ERROR", 500));
         $mock_service = $prophecy->reveal();
-        $controller = new HypercubeController($mock_service);
+        $controller = new HypercubeController($mock_service, '');
 
         // Mock a stream body for a Fedora response.
         $prophecy = $this->prophesize(StreamInterface::class);
@@ -75,9 +75,9 @@ class HypercubeControllerTest extends \PHPUnit_Framework_TestCase
     public function testTesseractSuccessReturns200()
     {
         // Mock a TesseractService to create a controller.
-        $prophecy = $this->prophesize(TesseractService::class);
+        $prophecy = $this->prophesize(CmdExecuteService::class);
         $mock_service = $prophecy->reveal();
-        $controller = new HypercubeController($mock_service);
+        $controller = new HypercubeController($mock_service, '');
 
         $request = Request::create(
             "/foo",
