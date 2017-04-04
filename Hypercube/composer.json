@@ -3,7 +3,9 @@
     "description": "Tesseract as a web service",
     "type": "project",
     "require": {
-        "silex/silex": "^2.0"
+        "silex/silex": "^2.0",
+        "islandora/chullo": "^0.0.8",
+        "islandora/crayfish-commons": "dev-master"
     },
     "license": "MIT",
     "authors": [

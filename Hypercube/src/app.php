@@ -2,6 +2,8 @@
 
 require_once __DIR__.'/../vendor/autoload.php';
 
+use Islandora\Chullo\FedoraApi;
+use Islandora\Crayfish\Commons\FedoraResourceConverter;
 use Islandora\Hypercube\Service\TesseractService;
 use Islandora\Hypercube\Controller\HypercubeController;
 use Silex\Application;
@@ -16,7 +18,14 @@ $app['hypercube.controller'] = function () use ($config) {
         new TesseractService($config['executable'])
     );
 };
+$app['fedora_resource.converter'] = function () use ($config) {
+    return new FedoraResourceConverter(
+        FedoraApi::create($config['fedora base url'])
+    );
+};
 
-$app->post('/', "hypercube.controller:post");
+$app->get('/{fedora_resource}', "hypercube.controller:get")
+    ->assert('fedora_resource', '.+')
+    ->convert('fedora_resource', 'fedora_resource.converter:convert');
 
 return $app;

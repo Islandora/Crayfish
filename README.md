@@ -21,7 +21,8 @@ Many microservices have extra installation requirements.  Please see the README 
 
 Crayfish contains the following services
 
-* [Hypercube](./Hypercube)
+* [Hypercube](./Hypercube): Tesseract as a microservice
+* [Gemini](./Gemini): A path mapping micro service to align resources in Drupal and Fedora.
 
 See the individual services for more information on their endpoints.
 
