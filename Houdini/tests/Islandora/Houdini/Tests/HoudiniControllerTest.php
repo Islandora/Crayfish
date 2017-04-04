@@ -64,7 +64,7 @@ class HoudiniControllerTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testTesseractErrorReturns500()
+    public function testErrorReturns500()
     {
         // Mock a CmdExecuteService to create a controller.
         $prophecy = $this->prophesize(CmdExecuteService::class);
@@ -107,7 +107,7 @@ class HoudiniControllerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($response->getContent() == "ERROR", "Response must return exception's message");
     }
 
-    public function testTesseractSuccessReturns200()
+    public function testSuccessReturns200()
     {
         // Mock a CmdExecuteService to create a controller.
         $prophecy = $this->prophesize(CmdExecuteService::class);

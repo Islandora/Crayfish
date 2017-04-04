@@ -12,7 +12,7 @@
 - `$ cd /path/to/Houdini` and run `$ composer install`
 - Then either
   - For production, configure your web server appropriately (e.g. add a VirtualHost for Houdini in Apache) OR
-  - For development, run the PHP built-in webserver `$ php -S localhost:8888 -t src` from Hypercube root.
+  - For development, run the PHP built-in webserver `$ php -S localhost:8888 -t src` from Houdini root.
 
 ## Configuration
 

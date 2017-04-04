@@ -42,7 +42,7 @@ class HoudiniController
     protected $log;
 
     /**
-     * HypercubeController constructor.
+     * Controller constructor.
      * @param \Islandora\Crayfish\Commons\CmdExecuteService $cmd
      * @param array $formats
      * @param string $default_format
