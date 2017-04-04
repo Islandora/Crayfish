@@ -2,3 +2,4 @@ vendor
 config/settings.dev.yml
 config/settings.yml
 coverage.xml
+.idea

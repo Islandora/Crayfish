@@ -23,6 +23,7 @@ Crayfish contains the following services
 
 * [Hypercube](./Hypercube): Tesseract as a microservice
 * [Gemini](./Gemini): A path mapping micro service to align resources in Drupal and Fedora.
+* [Houdini](./Houdini): Imagemagick as a microservice
 
 See the individual services for more information on their endpoints.
 
