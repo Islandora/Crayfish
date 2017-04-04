@@ -3,8 +3,8 @@
 namespace Islandora\Hypercube\Controller;
 
 use GuzzleHttp\Psr7\StreamWrapper;
+use Islandora\Crayfish\Commons\CmdExecuteService;
 use Psr\Http\Message\ResponseInterface;
-use Islandora\Hypercube\Service\HypercubeServiceInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -17,17 +17,21 @@ class HypercubeController
 {
 
     /**
-     * @var \Islandora\Hypercube\Service\HypercubeServiceInterface
+     * @var \Islandora\Crayfish\Commons\CmdExecuteService
      */
-    protected $ocr;
+    protected $cmd;
+
+    protected $executable;
 
     /**
      * HypercubeController constructor.
-     * @param \Islandora\Hypercube\Service\HypercubeServiceInterface $ocr
+     * @param \Islandora\Crayfish\Commons\CmdExecuteService $cmd
+     * @param string $executable
      */
-    public function __construct(HypercubeServiceInterface $ocr)
+    public function __construct(CmdExecuteService $cmd, $executable)
     {
-        $this->ocr = $ocr;
+        $this->cmd = $cmd;
+        $this->executable = $executable;
     }
 
     /**
@@ -51,10 +55,12 @@ class HypercubeController
         // Arguments to OCR command are sent as a custom header
         $args = $request->headers->get('X-Islandora-Args');
 
+        $cmd_string = $this->executable . ' stdin stdout ' . $args;
+
         // Return response.
         try {
             return new StreamedResponse(
-                $this->ocr->execute($args, $body),
+                $this->cmd->execute($cmd_string, $body),
                 200,
                 array('Content-Type' => 'text/plain')
             );
