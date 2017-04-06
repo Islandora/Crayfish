@@ -1,0 +1,36 @@
+{
+    "name": "islandora/houdini",
+    "description": "Imagemagick as a web service",
+    "type": "project",
+    "require": {
+        "silex/silex": "^2.0",
+        "islandora/chullo": "^0.0.8",
+        "islandora/crayfish-commons": "dev-master",
+        "monolog/monolog": "^1.22"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Islandora Foundation",
+            "email": "community@islandora.ca",
+            "role": "Owner"
+        },
+        {
+            "name": "Jonathan Green",
+            "email": "jonathan.green@lyrasis.org",
+            "role": "Maintainer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Islandora\\Houdini\\": "src/"
+        }
+    },
+    "require-dev": {
+        "symfony/browser-kit": "^3.0",
+        "symfony/css-selector": "^3.0",
+        "phpunit/phpunit": "^5.0",
+        "squizlabs/php_codesniffer": "^2.0",
+        "sebastian/phpcpd": "^3.0"
+    }
+}
