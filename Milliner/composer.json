@@ -4,8 +4,10 @@
     "type": "project",
     "require": {
         "silex/silex": "^2.0",
-        "islandora/chullo": "^0.0.8",
-        "monolog/monolog": "^1.22"
+        "islandora/chullo": "@dev",
+        "islandora/crayfish-commons": "@dev",
+        "monolog/monolog": "^1.22",
+        "doctrine/dbal": "~2.2"
     },
     "license": "MIT",
     "authors": [
@@ -25,6 +27,16 @@
             "Islandora\\Milliner\\": "src/"
         }
     },
+    "repositories": [
+        {
+            "type":"path",
+            "url":"/home/daniel/Code/PHP/chullo"
+        },
+        {
+            "type":"path",
+            "url":"/home/daniel/Code/PHP/Crayfish-Commons"
+        }
+    ],
     "require-dev": {
         "symfony/browser-kit": "^3.0",
         "symfony/css-selector": "^3.0",

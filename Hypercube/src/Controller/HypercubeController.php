@@ -5,6 +5,7 @@ namespace Islandora\Hypercube\Controller;
 use GuzzleHttp\Psr7\StreamWrapper;
 use Islandora\Crayfish\Commons\CmdExecuteService;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -21,17 +22,27 @@ class HypercubeController
      */
     protected $cmd;
 
+    /**
+     * @var string
+     */
     protected $executable;
+
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    protected $log;
 
     /**
      * HypercubeController constructor.
      * @param \Islandora\Crayfish\Commons\CmdExecuteService $cmd
      * @param string $executable
+     * @param \Psr\Log\LoggerInterface $log
      */
-    public function __construct(CmdExecuteService $cmd, $executable)
+    public function __construct(CmdExecuteService $cmd, $executable, LoggerInterface $log)
     {
         $this->cmd = $cmd;
         $this->executable = $executable;
+        $this->log = $log;
     }
 
     /**
@@ -43,6 +54,11 @@ class HypercubeController
     {
         $status = $fedora_resource->getStatusCode();
         if ($status != 200) {
+            $this->log->debug("Fedora Resource: ", [
+              'body' => $fedora_resource->getBody(),
+              'status' => $status,
+              'headers' => $fedora_resource->getHeaders()
+            ]);
             return new Response(
                 $fedora_resource->getReasonPhrase(),
                 $status
@@ -54,8 +70,10 @@ class HypercubeController
 
         // Arguments to OCR command are sent as a custom header
         $args = $request->headers->get('X-Islandora-Args');
+        $this->log->debug("X-Islandora-Args:", ['args' => $args]);
 
         $cmd_string = $this->executable . ' stdin stdout ' . $args;
+        $this->log->info('Tesseract Command:', ['cmd' => $cmd_string]);
 
         // Return response.
         try {
@@ -65,6 +83,7 @@ class HypercubeController
                 array('Content-Type' => 'text/plain')
             );
         } catch (\RuntimeException $e) {
+            $this->log->error("RuntimeException:", ['exception' => $e]);
             return new Response($e->getMessage(), 500);
         }
     }
