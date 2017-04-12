@@ -3,3 +3,6 @@ config/settings.dev.yml
 config/settings.yml
 coverage.xml
 .idea
+*.key
+*.log
+syn-settings.xml
