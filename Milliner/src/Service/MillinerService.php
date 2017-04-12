@@ -3,7 +3,7 @@
 namespace Islandora\Milliner\Service;
 
 use Islandora\Chullo\IFedoraApi;
-use Islandora\Crayfish\Commons\GeminiServiceInterface;
+use Islandora\Crayfish\Commons\PathMapper\PathMapperInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use SebastianBergmann\GlobalState\RuntimeException;
@@ -19,7 +19,7 @@ class MillinerService implements MillinerServiceInterface
 
     public function __construct(
         IFedoraApi $fedora,
-        GeminiServiceInterface $gemini,
+        PathMapperInterface $gemini,
         LoggerInterface $log
     ) {
         $this->fedora = $fedora;

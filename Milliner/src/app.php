@@ -4,7 +4,7 @@ require_once __DIR__.'/../vendor/autoload.php';
 
 use GuzzleHttp\Client;
 use Islandora\Chullo\FedoraApi;
-use Islandora\Crayfish\Commons\GeminiService;
+use Islandora\Crayfish\Commons\PathMapper\PathMapper;
 use Islandora\Milliner\Controller\MillinerController;
 use Islandora\Milliner\Converter\DrupalEntityConverter;
 use Islandora\Milliner\Service\MillinerService;
@@ -31,7 +31,7 @@ $app['milliner.controller'] = function () use ($config, $app) {
     return new MillinerController(
         new MillinerService(
             FedoraApi::create($config['fedora base url']),
-            new GeminiService($app['db']),
+            new PathMapper($app['db']),
             $app['monolog']
         ),
         $app['monolog']
