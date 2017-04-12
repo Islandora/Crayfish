@@ -3,10 +3,7 @@
     "description": "Imagemagick as a web service",
     "type": "project",
     "require": {
-        "silex/silex": "^2.0",
-        "islandora/chullo": "^0.0.8",
-        "islandora/crayfish-commons": "dev-master",
-        "monolog/monolog": "^1.22"
+        "islandora/crayfish-commons": "dev-master"
     },
     "license": "MIT",
     "authors": [
@@ -32,11 +29,5 @@
         "phpunit/phpunit": "^5.0",
         "squizlabs/php_codesniffer": "^2.0",
         "sebastian/phpcpd": "^3.0"
-    },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../../Crayfish-Commons"
-        }
-    ]
+    }
 }
