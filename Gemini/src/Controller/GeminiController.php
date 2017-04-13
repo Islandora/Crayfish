@@ -2,7 +2,7 @@
 
 namespace Islandora\Gemini\Controller;
 
-use Islandora\Gemini\Service\GeminiServiceInterface;
+use Islandora\Crayfish\Commons\PathMapper\PathMapperInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -14,17 +14,17 @@ class GeminiController
 {
 
     /**
-     * @var \Islandora\Gemini\Service\GeminiServiceInterface
+     * @var \Islandora\Crayfish\Commons\PathMapper\PathMapperInterface
      */
-    protected $gemini;
+    protected $pathMapper;
 
     /**
      * GeminiController constructor.
-     * @param \Islandora\Gemini\Service\GeminiServiceInterface $gemini
+     * @param \Islandora\Crayfish\Commons\PathMapper\PathMapperInterface
      */
-    public function __construct(GeminiServiceInterface $gemini)
+    public function __construct(PathMapperInterface $pathMapper)
     {
-        $this->gemini = $gemini;
+        $this->pathMapper = $pathMapper;
     }
 
     /**
@@ -34,7 +34,7 @@ class GeminiController
     public function getDrupalPath($fedora_path)
     {
         try {
-            if (!$result = $this->gemini->getDrupalPath($fedora_path)) {
+            if (!$result = $this->pathMapper->getDrupalPath($fedora_path)) {
                 return new Response(null, 404);
             }
 
@@ -51,7 +51,7 @@ class GeminiController
     public function getFedoraPath($drupal_path)
     {
         try {
-            if (!$result = $this->gemini->getFedoraPath($drupal_path)) {
+            if (!$result = $this->pathMapper->getFedoraPath($drupal_path)) {
                 return new Response(null, 404);
             }
 
@@ -83,7 +83,7 @@ class GeminiController
         }
 
         try {
-            $this->gemini->createPair(
+            $this->pathMapper->createPair(
                 $body['drupal'],
                 $body['fedora']
             );
@@ -100,7 +100,7 @@ class GeminiController
     public function deleteFromDrupalPath($drupal_path)
     {
         try {
-            if (!$result = $this->gemini->deleteFromDrupalPath($drupal_path)) {
+            if (!$result = $this->pathMapper->deleteFromDrupalPath($drupal_path)) {
                 return new Response("Not Found", 404);
             }
 
@@ -117,7 +117,7 @@ class GeminiController
     public function deleteFromFedoraPath($fedora_path)
     {
         try {
-            if (!$result = $this->gemini->deleteFromFedoraPath($fedora_path)) {
+            if (!$result = $this->pathMapper->deleteFromFedoraPath($fedora_path)) {
                 return new Response(null, 404);
             }
 

@@ -2,7 +2,7 @@
 
 require_once __DIR__.'/../vendor/autoload.php';
 
-use Islandora\Gemini\Service\GeminiService;
+use Islandora\Crayfish\Commons\PathMapper\PathMapper;
 use Islandora\Gemini\Controller\GeminiController;
 use Silex\Application;
 use Silex\Provider\DoctrineServiceProvider;
@@ -16,7 +16,7 @@ $app->register(new DoctrineServiceProvider(), ['db.options' => $config['db.optio
 
 $app['gemini.controller'] = function () use ($app) {
     return new GeminiController(
-        new GeminiService($app['db'])
+        new PathMapper($app['db'])
     );
 };
 
