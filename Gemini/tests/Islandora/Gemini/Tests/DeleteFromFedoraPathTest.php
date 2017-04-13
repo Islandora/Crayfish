@@ -3,13 +3,13 @@
 namespace Islandora\Gemini\Tests;
 
 use Islandora\Gemini\Controller\GeminiController;
-use Islandora\Gemini\Service\GeminiService;
+use Islandora\Crayfish\Commons\PathMapper\PathMapper;
 
 class DeleteFromFedoraPathTest extends \PHPUnit_Framework_TestCase
 {
     public function testReturns500OnException()
     {
-        $prophecy = $this->prophesize(GeminiService::class);
+        $prophecy = $this->prophesize(PathMapper::class);
         $prophecy->deleteFromFedoraPath("foo")
             ->willThrow(new \Exception("Exception", 500));
         $mock_service = $prophecy->reveal();
@@ -25,7 +25,7 @@ class DeleteFromFedoraPathTest extends \PHPUnit_Framework_TestCase
 
     public function testReturns404WhenNotFound()
     {
-        $mock_service = $this->prophesize(GeminiService::class)
+        $mock_service = $this->prophesize(PathMapper::class)
             ->reveal();
         $controller = new GeminiController($mock_service);
 
@@ -39,7 +39,7 @@ class DeleteFromFedoraPathTest extends \PHPUnit_Framework_TestCase
 
     public function testReturns204WhenDeleted()
     {
-        $prophecy = $this->prophesize(GeminiService::class);
+        $prophecy = $this->prophesize(PathMapper::class);
         $prophecy->deleteFromFedoraPath("foo")
             ->willReturn(true);
         $mock_service = $prophecy->reveal();

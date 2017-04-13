@@ -3,14 +3,14 @@
 namespace Drupal\Gemini\Tests;
 
 use Islandora\Gemini\Controller\GeminiController;
-use Islandora\Gemini\Service\GeminiService;
+use Islandora\Crayfish\Commons\PathMapper\PathMapper;
 use Symfony\Component\HttpFoundation\Request;
 
 class CreatePairTest extends \PHPUnit_Framework_TestCase
 {
     public function testReturns500OnException()
     {
-        $prophecy = $this->prophesize(GeminiService::class);
+        $prophecy = $this->prophesize(PathMapper::class);
         $prophecy->createPair("http://foo.com/bar", "http://baz.com/boo")
             ->willThrow(new \Exception("Exception", 500));
         $mock_service = $prophecy->reveal();
@@ -36,7 +36,7 @@ class CreatePairTest extends \PHPUnit_Framework_TestCase
 
     public function testReturns400OnMalformedRequest()
     {
-        $prophecy = $this->prophesize(GeminiService::class);
+        $prophecy = $this->prophesize(PathMapper::class);
         $mock_service = $prophecy->reveal();
         $controller = new GeminiController($mock_service);
 
@@ -102,7 +102,7 @@ class CreatePairTest extends \PHPUnit_Framework_TestCase
 
     public function testReturns201OnCreation()
     {
-        $prophecy = $this->prophesize(GeminiService::class);
+        $prophecy = $this->prophesize(PathMapper::class);
         $mock_service = $prophecy->reveal();
         $controller = new GeminiController($mock_service);
 
