@@ -22,9 +22,7 @@ install:
 
 script:
   - $SCRIPT_DIR/line_endings.sh $TRAVIS_BUILD_DIR
-  - for D in */; do (cd $D; vendor/bin/phpcs --standard=PSR2 src tests) done
-  - for D in */; do (cd $D; vendor/bin/phpcpd --names *.php src) done
-  - for D in */; do (cd $D; vendor/bin/phpunit --verbose) done
+  - for D in */; do (cd $D; composer test) done
 
 notifications:
   irc:

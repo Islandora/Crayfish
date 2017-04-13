@@ -3,7 +3,8 @@
     "description": "Path mapping Service between Fedora and Drupal",
     "require": {
         "silex/silex": "^2.0",
-        "doctrine/dbal": "~2.2"
+        "doctrine/dbal": "~2.2",
+        "islandora/crayfish-commons": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.0",
@@ -14,6 +15,16 @@
         "psr-4": {
             "Islandora\\Gemini\\": "src/"
         }
+    },
+    "scripts": {
+        "check": [
+            "phpcs --standard=PSR2 src tests",
+            "phpcpd --names *.php src"
+        ],
+        "test": [
+            "@check",
+            "phpunit"
+        ]
     },
     "license": "MIT",
     "authors": [
