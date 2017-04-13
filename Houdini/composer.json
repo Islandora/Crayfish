@@ -26,6 +26,16 @@
             "Islandora\\Houdini\\": "src/"
         }
     },
+    "scripts": {
+        "check": [
+            "phpcs --standard=PSR2 src tests",
+            "phpcpd --names *.php src"
+        ],
+        "test": [
+            "@check",
+            "phpunit"
+        ]
+    },
     "require-dev": {
         "symfony/browser-kit": "^3.0",
         "symfony/css-selector": "^3.0",
