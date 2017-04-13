@@ -16,6 +16,16 @@
             "Islandora\\Gemini\\": "src/"
         }
     },
+    "scripts": {
+        "check": [
+            "phpcs --standard=PSR2 src tests",
+            "phpcpd --names *.php src"
+        ],
+        "test": [
+            "@check",
+            "phpunit"
+        ]
+    },
     "license": "MIT",
     "authors": [
         {
