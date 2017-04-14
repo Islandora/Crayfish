@@ -22,7 +22,7 @@ return [
     //  - NONE
     // if none is used the log file won't be opened.
     'loglevel' => 'NONE',
-    'logfile' => '../houdini.log',
+    'logfile' => '../gemini.log',
 
     // Toggles JWT security for the service.
     'security enabled' => true,
