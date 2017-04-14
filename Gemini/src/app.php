@@ -11,7 +11,7 @@ use Silex\Provider\ServiceControllerServiceProvider;
 $config = require_once(__DIR__ . '/../cfg/cfg.php');
 
 $app = new Application();
-$app->register(new ServiceControllerServiceProvider());
+$app->register(new IslandoraServiceProvider($config));
 $app->register(new DoctrineServiceProvider(), ['db.options' => $config['db.options']]);
 
 $app['gemini.controller'] = function () use ($app) {
