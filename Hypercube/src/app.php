@@ -2,18 +2,19 @@
 
 require_once __DIR__.'/../vendor/autoload.php';
 
-use Islandora\Crayfish\Commons\IslandoraServiceProvider;
+use Islandora\Crayfish\Commons\Provider\IslandoraServiceProvider;
+use Islandora\Crayfish\Commons\Provider\YamlConfigServiceProvider;
 use Islandora\Hypercube\Controller\HypercubeController;
 use Silex\Application;
 
-$config = require_once(__DIR__ . '/../cfg/cfg.php');
 $app = new Application();
-$app->register(new IslandoraServiceProvider($config));
+$app->register(new IslandoraServiceProvider());
+$app->register(new YamlConfigServiceProvider('../cfg/config.yaml'));
 
-$app['hypercube.controller'] = function () use ($app, $config) {
+$app['hypercube.controller'] = function ($app) {
     return new HypercubeController(
         $app['crayfish.cmd_execute_service'],
-        $config['executable']
+        $app['crayfish.hypercube.executable']
     );
 };
 

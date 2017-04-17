@@ -40,4 +40,11 @@
         "squizlabs/php_codesniffer": "^2.0",
         "sebastian/phpcpd": "^3.0"
     }
+    ,
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../Crayfish-Commons"
+        }
+    ]
 }
