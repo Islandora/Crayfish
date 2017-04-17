@@ -29,7 +29,9 @@ See the individual services for more information on their endpoints.
 
 ## Security
 
-Crayfish microservices use JWTs to handle authentication like the rest of the Islandora CLAW.  It is disabled by default.  To enable, set `security enabled` to `true` in `cfg/cfg.php` for any microservice.  You can also set the path to an xml configuration fie for security a la [Syn][9] with the `security config` parameter.
+Crayfish microservices use JWTs to handle authentication like the rest of the Islandora CLAW.
+It is disabled by default. To enable, set `security enabled` to `true` in `cfg/cfg.php` for any microservice.
+You can also set the path to an xml configuration fie for security a la [Syn][9] with the `security config` parameter.
 
 ## Development
 
