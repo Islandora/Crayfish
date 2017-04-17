@@ -21,13 +21,21 @@ $app['gemini.controller'] = function () use ($app) {
 };
 
 $app->get('/drupal/{drupal_path}', "gemini.controller:getFedoraPath")
-    ->assert("drupal_path", ".+");
+    ->assert("drupal_path", ".+")
+    ->convert("drupal_path", "gemini.controller:sanitize");
+
 $app->get('/fedora/{fedora_path}', "gemini.controller:getDrupalPath")
-    ->assert("fedora_path", ".+");
+    ->assert("fedora_path", ".+")
+    ->convert("drupal_path", "gemini.controller:sanitize");
+
 $app->post('/', "gemini.controller:createPair");
+
 $app->delete("/drupal/{drupal_path}", "gemini.controller:deleteFromDrupalPath")
-    ->assert("drupal_path", ".+");
+    ->assert("drupal_path", ".+")
+    ->convert("drupal_path", "gemini.controller:sanitize");
+
 $app->delete("/fedora/{fedora_path}", "gemini.controller:deleteFromFedoraPath")
-    ->assert("fedora_path", ".+");
+    ->assert("fedora_path", ".+")
+    ->convert("drupal_path", "gemini.controller:sanitize");
 
 return $app;
