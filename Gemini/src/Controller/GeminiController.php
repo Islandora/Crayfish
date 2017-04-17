@@ -129,9 +129,10 @@ class GeminiController
 
     /**
      * @param string $path
-     * @return string 
+     * @return string
      */
-    public function sanitize($path) {
+    public function sanitize($path)
+    {
         $sanitized = ltrim($path);
         return ltrim($sanitized, '/');
     }

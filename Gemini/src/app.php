@@ -6,13 +6,11 @@ use Islandora\Crayfish\Commons\IslandoraServiceProvider;
 use Islandora\Crayfish\Commons\PathMapper\PathMapper;
 use Islandora\Gemini\Controller\GeminiController;
 use Silex\Application;
-use Silex\Provider\DoctrineServiceProvider;
 
 $config = require_once(__DIR__ . '/../cfg/cfg.php');
 
 $app = new Application();
 $app->register(new IslandoraServiceProvider($config));
-$app->register(new DoctrineServiceProvider(), ['db.options' => $config['db.options']]);
 
 $app['gemini.controller'] = function () use ($app) {
     return new GeminiController(
