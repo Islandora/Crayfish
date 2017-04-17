@@ -19,7 +19,7 @@ return [
     'logfile' => '../hypercube.log',
 
     // Toggles JWT security for the service.
-    'security enabled' => true,
+    'security enabled' => false,
     // Path to the syn config file for authentication.
     // Example can be found here:
     // https://github.com/Islandora-CLAW/Syn/blob/master/conf/syn-settings.example.xml

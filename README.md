@@ -27,6 +27,10 @@ Crayfish contains the following services
 
 See the individual services for more information on their endpoints.
 
+## Security
+
+Crayfish microservices use JWTs to handle authentication like the rest of the Islandora CLAW.  It is disabled by default.  To enable, set `security enabled` to `true` in `cfg/cfg.php` for any microservice.  You can also set the path to an xml configuration fie for security a la [Syn][9] with the `security config` parameter.
+
 ## Development
 
 If you would like to contribute, please get involved by attending our weekly 
@@ -65,3 +69,4 @@ an Islandora Foundation [Contributor License Agreement][6] or
 [6]: http://islandora.ca/sites/default/files/islandora_cla.pdf
 [7]: http://islandora.ca/sites/default/files/islandora_ccla.pdf
 [8]: http://islandora.ca/resources/contributors
+[9]: https://github.com/Islandora-CLAW/Syn/blob/master/conf/syn-settings.example.xml
