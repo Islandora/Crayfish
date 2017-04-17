@@ -2,11 +2,11 @@
 
 require_once __DIR__.'/../vendor/autoload.php';
 
+use Islandora\Crayfish\Commons\IslandoraServiceProvider;
 use Islandora\Crayfish\Commons\PathMapper\PathMapper;
 use Islandora\Gemini\Controller\GeminiController;
 use Silex\Application;
 use Silex\Provider\DoctrineServiceProvider;
-use Silex\Provider\ServiceControllerServiceProvider;
 
 $config = require_once(__DIR__ . '/../cfg/cfg.php');
 
