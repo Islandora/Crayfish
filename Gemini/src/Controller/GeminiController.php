@@ -84,8 +84,8 @@ class GeminiController
 
         try {
             $this->pathMapper->createPair(
-                $body['drupal'],
-                $body['fedora']
+                $this->sanitize($body['drupal']),
+                $this->sanitize($body['fedora'])
             );
              return new Response(null, 201);
         } catch (\Exception $e) {
@@ -125,5 +125,15 @@ class GeminiController
         } catch (\Exception $e) {
             return new Response($e->getMessage(), 500);
         }
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    public function sanitize($path)
+    {
+        $sanitized = ltrim($path);
+        return ltrim($sanitized, '/');
     }
 }

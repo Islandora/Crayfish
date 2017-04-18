@@ -4,6 +4,7 @@ namespace Drupal\Gemini\Tests;
 
 use Islandora\Gemini\Controller\GeminiController;
 use Islandora\Crayfish\Commons\PathMapper\PathMapper;
+use Prophecy\Argument;
 use Symfony\Component\HttpFoundation\Request;
 
 class CreatePairTest extends \PHPUnit_Framework_TestCase
@@ -11,7 +12,7 @@ class CreatePairTest extends \PHPUnit_Framework_TestCase
     public function testReturns500OnException()
     {
         $prophecy = $this->prophesize(PathMapper::class);
-        $prophecy->createPair("http://foo.com/bar", "http://baz.com/boo")
+        $prophecy->createPair(Argument::Any(), Argument::Any())
             ->willThrow(new \Exception("Exception", 500));
         $mock_service = $prophecy->reveal();
         $controller = new GeminiController($mock_service);
@@ -23,7 +24,7 @@ class CreatePairTest extends \PHPUnit_Framework_TestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            '{"drupal" : "http://foo.com/bar", "fedora" : "http://baz.com/boo"}'
+            '{"drupal" : "foo/bar", "fedora" : "baz/boo"}'
         );
 
         $response = $controller->createPair($request);
@@ -76,7 +77,7 @@ class CreatePairTest extends \PHPUnit_Framework_TestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            '{"drupal" : "http://foo.com/bar"}'
+            '{"drupal" : "foo/bar"}'
         ));
 
         $this->assertTrue(
@@ -91,7 +92,7 @@ class CreatePairTest extends \PHPUnit_Framework_TestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            '{"fedora" : "http://baz.com/boo"}'
+            '{"fedora" : "baz/boo"}'
         ));
 
         $this->assertTrue(
@@ -113,14 +114,14 @@ class CreatePairTest extends \PHPUnit_Framework_TestCase
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            '{"drupal" : "http://foo.com/bar", "fedora" : "http://baz.com/boo"}'
+            '{"drupal" : "foo/bar", "fedora" : "baz/boo"}'
         );
 
         $response = $controller->createPair($request);
 
         $this->assertTrue(
             $response->getStatusCode() == 201,
-            "Response must be 500 on success"
+            "Response must be 201 on success"
         );
     }
 }
