@@ -4,7 +4,7 @@
 
 ## Introduction
 
-A path mapping service for Islandora-CLAW.  Gemini is what links content created in Drupal to data stored in Fedora.  It has a very simple API and is built on top of a relational database using Doctrine's [database abstreaction layer][4].
+A path mapping service for Islandora-CLAW.  Gemini is what links content created in Drupal to data stored in Fedora.  It has a very simple API and is built on top of a relational database using Doctrine's [database abstraction layer][4].
 
 ## Installation
 
