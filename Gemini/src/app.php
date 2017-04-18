@@ -11,7 +11,7 @@ use Silex\Application;
 $app = new Application();
 
 $app->register(new IslandoraServiceProvider());
-$app->register(new YamlConfigServiceProvider('../cfg/config.yaml'));
+$app->register(new YamlConfigServiceProvider(__DIR__ . '/../cfg/config.yaml'));
 
 $app['gemini.controller'] = function ($app) {
     return new GeminiController(
