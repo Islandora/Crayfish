@@ -12,7 +12,7 @@ log:
   # Valid log levels are:
   # DEBUG, INFO, NOTICE, WARNING, ERROR, CRITICAL, ALERT, EMERGENCY, NONE
   # log level none won't open logfile
-  level: DEBUG
+  level: NONE
   file: ../gemini.log
 
 security:
