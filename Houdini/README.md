@@ -16,7 +16,7 @@
 
 ## Configuration
 
-If your imagemagick installation is not on your path, then you can configure Houdini to use a specific executable by editing `executable` entry in [config.yaml](./cfg/config.yaml).
+If your imagemagick installation is not on your path, then you can configure Houdini to use a specific executable by editing `executable` entry in [config.yaml](./cfg/config.example.yaml).
 
 You also will need to set the `fedora base url` entry to point to your Fedora installation.
 

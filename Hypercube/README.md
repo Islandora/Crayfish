@@ -37,7 +37,7 @@ This will put the Hypercube at the /hypercube endpoint on the webserver.
 
 ## Configuration
 
-If your tesseract installation is not on your path, then you can configure Hypercube to use a specific executable by editing `executable` entry in [config.yaml](./cfg/config.yaml).
+If your tesseract installation is not on your path, then you can configure Hypercube to use a specific executable by editing `executable` entry in [config.yaml](./cfg/config.example.yaml).
 
 You also will need to set the `fedora base url` entry to point to your Fedora installation.
 
