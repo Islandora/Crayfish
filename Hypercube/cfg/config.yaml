@@ -1,6 +1,10 @@
 ---
 
-fedora:
+hypercube:
+  # path to the convert executable
+  executable: tesseract
+
+fedora_resource:
   base_url: http://localhost:8080/fcrepo/rest
 
 log:
@@ -10,11 +14,7 @@ log:
   level: NONE
   file: ../hypercube.log
 
-hypercube:
-  # path to the convert executable
-  executable: tesseract
-
-security:
+syn:
   # toggles JWT security for service
   enable: false
   # Path to the syn config file for authentication.

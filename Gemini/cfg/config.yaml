@@ -15,7 +15,7 @@ log:
   level: NONE
   file: ../gemini.log
 
-security:
+syn:
   # toggles JWT security for service
   enable: false
   # Path to the syn config file for authentication.
