@@ -2,20 +2,22 @@
 
 require_once __DIR__.'/../vendor/autoload.php';
 
-use Islandora\Crayfish\Commons\IslandoraServiceProvider;
+use Islandora\Crayfish\Commons\Provider\IslandoraServiceProvider;
+use Islandora\Crayfish\Commons\Provider\YamlConfigServiceProvider;
 use Islandora\Houdini\Controller\HoudiniController;
 use Silex\Application;
 
-$config = require_once(__DIR__ . '/../cfg/cfg.php');
 $app = new Application();
-$app->register(new IslandoraServiceProvider($config));
 
-$app['houdini.controller'] = function ($app) use ($config) {
+$app->register(new IslandoraServiceProvider());
+$app->register(new YamlConfigServiceProvider(__DIR__ . '/../cfg/config.yaml'));
+
+$app['houdini.controller'] = function ($app) {
     return new HoudiniController(
         $app['crayfish.cmd_execute_service'],
-        $config['valid formats'],
-        $config['default format'],
-        $config['executable'],
+        $app['crayfish.houdini.formats.valid'],
+        $app['crayfish.houdini.formats.default'],
+        $app['crayfish.houdini.executable'],
         $app['monolog']
     );
 };

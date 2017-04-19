@@ -2,17 +2,18 @@
 
 require_once __DIR__.'/../vendor/autoload.php';
 
-use Islandora\Crayfish\Commons\IslandoraServiceProvider;
+use Islandora\Crayfish\Commons\Provider\IslandoraServiceProvider;
 use Islandora\Crayfish\Commons\PathMapper\PathMapper;
+use Islandora\Crayfish\Commons\Provider\YamlConfigServiceProvider;
 use Islandora\Gemini\Controller\GeminiController;
 use Silex\Application;
 
-$config = require_once(__DIR__ . '/../cfg/cfg.php');
-
 $app = new Application();
-$app->register(new IslandoraServiceProvider($config));
 
-$app['gemini.controller'] = function () use ($app) {
+$app->register(new IslandoraServiceProvider());
+$app->register(new YamlConfigServiceProvider(__DIR__ . '/../cfg/config.yaml'));
+
+$app['gemini.controller'] = function ($app) {
     return new GeminiController(
         new PathMapper($app['db'])
     );

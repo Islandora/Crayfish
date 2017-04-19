@@ -28,7 +28,7 @@ CREATE TABLE gemini.Gemini (
 
 ## Configuration
 
-Gemini accepts [configuration for Doctrine's DBAL](http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/configuration.html) as the `db.options` array in [its config file](./cfg/cfg.php) file.  Reasonable defaults provided are for a MySQL installation.  Do not commit the configuration file with your credentials into Git!
+Gemini accepts [configuration for Doctrine's DBAL](http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/configuration.html) as the `db.options` array in [its config file](./cfg/config.example.yaml) file.  Reasonable defaults provided are for a MySQL installation.  Do not commit the configuration file with your credentials into Git!
 
 ## Usage
 
