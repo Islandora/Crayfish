@@ -4,19 +4,36 @@ namespace Islandora\Milliner\Service;
 
 use Islandora\Chullo\IFedoraApi;
 use Islandora\Crayfish\Commons\PathMapper\PathMapperInterface;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use SebastianBergmann\GlobalState\RuntimeException;
-use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Class MillinerService
+ * @package Islandora\Milliner\Service
+ */
 class MillinerService implements MillinerServiceInterface
 {
+    /**
+     * @var \Islandora\Chullo\IFedoraApi
+     */
     protected $fedora;
 
+    /**
+     * @var \Islandora\Crayfish\Commons\PathMapper\PathMapperInterface
+     */
     protected $gemini;
 
+    /**
+     * @var
+     */
     protected $logger;
 
+    /**
+     * MillinerService constructor.
+     * @param \Islandora\Chullo\IFedoraApi $fedora
+     * @param \Islandora\Crayfish\Commons\PathMapper\PathMapperInterface $gemini
+     * @param \Psr\Log\LoggerInterface $log
+     */
     public function __construct(
         IFedoraApi $fedora,
         PathMapperInterface $gemini,
@@ -27,22 +44,25 @@ class MillinerService implements MillinerServiceInterface
         $this->log = $log;
     }
 
-    public function create(ResponseInterface $drupal_entity, Request $request)
-    {
-        $path = $request->get('path');
-        $token = $request->headers->get("Authorization");
-
-        $fedora_path = $this->gemini->getFedoraPath($path);
+    /**
+     * {@inheritDoc}
+     */
+    public function create(
+        $drupal_jsonld,
+        $drupal_path,
+        $token
+    ) {
+        $fedora_path = $this->gemini->getFedoraPath($drupal_path);
         if ($fedora_path !== null) {
-            throw new RuntimeException(
-                "$path already exists in Fedora at $fedora_path",
+            throw new \RuntimeException(
+                "$drupal_path already exists in Fedora at $fedora_path",
                 200
             );
         }
 
-        $jsonld = $this->processJsonld(
-            (string)$drupal_entity->getBody(),
-            $path
+        $fedora_jsonld = $this->processJsonld(
+            $drupal_jsonld,
+            $drupal_path
         );
 
         $headers = [
@@ -52,7 +72,7 @@ class MillinerService implements MillinerServiceInterface
 
         $fedora_response = $this->fedora->createResource(
             '',
-            $jsonld,
+            $fedora_jsonld,
             $headers
         );
 
@@ -65,15 +85,18 @@ class MillinerService implements MillinerServiceInterface
         return $fedora_response;
     }
 
-    public function update(ResponseInterface $drupal_entity, Request $request)
-    {
-        $path = $request->get('path');
-        $token = $request->headers->get("Authorization");
-
-        $fedora_path = $this->gemini->getFedoraPath($path);
+    /**
+     * {@inheritDoc}
+     */
+    public function update(
+        $drupal_jsonld,
+        $drupal_path,
+        $token
+    ) {
+        $fedora_path = $this->gemini->getFedoraPath($drupal_path);
         if ($fedora_path === null) {
-            throw new RuntimeException(
-                "$path has not been mapped to Fedora",
+            throw new \RuntimeException(
+                "$drupal_path has not been mapped to Fedora",
                 404
             );
         }
@@ -85,9 +108,9 @@ class MillinerService implements MillinerServiceInterface
 
         $etag = ltrim($head_response->getHeader('ETag')[0], "W/");
 
-        $jsonld = $this->processJsonld(
-            (string)$drupal_entity->getBody(),
-            $path
+        $fedora_jsonld = $this->processJsonld(
+            $drupal_jsonld,
+            $drupal_path
         );
 
         $headers = [
@@ -99,7 +122,7 @@ class MillinerService implements MillinerServiceInterface
 
         $fedora_response = $this->fedora->saveResource(
             $fedora_path,
-            $jsonld,
+            $fedora_jsonld,
             $headers
         );
 
@@ -112,14 +135,17 @@ class MillinerService implements MillinerServiceInterface
         return $fedora_response;
     }
 
-    public function delete($path, Request $request)
-    {
-        $token = $request->headers->get("Authorization");
-
-        $fedora_path = $this->gemini->getFedoraPath($path);
+    /**
+     * {@inheritDoc}
+     */
+    public function delete(
+        $drupal_path,
+        $token
+    ) {
+        $fedora_path = $this->gemini->getFedoraPath($drupal_path);
         if ($fedora_path === null) {
-            throw new RuntimeException(
-                "$path has not been mapped to Fedora",
+            throw new \RuntimeException(
+                "$drupal_path is not mapped to Fedora",
                 404
             );
         }
@@ -142,16 +168,21 @@ class MillinerService implements MillinerServiceInterface
         return $fedora_response;
     }
 
-    protected function processJsonld($jsonld, $path)
+    /**
+     * @param $drupal_jsonld
+     * @param $drupal_path
+     * @return string
+     */
+    protected function processJsonld($drupal_jsonld, $drupal_path)
     {
         // Get graph as array.
-        $rdf = json_decode($jsonld, true);
+        $rdf = json_decode($drupal_jsonld, true);
 
         // Strip out everything other than the resource in question.
         $resource = array_filter(
             $rdf['@graph'],
-            function (array $elem) use ($path) {
-                return strpos($elem['@id'], $path) !== false;
+            function (array $elem) use ($drupal_path) {
+                return strpos($elem['@id'], $drupal_path) !== false;
             }
         );
         // Put in an empty string as a placeholder for fedora path.
@@ -159,5 +190,4 @@ class MillinerService implements MillinerServiceInterface
 
         return json_encode($resource);
     }
-
 }

@@ -2,14 +2,52 @@
 
 namespace Islandora\Milliner\Service;
 
-use Psr\Http\Message\ResponseInterface;
-use Symfony\Component\HttpFoundation\Request;
-
+/**
+ * Interface MillinerServiceInterface
+ * @package Islandora\Milliner\Service
+ */
 interface MillinerServiceInterface
 {
-    public function create(ResponseInterface $drupal_entity, Request $request);
+    /**
+     * @param $drupal_jsonld
+     * @param $drupal_path
+     * @param $token
+     *
+     * @throws \RuntimeException
+     *
+     * @return \GuzzleHttp\Psr7\Response
+     */
+    public function create(
+        $drupal_jsonld,
+        $drupal_path,
+        $token
+    );
 
-    public function update(ResponseInterface $drupal_entity, Request $request);
+    /**
+     * @param $drupal_jsonld
+     * @param $drupal_path
+     * @param $token
+     *
+     * @throws \RuntimeException
+     *
+     * @return \GuzzleHttp\Psr7\Response
+     */
+    public function update(
+        $drupal_jsonld,
+        $drupal_path,
+        $token
+    );
 
-    public function delete($path, Request $request);
+    /**
+     * @param $drupal_path
+     * @param $token
+     *
+     * @throws \RuntimeException
+     *
+     * @return \GuzzleHttp\Psr7\Response
+     */
+    public function delete(
+        $drupal_path,
+        $token
+    );
 }

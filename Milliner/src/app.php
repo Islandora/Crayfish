@@ -5,27 +5,17 @@ require_once __DIR__.'/../vendor/autoload.php';
 use GuzzleHttp\Client;
 use Islandora\Chullo\FedoraApi;
 use Islandora\Crayfish\Commons\PathMapper\PathMapper;
+use Islandora\Crayfish\Commons\IslandoraServiceProvider;
 use Islandora\Milliner\Controller\MillinerController;
 use Islandora\Milliner\Converter\DrupalEntityConverter;
 use Islandora\Milliner\Service\MillinerService;
 use Silex\Application;
-use Silex\Provider\DoctrineServiceProvider;
-use Silex\Provider\MonologServiceProvider;
-use Silex\Provider\ServiceControllerServiceProvider;
 
 $config = require_once(__DIR__ . '/../cfg/cfg.php');
 
 $app = new Application();
 
-$app->register(new MonologServiceProvider(), [
-    'monolog.logfile' => $config['logfile'],
-    'monolog.level' => $config['loglevel'],
-    'monolog.name' => 'Milliner',
-]);
-
-$app->register(new ServiceControllerServiceProvider());
-
-$app->register(new DoctrineServiceProvider(), ['db.options' => $config['db.options']]);
+$app->register(new IslandoraServiceProvider($config));
 
 $app['milliner.controller'] = function () use ($config, $app) {
     return new MillinerController(
@@ -49,10 +39,10 @@ $app->post('/{drupal_entity}', "milliner.controller:create")
     ->convert('drupal_entity', 'drupal_entity.converter:convert');
 
 $app->put('/{drupal_entity}', "milliner.controller:update")
-  ->assert('drupal_entity', '.+')
-  ->convert('drupal_entity', 'drupal_entity.converter:convert');
+    ->assert('drupal_entity', '.+')
+    ->convert('drupal_entity', 'drupal_entity.converter:convert');
 
-$app->delete('/{path}', "milliner.controller:delete")
-  ->assert('path', '.+');
+$app->delete('/{drupal_path}', "milliner.controller:delete")
+    ->assert('drupal_path', '.+');
 
 return $app;
