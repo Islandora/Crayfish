@@ -21,7 +21,7 @@ class MillinerService implements MillinerServiceInterface
     /**
      * @var \Islandora\Crayfish\Commons\PathMapper\PathMapperInterface
      */
-    protected $gemini;
+    protected $pathMapper;
 
     /**
      * @var
@@ -31,16 +31,16 @@ class MillinerService implements MillinerServiceInterface
     /**
      * MillinerService constructor.
      * @param \Islandora\Chullo\IFedoraApi $fedora
-     * @param \Islandora\Crayfish\Commons\PathMapper\PathMapperInterface $gemini
+     * @param \Islandora\Crayfish\Commons\PathMapper\PathMapperInterface $pathMapper
      * @param \Psr\Log\LoggerInterface $log
      */
     public function __construct(
         IFedoraApi $fedora,
-        PathMapperInterface $gemini,
+        PathMapperInterface $pathMapper,
         LoggerInterface $log
     ) {
         $this->fedora = $fedora;
-        $this->gemini = $gemini;
+        $this->pathMapper = $pathMapper;
         $this->log = $log;
     }
 
@@ -52,7 +52,7 @@ class MillinerService implements MillinerServiceInterface
         $drupal_path,
         $token
     ) {
-        $fedora_path = $this->gemini->getFedoraPath($drupal_path);
+        $fedora_path = $this->pathMapper->getFedoraPath($drupal_path);
         if ($fedora_path !== null) {
             throw new \RuntimeException(
                 "$drupal_path already exists in Fedora at $fedora_path",
@@ -93,7 +93,7 @@ class MillinerService implements MillinerServiceInterface
         $drupal_path,
         $token
     ) {
-        $fedora_path = $this->gemini->getFedoraPath($drupal_path);
+        $fedora_path = $this->pathMapper->getFedoraPath($drupal_path);
         if ($fedora_path === null) {
             throw new \RuntimeException(
                 "$drupal_path has not been mapped to Fedora",
@@ -142,7 +142,7 @@ class MillinerService implements MillinerServiceInterface
         $drupal_path,
         $token
     ) {
-        $fedora_path = $this->gemini->getFedoraPath($drupal_path);
+        $fedora_path = $this->pathMapper->getFedoraPath($drupal_path);
         if ($fedora_path === null) {
             throw new \RuntimeException(
                 "$drupal_path is not mapped to Fedora",
