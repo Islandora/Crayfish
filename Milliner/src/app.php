@@ -34,15 +34,15 @@ $app['drupal_entity.converter'] = function () use ($config, $app) {
     );
 };
 
-$app->post('/{drupal_entity}', "milliner.controller:create")
+$app->post('/metadata/{drupal_entity}', "milliner.controller:create")
     ->assert('drupal_entity', '.+')
     ->convert('drupal_entity', 'drupal_entity.converter:convert');
 
-$app->put('/{drupal_entity}', "milliner.controller:update")
+$app->put('/metadata/{drupal_entity}', "milliner.controller:update")
     ->assert('drupal_entity', '.+')
     ->convert('drupal_entity', 'drupal_entity.converter:convert');
 
-$app->delete('/{drupal_path}', "milliner.controller:delete")
+$app->delete('/metadata/{drupal_path}', "milliner.controller:delete")
     ->assert('drupal_path', '.+');
 
 return $app;

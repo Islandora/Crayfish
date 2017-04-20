@@ -14,8 +14,8 @@ You will also need an SQL database as needed for [Gemini](../Gemini)
 - Install `composer`.  [Install instructions here.][4]
 - `$ cd /path/to/Milliner` and run `$ composer install`
 - Then either
-  - For production, configure your web server appropriately (e.g. add a VirtualHost for Houdini in Apache) OR
-  - For development, run the PHP built-in webserver `$ php -S localhost:8888 -t src` from Houdini root.
+  - For production, configure your web server appropriately (e.g. add a VirtualHost for Milliner in Apache) OR
+  - For development, run the PHP built-in webserver `$ php -S localhost:8888 -t src` from Milliner root.
 
 ## Configuration
 
@@ -35,7 +35,7 @@ with the exception's message.
 
 This retrieves a jsonld representation of the specified Drupal entity and inserts it in Fedora.
 
-For example, suppose you create an entity at `http://localhost:8000/fedora_resource/`.  If running the PHP built-in server command described in the Installation section:
+For example, suppose you create an entity at `http://localhost:8000/fedora_resource/1`.  If running the PHP built-in server command described in the Installation section:
 ```
 $ curl -X "POST" "localhost:8888/metadata/fedora_resource/1"
 ```
