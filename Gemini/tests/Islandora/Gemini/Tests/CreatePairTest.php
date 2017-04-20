@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Gemini\Tests;
+namespace Islandora\Gemini\Tests;
 
 use Islandora\Gemini\Controller\GeminiController;
 use Islandora\Crayfish\Commons\PathMapper\PathMapper;
