@@ -21,6 +21,9 @@ class HypercubeController
      */
     protected $cmd;
 
+    /**
+     * @var string
+     */
     protected $executable;
 
     /**
