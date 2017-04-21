@@ -19,8 +19,9 @@ You will also need an SQL database as needed for [Gemini](../Gemini)
 
 ## Configuration
 
-In the [config file](cfg/cfg.php) you will need to set the `fedora base url` entry to point to your Fedora installation.
-You will also need to set up the `drupal base url` entry to point to your Drupal 8 installation.
+Make a copy of the [config file](cfg/config.example.yaml) and name it `config.yaml` in the `cfg` directory.
+You will need to set the `fedora_base_url` entry to point to your Fedora installation.
+You will also need to set up the `drupal_base_url` entry to point to your Drupal 8 installation.
 The SQL db can be configured by following [Gemini's instructions](../Gemini).
 
 ## Usage
