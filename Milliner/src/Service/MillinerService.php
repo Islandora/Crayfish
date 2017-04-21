@@ -56,7 +56,7 @@ class MillinerService implements MillinerServiceInterface
         if ($fedora_path !== null) {
             throw new \RuntimeException(
                 "$drupal_path already exists in Fedora at $fedora_path",
-                200
+                409
             );
         }
 
