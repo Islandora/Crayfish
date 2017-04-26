@@ -779,12 +779,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Islandora-CLAW/Crayfish-Commons.git",
-                "reference": "fc3c83219df64711de7318d088e374c24c2d51ca"
+                "reference": "3957f46bb560909caa8d1962b20ab9312fdf22b9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Islandora-CLAW/Crayfish-Commons/zipball/fc3c83219df64711de7318d088e374c24c2d51ca",
-                "reference": "fc3c83219df64711de7318d088e374c24c2d51ca",
+                "url": "https://api.github.com/repos/Islandora-CLAW/Crayfish-Commons/zipball/3957f46bb560909caa8d1962b20ab9312fdf22b9",
+                "reference": "3957f46bb560909caa8d1962b20ab9312fdf22b9",
                 "shasum": ""
             },
             "require": {
@@ -828,7 +828,7 @@
                 }
             ],
             "description": "Shared code amongst Islandora Crayfish microservices",
-            "time": "2017-04-19 16:40:22"
+            "time": "2017-04-21 21:41:55"
         },
         {
             "name": "ml/iri",
