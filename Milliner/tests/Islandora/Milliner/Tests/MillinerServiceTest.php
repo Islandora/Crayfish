@@ -1,18 +1,10 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: whikloj
- * Date: 2017-04-25
- * Time: 6:50 PM
- */
 
 namespace Islandora\Milliner\Tests;
 
 use GuzzleHttp\Psr7\Response;
 use Islandora\Milliner\Service\MillinerService;
 use Prophecy\Prophet;
-use Silex\WebTestCase;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
  * Class MillinerServiceTest
@@ -22,22 +14,30 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 class MillinerServiceTest extends \PHPUnit_Framework_TestCase
 {
 
+    /**
+     * @var \Prophecy\Prophecy\ObjectProphecy
+     */
     private $fedora_api_prophecy;
 
+    /**
+     * @var \Prophecy\Prophecy\ObjectProphecy
+     */
     private $path_mapper_prophecy;
 
+    /**
+     * @var \Prophecy\Prophecy\ObjectProphecy
+     */
     private $logger_prophecy;
 
+    /**
+     * @var \Prophecy\Prophet
+     */
     private $prophet;
 
     /**
      * @var \Islandora\Milliner\Service\MillinerServiceInterface
      */
     protected $milliner;
-
-    //public function createApplication() {
-    //    return include_once('../../../../src/app.php');
-    //}
 
     public function setUp()
     {
