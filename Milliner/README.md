@@ -1,4 +1,4 @@
-# Milliner
+# ![Milliner](https://cloud.githubusercontent.com/assets/2371345/25281066/8eca01c8-2682-11e7-987f-c77df38cd733.png) Milliner
 
 ## Introduction
 
