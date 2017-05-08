@@ -47,53 +47,6 @@ class DrupalEntityConverterTest extends \PHPUnit_Framework_TestCase
      * @covers ::__construct
      * @covers ::convert
      */
-    public function testConverterNoAuth()
-    {
-        $options = ['http_errors' => false];
-        $drupal_path = "drupal/fedora_resource";
-        $escaped_path = addslashes($drupal_path);
-        $drupal_jsonld =<<<EOF
-{"@graph":[{"@id":"http:\/\/localhost:8000\/{$escaped_path}?_format=jsonld",
-"@type":["http:\/\/schema.org\/Thing","http:\/\/www.w3.org\/ns\/ldp#RDFSource","http:\/\/www.w3.org\/ns\/ldp#Container"
-],"http:\/\/schema.org\/author":[{"@id":"http:\/\/localhost:8000\/user\/1?_format=jsonld"}],
-"http:\/\/purl.org\/dc\/elements\/1.1\/title":[{"@value":"This is the final test"}],
-"http:\/\/www.w3.org\/1999\/02\/22-rdf-syntax-ns#label":[{"@value":"This is the final test"}],
-"http:\/\/schema.org\/dateCreated":[{"@value":"2017-04-25T21:45:32+00:00"}],
-"http:\/\/schema.org\/dateModified":[{"@value":"2017-04-25T21:45:32+00:00"}]},
-{"@id":"http:\/\/localhost:8000\/user\/1?_format=jsonld","@type":["http:\/\/schema.org\/Person"]}]}
-EOF;
-        // Using newlines to fit in PSR2, but removing to make JSON easier to match.
-        $drupal_jsonld = str_replace("\n", "", $drupal_jsonld);
-
-        $this->client_prophecy->get($drupal_path . '?_format=jsonld', $options)->willReturn(new Response(
-            200,
-            [
-                "Content-type" => "application/ld+json",
-                "Content-length" => strlen($drupal_jsonld),
-            ],
-            $drupal_jsonld
-        ));
-
-        $client = $this->client_prophecy->reveal();
-        $logger = $this->logger_prophecy->reveal();
-        $this->entity_converter = new DrupalEntityConverter($client, $logger);
-
-        $request = Request::create("/metadata/{$drupal_path}", "GET");
-
-        $response = $this->entity_converter->convert($drupal_path, $request);
-
-        $this->assertJsonStringEqualsJsonString(
-            $drupal_jsonld,
-            $response->getBody()->getContents(),
-            "Body doesn't match"
-        );
-        $this->assertEquals(200, $response->getStatusCode(), "Bad response code");
-    }
-
-    /**
-     * @covers ::__construct
-     * @covers ::convert
-     */
     public function testConverterWithAuth()
     {
         $token = "Bearer token";
