@@ -87,7 +87,7 @@ EOF;
         $request = Request::create("/metadata/{$drupal_path}", "GET");
         $request->headers->set("Authorization", $token);
 
-        $response = $this->entity_converter->convert($drupal_path, $request);
+        $response = $this->entity_converter->convertJsonld($drupal_path, $request);
 
         $this->assertJsonStringEqualsJsonString(
             $drupal_jsonld,

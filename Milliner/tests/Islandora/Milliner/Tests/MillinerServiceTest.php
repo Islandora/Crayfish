@@ -53,7 +53,7 @@ class MillinerServiceTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::create
+     * @covers ::createRdf
      * @covers ::processJsonLd
      */
     public function testCreateOk()
@@ -104,14 +104,14 @@ EOF;
         $logger = $this->logger_prophecy->reveal();
         $this->milliner = new MillinerService($api, $path_map, $logger);
 
-        $response = $this->milliner->create($drupal_jsonld, $drupal_path, $token);
+        $response = $this->milliner->createRdf($drupal_jsonld, $drupal_path, $token);
         $this->assertEquals(201, $response->getStatusCode(), "Expected created code");
         $this->assertEquals($fedora_path, $response->getBody()->getContents(), "Expected body");
     }
 
     /**
      * @covers ::__construct
-     * @covers ::create
+     * @covers ::createRdf
      * @expectedException \RuntimeException
      * @expectedExceptionCode 409
      */
@@ -141,12 +141,12 @@ EOF;
         $logger = $this->logger_prophecy->reveal();
         $this->milliner = new MillinerService($api, $path_map, $logger);
 
-        $this->milliner->create($drupal_jsonld, $drupal_path, $token);
+        $this->milliner->createRdf($drupal_jsonld, $drupal_path, $token);
     }
 
     /**
      * @covers ::__construct
-     * @covers ::update
+     * @covers ::updateRdf
      * @covers ::processJsonLd
      */
     public function testUpdateOk()
@@ -205,14 +205,14 @@ EOF;
         $logger = $this->logger_prophecy->reveal();
         $this->milliner = new MillinerService($api, $path_map, $logger);
 
-        $response = $this->milliner->update($drupal_jsonld, $drupal_path, $token);
+        $response = $this->milliner->updateRdf($drupal_jsonld, $drupal_path, $token);
         $this->assertEquals(204, $response->getStatusCode(), "Expected created code");
         $this->assertEquals('', $response->getBody()->getContents(), "Did not expect a body");
     }
 
     /**
      * @covers ::__construct
-     * @covers ::update
+     * @covers ::updateRdf
      * @expectedExceptionCode 404
      * @expectedException \RuntimeException
      */
@@ -242,7 +242,7 @@ EOF;
         $logger = $this->logger_prophecy->reveal();
         $this->milliner = new MillinerService($api, $path_map, $logger);
 
-        $this->milliner->update($drupal_jsonld, $drupal_path, $token);
+        $this->milliner->updateRdf($drupal_jsonld, $drupal_path, $token);
     }
 
     /**

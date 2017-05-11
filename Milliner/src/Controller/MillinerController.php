@@ -41,19 +41,10 @@ class MillinerController
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function create(ResponseInterface $drupal_entity, Request $request)
+    public function createRdf(ResponseInterface $drupal_entity, Request $request)
     {
-        $status = $drupal_entity->getStatusCode();
-        if ($status != 200) {
-            $this->log->debug("Drupal Entity: ", [
-              'body' => (string)$drupal_entity->getBody(),
-              'status' => $status,
-              'headers' => $drupal_entity->getHeaders()
-            ]);
-            return new Response(
-                "Error from Drupal: " . $drupal_entity->getReasonPhrase(),
-                $status
-            );
+        if ($response = $this->processDrupalResponse($drupal_entity)) {
+            return $response;
         }
 
         $drupal_jsonld = (string)$drupal_entity->getBody();
@@ -61,14 +52,15 @@ class MillinerController
         $token = $request->headers->get('Authorization');
 
         try {
-            $fedora_response = $this->milliner->create(
+            $fedora_response = $this->milliner->createRdf(
                 $drupal_jsonld,
                 $drupal_path,
                 $token
             );
             return new Response(
                 $fedora_response->getBody(),
-                $fedora_response->getStatusCode()
+                $fedora_response->getStatusCode(),
+                $fedora_response->getHeaders()
             );
         } catch (\Exception $e) {
             $this->log->debug("Exception Creating Fedora Resource: ", [
@@ -82,24 +74,52 @@ class MillinerController
         }
     }
 
+    public function createBinary(
+        ResponseInterface $drupal_entity,
+        Request $request
+    ) {
+        if ($response = $this->processDrupalResponse($drupal_entity)) {
+            return $response;
+        }
+
+        $drupal_binary = $drupal_entity->getBody();
+        $mimetype = $drupal_entity->getHeader("Content-Type");
+        $drupal_path = $request->get('path');
+        $token = $request->headers->get('Authorization');
+
+        try {
+            $fedora_response = $this->milliner->createBinary(
+                $drupal_binary,
+                $mimetype,
+                $drupal_path,
+                $token
+            );
+            return new Response(
+                $fedora_response->getBody(),
+                $fedora_response->getStatusCode(),
+                $fedora_response->getHeaders()
+            );
+        } catch (\Exception $e) {
+            $this->log->debug("Exception Creating Fedora Resource: ", [
+                'body' => $e->getMessage(),
+                'status' => $e->getCode(),
+            ]);
+            return new Response(
+                $e->getMessage(),
+                $e->getCode()
+            );
+        }
+    }
+
     /**
      * @param \Psr\Http\Message\ResponseInterface $drupal_entity
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function update(ResponseInterface $drupal_entity, Request $request)
+    public function updateRdf(ResponseInterface $drupal_entity, Request $request)
     {
-        $status = $drupal_entity->getStatusCode();
-        if ($status != 200) {
-            $this->log->debug("Drupal Entity: ", [
-                'body' => (string)$drupal_entity->getBody(),
-                'status' => $status,
-                'headers' => $drupal_entity->getHeaders()
-            ]);
-            return new Response(
-                "Error from Drupal: " . $drupal_entity->getReasonPhrase(),
-                $status
-            );
+        if ($response = $this->processDrupalResponse($drupal_entity)) {
+            return $response;
         }
 
         $drupal_jsonld = (string)$drupal_entity->getBody();
@@ -107,7 +127,7 @@ class MillinerController
         $token = $request->headers->get('Authorization');
 
         try {
-            $fedora_response = $this->milliner->update(
+            $fedora_response = $this->milliner->updateRdf(
                 $drupal_jsonld,
                 $drupal_path,
                 $token
@@ -156,5 +176,29 @@ class MillinerController
                 $e->getCode()
             );
         }
+    }
+
+    /**
+     * @param \Psr\Http\Message\ResponseInterface $drupal_entity
+     * @return null|\Symfony\Component\HttpFoundation\Response
+     */
+    protected function processDrupalResponse(ResponseInterface $drupal_entity) {
+        $status = $drupal_entity->getStatusCode();
+
+        // Exit early if response was OK.
+        if ($status == 200) {
+            return null;
+        }
+
+        // Otherwise return error response.
+        $this->log->debug("Drupal Entity: ", [
+            'body' => (string)$drupal_entity->getBody(),
+            'status' => $status,
+            'headers' => $drupal_entity->getHeaders()
+        ]);
+        return new Response(
+            "Error from Drupal: " . $drupal_entity->getReasonPhrase(),
+            $status
+        );
     }
 }

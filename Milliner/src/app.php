@@ -2,7 +2,6 @@
 
 require_once __DIR__.'/../vendor/autoload.php';
 
-use GuzzleHttp\Client;
 use Islandora\Chullo\FedoraApi;
 use Islandora\Crayfish\Commons\PathMapper\PathMapper;
 use Islandora\Crayfish\Commons\Provider\IslandoraServiceProvider;
@@ -29,20 +28,28 @@ $app['milliner.controller'] = function () use ($app) {
 };
 $app['drupal_entity.converter'] = function () use ($app) {
     return new DrupalEntityConverter(
-        new Client(['base_uri' => $app['crayfish.drupal_base_url']]),
+        $app['drupal.client'],
         $app['monolog']
     );
 };
 
-$app->post('/metadata/{drupal_entity}', "milliner.controller:create")
+$app->post('/rdf/{drupal_entity}', "milliner.controller:createRdf")
     ->assert('drupal_entity', '.+')
-    ->convert('drupal_entity', 'drupal_entity.converter:convert');
+    ->convert('drupal_entity', 'drupal_entity.converter:convertJsonld');
 
-$app->put('/metadata/{drupal_entity}', "milliner.controller:update")
+$app->put('/rdf/{drupal_entity}', "milliner.controller:updateRdf")
     ->assert('drupal_entity', '.+')
-    ->convert('drupal_entity', 'drupal_entity.converter:convert');
+    ->convert('drupal_entity', 'drupal_entity.converter:convertJsonld');
 
-$app->delete('/metadata/{drupal_path}', "milliner.controller:delete")
+$app->delete('/{drupal_path}', "milliner.controller:delete")
     ->assert('drupal_path', '.+');
+
+$app->post('/binary/{drupal_entity}', "milliner.controller:createBinary")
+    ->assert('drupal_entity', '.+')
+    ->convert('drupal_entity', 'drupal_entity.converter:convert');
+
+$app->put('/binary/{drupal_entity}', "milliner.controller:updateBinary")
+    ->assert('drupal_entity', '.+')
+    ->convert('drupal_entity', 'drupal_entity.converter:convert');
 
 return $app;

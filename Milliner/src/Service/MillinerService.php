@@ -2,6 +2,7 @@
 
 namespace Islandora\Milliner\Service;
 
+use GuzzleHttp\Client;
 use Islandora\Chullo\IFedoraApi;
 use Islandora\Crayfish\Commons\PathMapper\PathMapperInterface;
 use Psr\Log\LoggerInterface;
@@ -24,9 +25,9 @@ class MillinerService implements MillinerServiceInterface
     protected $pathMapper;
 
     /**
-     * @var
+     * @var \Psr\Log\LoggerInterface
      */
-    protected $logger;
+    protected $log;
 
     /**
      * MillinerService constructor.
@@ -47,7 +48,7 @@ class MillinerService implements MillinerServiceInterface
     /**
      * {@inheritDoc}
      */
-    public function create(
+    public function createRdf(
         $drupal_jsonld,
         $drupal_path,
         $token
@@ -85,10 +86,44 @@ class MillinerService implements MillinerServiceInterface
         return $fedora_response;
     }
 
+    public function createBinary(
+        $drupal_binary,
+        $mimetype,
+        $drupal_path,
+        $token
+    ) {
+        $fedora_path = $this->pathMapper->getFedoraPath($drupal_path);
+        if ($fedora_path !== null) {
+            throw new \RuntimeException(
+                "$drupal_path already exists in Fedora at $fedora_path",
+                409
+            );
+        }
+
+        $headers = [
+            'Authorization' => $token,
+            'Content-Type' => $mimetype,
+        ];
+
+        $fedora_response = $this->fedora->createResource(
+            '',
+            $drupal_binary,
+            $headers
+        );
+
+        $this->log->debug("Fedora POST Response: ", [
+            'body' => $fedora_response->getBody(),
+            'status' => $fedora_response->getStatusCode(),
+            'headers' => $fedora_response->getHeaders()
+        ]);
+
+        return $fedora_response;
+    }
+
     /**
      * {@inheritDoc}
      */
-    public function update(
+    public function updateRdf(
         $drupal_jsonld,
         $drupal_path,
         $token
@@ -189,5 +224,23 @@ class MillinerService implements MillinerServiceInterface
         $resource[0]['@id'] = "";
 
         return json_encode($resource);
+    }
+
+    protected function getFileUri(
+        $drupal_jsonld
+    ) {
+        // Get graph as array.
+        $rdf = json_decode($drupal_jsonld, true);
+
+        // Strip out everything other than the resource in question.
+        $resource = array_filter(
+            $rdf['@graph'],
+            function (array $elem) use ($drupal_path) {
+                return strpos($elem['@id'], $drupal_path) !== false;
+            }
+        );
+
+        $describes = 'http://www.iana.org/assignments/relation/describes';
+        return $resource[0][$describes][0]['@id'];
     }
 }

@@ -40,6 +40,30 @@ class DrupalEntityConverter
      */
     public function convert($path, Request $request)
     {
+        // Return the response from Drupal.
+        $options = $this->preprocess($path, $request);
+        return $this->client->get($path, $options);
+    }
+
+    /**
+     * @param $path
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public function convertJsonld($path, Request $request)
+    {
+        // Return the response from Drupal.
+        $options = $this->preprocess($path, $request);
+        return $this->client->get("$path?_format=jsonld", $options);
+    }
+
+    /**
+     * @param $path
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return array
+     */
+    protected function preprocess($path, Request $request)
+    {
         // Stuff the path onto the request for later.
         $request->attributes->set("path", $path);
 
@@ -48,11 +72,11 @@ class DrupalEntityConverter
         $options = ['http_errors' => false];
         if ($request->headers->has("Authorization")) {
             $options['headers'] = [
-              "Authorization" => $request->headers->get("Authorization")
+                "Authorization" => $request->headers->get("Authorization")
             ];
         }
 
-        // Return the response from Drupal.
-        return $this->client->get("$path?_format=jsonld", $options);
+        // Return guzzle options.
+        return $options;
     }
 }
