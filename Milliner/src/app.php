@@ -2,6 +2,7 @@
 
 require_once __DIR__.'/../vendor/autoload.php';
 
+use GuzzleHttp\Client;
 use Islandora\Chullo\FedoraApi;
 use Islandora\Crayfish\Commons\PathMapper\PathMapper;
 use Islandora\Crayfish\Commons\Provider\IslandoraServiceProvider;
@@ -28,7 +29,7 @@ $app['milliner.controller'] = function () use ($app) {
 };
 $app['drupal_entity.converter'] = function () use ($app) {
     return new DrupalEntityConverter(
-        $app['drupal.client'],
+        new Client(['base_uri' => $app['crayfish.drupal_base_url']]),
         $app['monolog']
     );
 };
