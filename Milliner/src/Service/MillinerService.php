@@ -86,6 +86,9 @@ class MillinerService implements MillinerServiceInterface
         return $fedora_response;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function createBinary(
         $drupal_binary,
         $mimetype,

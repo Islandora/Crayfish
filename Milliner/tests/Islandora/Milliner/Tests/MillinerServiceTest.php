@@ -56,7 +56,7 @@ class MillinerServiceTest extends \PHPUnit_Framework_TestCase
      * @covers ::createRdf
      * @covers ::processJsonLd
      */
-    public function testCreateOk()
+    public function testCreateRdfOk()
     {
         $drupal_path = "new/fedora/path";
         $escaped_path = addslashes($drupal_path);
@@ -115,7 +115,7 @@ EOF;
      * @expectedException \RuntimeException
      * @expectedExceptionCode 409
      */
-    public function testCreateError()
+    public function testCreateRdfError()
     {
         $drupal_path = "new/fedora/path";
         $existing_fedora_resource = "fedora/existing/path";
@@ -146,10 +146,72 @@ EOF;
 
     /**
      * @covers ::__construct
+     * @covers ::createBinary
+     * @covers ::processJsonLd
+     */
+    public function testCreateBinaryOk()
+    {
+        $drupal_path = "new/fedora/path";
+        $drupal_binary = "FOO";
+
+        $fedora_binary = "FOO";
+
+        $token = "Bearer token";
+        $headers = [
+            'Authorization' => $token,
+            'Content-Type' => 'text/plain',
+        ];
+        $fedora_path = "fedora/00/11/22/new";
+        $this->path_mapper_prophecy->getFedoraPath($drupal_path)->willReturn(null);
+        $this->fedora_api_prophecy->createResource('', $fedora_binary, $headers)->willReturn(
+            new Response(
+                201,
+                [
+                        'Content-type' => 'text/plain'
+                ],
+                $fedora_path
+            )
+        );
+
+        $api = $this->fedora_api_prophecy->reveal();
+        $path_map = $this->path_mapper_prophecy->reveal();
+        $logger = $this->logger_prophecy->reveal();
+        $this->milliner = new MillinerService($api, $path_map, $logger);
+
+        $response = $this->milliner->createBinary($drupal_binary, "text/plain", $drupal_path, $token);
+        $this->assertEquals(201, $response->getStatusCode(), "Expected created code");
+        $this->assertEquals($fedora_path, $response->getBody()->getContents(), "Expected body");
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::createBinary
+     * @expectedException \RuntimeException
+     * @expectedExceptionCode 409
+     */
+    public function testCreateBinaryError()
+    {
+        $drupal_path = "new/fedora/path";
+        $existing_fedora_resource = "fedora/existing/path";
+        $token = "Bearer token";
+        $drupal_binary = "FOO";
+
+        $this->path_mapper_prophecy->getFedoraPath($drupal_path)->willReturn($existing_fedora_resource);
+
+        $api = $this->fedora_api_prophecy->reveal();
+        $path_map = $this->path_mapper_prophecy->reveal();
+        $logger = $this->logger_prophecy->reveal();
+        $this->milliner = new MillinerService($api, $path_map, $logger);
+
+        $this->milliner->createBinary($drupal_binary, "text/plain", $drupal_path, $token);
+    }
+
+    /**
+     * @covers ::__construct
      * @covers ::updateRdf
      * @covers ::processJsonLd
      */
-    public function testUpdateOk()
+    public function testUpdateRdfOk()
     {
         $drupal_path = "drupal/fedora/path";
         $fedora_path = "fedora/00/11/22/new";
@@ -216,7 +278,7 @@ EOF;
      * @expectedExceptionCode 404
      * @expectedException \RuntimeException
      */
-    public function testUpdateError()
+    public function testUpdateRdfError()
     {
         $drupal_path = "drupal/fedora/path";
         $escaped_path = addslashes($drupal_path);
