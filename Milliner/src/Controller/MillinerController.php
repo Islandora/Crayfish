@@ -182,7 +182,8 @@ class MillinerController
      * @param \Psr\Http\Message\ResponseInterface $drupal_entity
      * @return null|\Symfony\Component\HttpFoundation\Response
      */
-    protected function processDrupalResponse(ResponseInterface $drupal_entity) {
+    protected function processDrupalResponse(ResponseInterface $drupal_entity)
+    {
         $status = $drupal_entity->getStatusCode();
 
         // Exit early if response was OK.
