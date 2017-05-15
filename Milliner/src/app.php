@@ -34,15 +34,23 @@ $app['drupal_entity.converter'] = function () use ($app) {
     );
 };
 
-$app->post('/metadata/{drupal_entity}', "milliner.controller:create")
+$app->post('/rdf/{drupal_entity}', "milliner.controller:createRdf")
     ->assert('drupal_entity', '.+')
-    ->convert('drupal_entity', 'drupal_entity.converter:convert');
+    ->convert('drupal_entity', 'drupal_entity.converter:convertJsonld');
 
-$app->put('/metadata/{drupal_entity}', "milliner.controller:update")
+$app->put('/rdf/{drupal_entity}', "milliner.controller:updateRdf")
     ->assert('drupal_entity', '.+')
-    ->convert('drupal_entity', 'drupal_entity.converter:convert');
+    ->convert('drupal_entity', 'drupal_entity.converter:convertJsonld');
 
-$app->delete('/metadata/{drupal_path}', "milliner.controller:delete")
+$app->delete('/{drupal_path}', "milliner.controller:delete")
     ->assert('drupal_path', '.+');
+
+$app->post('/binary/{drupal_entity}', "milliner.controller:createBinary")
+    ->assert('drupal_entity', '.+')
+    ->convert('drupal_entity', 'drupal_entity.converter:convert');
+
+$app->put('/binary/{drupal_entity}', "milliner.controller:updateBinary")
+    ->assert('drupal_entity', '.+')
+    ->convert('drupal_entity', 'drupal_entity.converter:convert');
 
 return $app;

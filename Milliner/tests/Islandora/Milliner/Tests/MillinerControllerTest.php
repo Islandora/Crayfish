@@ -24,7 +24,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
         // Mock a request since we'll never hit it.
         $mock_request = $this->prophesize(Request::class)->reveal();
 
-        $response = $controller->create(
+        $response = $controller->createRdf(
             $drupal_response,
             $mock_request
         );
@@ -33,7 +33,16 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             "Response code must be Drupal response code"
         );
 
-        $response = $controller->update(
+        $response = $controller->createBinary(
+            $drupal_response,
+            $mock_request
+        );
+        $this->assertTrue(
+            $response->getStatusCode() == 401,
+            "Response code must be Drupal response code"
+        );
+
+        $response = $controller->updateRdf(
             $drupal_response,
             $mock_request
         );
@@ -47,9 +56,11 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     {
         // Wire up a controller.
         $mock_milliner = $this->prophesize(MillinerServiceInterface::class);
-        $mock_milliner->create(Argument::any(), Argument::any(), Argument::any())
+        $mock_milliner->createRdf(Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(401, [], "Unauthorized"));
-        $mock_milliner->update(Argument::any(), Argument::any(), Argument::any())
+        $mock_milliner->createBinary(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+            ->willReturn(new Response(401, [], "Unauthorized"));
+        $mock_milliner->updateRdf(Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(401, [], "Unauthorized"));
         $mock_milliner->delete(Argument::any(), Argument::any())
             ->willReturn(new Response(401, [], "Unauthorized"));
@@ -70,13 +81,19 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             ['Authorization' => 'some_token']
         );
 
-        $response = $controller->create($drupal_response, $request);
+        $response = $controller->createRdf($drupal_response, $request);
         $this->assertTrue(
             $response->getStatusCode() == 401,
             "Response code must be Fedora response code"
         );
 
-        $response = $controller->update($drupal_response, $request);
+        $response = $controller->createBinary($drupal_response, $request);
+        $this->assertTrue(
+            $response->getStatusCode() == 401,
+            "Response code must be Fedora response code"
+        );
+
+        $response = $controller->updateRdf($drupal_response, $request);
         $this->assertTrue(
             $response->getStatusCode() == 401,
             "Response code must be Fedora response code"
@@ -93,9 +110,11 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     {
         // Wire up a controller.
         $mock_milliner = $this->prophesize(MillinerServiceInterface::class);
-        $mock_milliner->create(Argument::any(), Argument::any(), Argument::any())
+        $mock_milliner->createRdf(Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \RuntimeException("ERROR", 500));
-        $mock_milliner->update(Argument::any(), Argument::any(), Argument::any())
+        $mock_milliner->createBinary(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+            ->willThrow(new \RuntimeException("ERROR", 500));
+        $mock_milliner->updateRdf(Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \RuntimeException("ERROR", 500));
         $mock_milliner->delete(Argument::any(), Argument::any())
             ->willThrow(new \RuntimeException("ERROR", 500));
@@ -116,13 +135,19 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             ['Authorization' => 'some_token']
         );
 
-        $response = $controller->create($drupal_response, $request);
+        $response = $controller->createRdf($drupal_response, $request);
         $this->assertTrue(
             $response->getStatusCode() == 500,
             "Response code must be Exception response code"
         );
 
-        $response = $controller->update($drupal_response, $request);
+        $response = $controller->createBinary($drupal_response, $request);
+        $this->assertTrue(
+            $response->getStatusCode() == 500,
+            "Response code must be Exception response code"
+        );
+
+        $response = $controller->updateRdf($drupal_response, $request);
         $this->assertTrue(
             $response->getStatusCode() == 500,
             "Response code must be Exception response code"

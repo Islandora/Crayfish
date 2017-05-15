@@ -17,8 +17,25 @@ interface MillinerServiceInterface
      *
      * @return \GuzzleHttp\Psr7\Response
      */
-    public function create(
+    public function createRdf(
         $drupal_jsonld,
+        $drupal_path,
+        $token
+    );
+
+    /**
+     * @param $drupal_binary
+     * @param $mimetype
+     * @param $drupal_path
+     * @param $token
+     *
+     * @throws \RuntimeException
+     *
+     * @return mixed
+     */
+    public function createBinary(
+        $drupal_binary,
+        $mimetype,
         $drupal_path,
         $token
     );
@@ -32,7 +49,7 @@ interface MillinerServiceInterface
      *
      * @return \GuzzleHttp\Psr7\Response
      */
-    public function update(
+    public function updateRdf(
         $drupal_jsonld,
         $drupal_path,
         $token
