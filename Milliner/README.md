@@ -58,7 +58,7 @@ This deletes the corresponding Fedora resource for the specified Drupal entity.
 
 For example, suppose if you have an entity at `http://localhost:8000/fedora_resource/`.  If running the PHP built-in server command described in the Installation section:
 ```
-$ curl -X "PUT" "localhost:8888/metadata/fedora_resource/1"
+$ curl -X "DELETE" "localhost:8888/metadata/fedora_resource/1"
 ```
 will return `204 No Content` if the resource is successfully updated.
 
