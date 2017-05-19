@@ -65,7 +65,7 @@ Current maintainers:
 
 ## License
 
-[MIT](http://www.gnu.org/licenses/gpl-2.0.txt)
+[MIT](https://opensource.org/licenses/MIT)
 
 [2]: http://img.shields.io/badge/CONTRIBUTING-Guidelines-blue.svg
 [3]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square
