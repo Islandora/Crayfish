@@ -4,6 +4,7 @@ namespace Islandora\Houdini\Controller;
 
 use GuzzleHttp\Psr7\StreamWrapper;
 use Islandora\Crayfish\Commons\CmdExecuteService;
+use Islandora\Crayfish\Commons\ApixFedoraResourceRetriever;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -64,26 +65,14 @@ class HoudiniController
     }
 
     /**
-     * @param \Psr\Http\Message\ResponseInterface $fedora_resource
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\StreamedResponse
      */
-    public function convert(ResponseInterface $fedora_resource, Request $request)
+    public function convert(Request $request)
     {
         $this->log->info('Convert request.');
 
-        $status = $fedora_resource->getStatusCode();
-        if ($status != 200) {
-            $this->log->debug("Fedora Resource: ", [
-              'body' => $fedora_resource->getBody(),
-              'status' => $fedora_resource->getStatusCode(),
-              'headers' => $fedora_resource->getHeaders()
-            ]);
-            return new Response(
-                $fedora_resource->getReasonPhrase(),
-                $status
-            );
-        }
+        $fedora_resource = $request->attributes->get('fedora_resource');
 
         // Get image as a resource.
         $body = StreamWrapper::getResource($fedora_resource->getBody());
@@ -128,26 +117,14 @@ class HoudiniController
     }
 
     /**
-     * @param \Psr\Http\Message\ResponseInterface $fedora_resource
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\StreamedResponse
      */
-    public function identify(ResponseInterface $fedora_resource, Request $request)
+    public function identify(Request $request)
     {
         $this->log->info('Identify request.');
 
-        $status = $fedora_resource->getStatusCode();
-        if ($status != 200) {
-            $this->log->debug("Fedora Resource: ", [
-              'body' => $fedora_resource->getBody(),
-              'status' => $fedora_resource->getStatusCode(),
-              'headers' => $fedora_resource->getHeaders()
-            ]);
-            return new Response(
-                $fedora_resource->getReasonPhrase(),
-                $status
-            );
-        }
+        $fedora_resource = $request->attributes->get('fedora_resource');
 
         // Get image as a resource.
         $body = StreamWrapper::getResource($fedora_resource->getBody());
