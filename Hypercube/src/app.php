@@ -24,4 +24,6 @@ $app->get('/', "hypercube.controller:get")
         return $app['crayfish.apix_middleware']->before($request);
     });
 
+$app->options('/', "hypercube.controller:options");
+
 return $app;
