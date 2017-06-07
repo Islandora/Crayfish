@@ -38,19 +38,13 @@ class HypercubeController
     }
 
     /**
-     * @param \Psr\Http\Message\ResponseInterface $fedora_resource
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\StreamedResponse
      */
-    public function get(ResponseInterface $fedora_resource, Request $request)
+    public function get(Request $request)
     {
-        $status = $fedora_resource->getStatusCode();
-        if ($status != 200) {
-            return new Response(
-                $fedora_resource->getReasonPhrase(),
-                $status
-            );
-        }
+        // Hack the fedora resource out of the attributes.
+        $fedora_resource = $request->attributes->get('fedora_resource');
 
         // Get tiff as a resource.
         $body = StreamWrapper::getResource($fedora_resource->getBody());

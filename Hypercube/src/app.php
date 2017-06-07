@@ -6,6 +6,7 @@ use Islandora\Crayfish\Commons\Provider\IslandoraServiceProvider;
 use Islandora\Crayfish\Commons\Provider\YamlConfigServiceProvider;
 use Islandora\Hypercube\Controller\HypercubeController;
 use Silex\Application;
+use Symfony\Component\HttpFoundation\Request;
 
 $app = new Application();
 $app->register(new IslandoraServiceProvider());
@@ -18,8 +19,9 @@ $app['hypercube.controller'] = function ($app) {
     );
 };
 
-$app->get('/{fedora_resource}', "hypercube.controller:get")
-    ->assert('fedora_resource', '.+')
-    ->convert('fedora_resource', 'crayfish.fedora_resource:convert');
+$app->get('/', "hypercube.controller:get")
+    ->before(function (Request $request, Application $app) {
+        return $app['crayfish.apix_middleware']->before($request);
+    });
 
 return $app;
