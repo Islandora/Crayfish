@@ -4,7 +4,7 @@
 
 ## Introduction
 
-[Tesseract][9] as a microservice.
+[Tesseract][9] as a microservice for use with [Api-X][10].
 
 ## Installation
 
@@ -45,16 +45,21 @@ In order to work on larger images, be sure `post_max_size` is sufficiently large
 
 ## Usage
 
-Hypercube only accepts one request, a `GET` containing the path a TIFF in Fedora.
+Hypercube is meant for use with Api-X.  It accepts only accepts one request, a `GET` with the URI of a Fedora resource in the `ApixLdpResource` header..
 
 For example, suppose if you have a TIFF in Fedora at `http://localhost:8080/fcrepo/rest/foo/bar`.  If running the PHP built-in server command described in the Installation section:
 ```
-$ curl -H "Authorization: Bearer blabhlahblah" "localhost:8888/foo/bar"
+$ curl -H "Authorization: Bearer blabhlahblah" -H "ApixLdpResource: http://localhost:8080/fcrepo/rest/foo/bar" "http://localhost:8888"
 ```
 
 This will return the OCR generated from the TIFF in Fedora.  Additional arguments to `tesseract` can be provided using the `X-Islandora-Args` header.  For example, to change the page layout:
 ```
-$ curl -H "Authorization: Bearer blabhlahblah" -H "X-Islandora-Args: -psm 9" "localhost:8888/foo/bar"
+$ curl -H "Authorization: Bearer blabhlahblah" -H "ApixLdpResource: http://localhost:8080/fcrepo/rest/foo/bar" -H "X-Islandora-Args: -psm 9" "http://localhost:8888"
+```
+
+But you're probably going to use Hypercube through Api-X, which exposes it as `svc:ocr`.  Assuming your Api-X proxy is on port 8081, you can access the service with
+```
+$ curl -H "Authorization: Bearer blabhlahblah" "http://localhost:8081/services/foo/bar/svc:ocr"
 ```
 
 ## Maintainers
@@ -71,3 +76,4 @@ Current maintainers:
 [3]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square
 [4]: https://getcomposer.org/download/
 [9]: https://github.com/tesseract-ocr
+[10]: https://github.com/fcrepo4-labs/fcrepo-api-x 

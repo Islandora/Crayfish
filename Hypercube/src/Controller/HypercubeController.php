@@ -59,7 +59,7 @@ class HypercubeController
             return new StreamedResponse(
                 $this->cmd->execute($cmd_string, $body),
                 200,
-                array('Content-Type' => 'text/plain')
+                ['Content-Type' => 'text/plain']
             );
         } catch (\RuntimeException $e) {
             return new Response($e->getMessage(), 500);
@@ -68,7 +68,7 @@ class HypercubeController
 
     public function options(Request $request)
     {
-        return <<<EOD
+        $rdf = <<<EOD
 @prefix apix:<http://fedora.info/definitions/v4/api-extension#> .
 @prefix owl:<http://www.w3.org/2002/07/owl#> .
 @prefix ebucore:<http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#> .
@@ -88,6 +88,12 @@ class HypercubeController
         [ a owl:Restriction; owl:onProperty ebucore:hasMimeType; owl:hasValue "image/tiff" ]
 ) .
 EOD;
+
+        return new Response(
+            $rdf,
+            200,
+            ['Content-Type' => 'text/turtle']
+        );
     }
 
 }
