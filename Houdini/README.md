@@ -42,6 +42,11 @@ For example, suppose if you have a TIFF in Fedora at `http://localhost:8080/fcre
 $ curl -H "Authorization: Bearer blabhlahblah" -H "ApixLdpResource: http://localhost:8080/fcrepo/rest/foo/bar" "localhost:8888/identify"
 ```
 
+But you're probably going to use Houdini through Api-X, which exposes this service as `svc:indentify`.  Assuming your Api-X proxy is on port 8081, you can access the service with
+```
+$ curl -H "Authorization: Bearer blabhlahblah" "http://localhost:8081/services/foo/bar/svc:identify"
+```
+
 ### Convert
 
 This runs the imagemagick convert command on the specified resource. The output format is decided by the Accept header sent along with the request. A default output format can also be selected in the configuration.
@@ -56,6 +61,11 @@ This will return the TIFF converted into a PNG file.
 Additional arguments can be specified using the X-Islandora-Args header. For example to resize to 10% the size use:
 ```
 $ curl -H "Authorization: Bearer blabhlahblah" -H "ApixLdpResource: http://localhost:8080/fcrepo/rest/foo/bar" -H "X-Islandora-Args: -resize 10%" "localhost:8888/convert/foo/bar"
+```
+
+But you're probably going to use Houdini through Api-X, which exposes this service as `svc:convert`.  Assuming your Api-X proxy is on port 8081, you can access the service with
+```
+$ curl -H "Authorization: Bearer blabhlahblah" "http://localhost:8081/services/foo/bar/svc:convert"
 ```
 
 ## Maintainers
