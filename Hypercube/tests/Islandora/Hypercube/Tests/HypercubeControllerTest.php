@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 class HypercubeControllerTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     *
+     * @covers ::options
      */
     public function testOptions()
     {

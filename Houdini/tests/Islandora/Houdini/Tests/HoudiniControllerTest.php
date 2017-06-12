@@ -11,8 +11,16 @@ use Psr\Http\Message\StreamInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Monolog\Logger;
 
+/**
+ * @coversDefaultClass \Islandora\Crayfish\Houdini\Controller\HoudiniController
+ */
 class HoudiniControllerTest extends \PHPUnit_Framework_TestCase
 {
+
+    /**
+     * @covers ::identifyOptions
+     * @covers ::convertOptions
+     */
     public function testOptions()
     {
         $mock_service = $this->prophesize(CmdExecuteService::class)->reveal();
@@ -39,6 +47,10 @@ class HoudiniControllerTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * @covers ::identify
+     * @covers ::convert
+     */
     public function testErrorReturns500()
     {
         // Mock a CmdExecuteService to create a controller.
@@ -85,6 +97,10 @@ class HoudiniControllerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($response->getContent() == "ERROR", "Response must return exception's message");
     }
 
+    /**
+     * @covers ::identify
+     * @covers ::convert
+     */
     public function testSuccessReturns200()
     {
         // Mock a stream body for a Fedora response.

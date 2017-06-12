@@ -6,7 +6,6 @@ use GuzzleHttp\Psr7\StreamWrapper;
 use Islandora\Crayfish\Commons\CmdExecuteService;
 use Islandora\Crayfish\Commons\ApixFedoraResourceRetriever;
 use Psr\Http\Message\ResponseInterface;
-use Silex\Application;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -67,7 +66,7 @@ class HoudiniController
     }
 
     /**
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function convertOptions()
     {
@@ -131,7 +130,7 @@ class HoudiniController
     }
 
     /**
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function identifyOptions()
     {
