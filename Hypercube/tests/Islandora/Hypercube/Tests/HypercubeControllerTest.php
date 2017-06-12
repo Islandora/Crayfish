@@ -15,6 +15,25 @@ use Symfony\Component\HttpFoundation\Request;
 class HypercubeControllerTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     *
+     */
+    public function testOptions()
+    {
+        $mock_service = $this->prophesize(CmdExecuteService::class)->reveal();
+        $controller = new HypercubeController(
+            $mock_service,
+            ''
+        );
+
+        $response = $controller->options();
+        $this->assertTrue($response->getStatusCode() == 200, 'Identify OPTIONS should return 200');
+        $this->assertTrue(
+            $response->headers->get('Content-Type') == 'text/turtle',
+            'Identify OPTIONS should return turtle'
+        );
+    }
+
+    /**
      * @covers ::get
      */
     public function testTesseractErrorReturns500()

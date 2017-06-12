@@ -5,6 +5,7 @@ namespace Islandora\Hypercube\Controller;
 use GuzzleHttp\Psr7\StreamWrapper;
 use Islandora\Crayfish\Commons\CmdExecuteService;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -66,34 +67,12 @@ class HypercubeController
         }
     }
 
-    public function options(Request $request)
+    public function options()
     {
-        $rdf = <<<EOD
-@prefix apix:<http://fedora.info/definitions/v4/api-extension#> .
-@prefix owl:<http://www.w3.org/2002/07/owl#> .
-@prefix ebucore:<http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#> .
-@prefix fedora:<http://fedora.info/definitions/v4/repository#> .
-@prefix islandora:<http://islandora.ca/CLAW#> .
-@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#> .
-
-<> a apix:Extension;
-    rdfs:label "Tesseract OCR Service";
-    rdfs:comment "A service that runs OCR on tiffs";
-    apix:exposesService islandora:OcrService;
-    apix:exposesServiceAt "svc:ocr";
-    apix:bindsTo <#class> .
-
-<#class> owl:intersectionOf (
-        fedora:Binary
-        [ a owl:Restriction; owl:onProperty ebucore:hasMimeType; owl:hasValue "image/tiff" ]
-) .
-EOD;
-
-        return new Response(
-            $rdf,
+        return new BinaryFileResponse(
+            __DIR__ . "/../../static/hypercube.ttl",
             200,
             ['Content-Type' => 'text/turtle']
         );
     }
-
 }

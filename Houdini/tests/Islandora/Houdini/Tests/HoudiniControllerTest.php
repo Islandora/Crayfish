@@ -13,70 +13,32 @@ use Monolog\Logger;
 
 class HoudiniControllerTest extends \PHPUnit_Framework_TestCase
 {
-/*
-    public function testReturnsFedoraError()
+    public function testOptions()
     {
-        // Mock a CmdExecuteService to create a controller.
-        $prophecy = $this->prophesize(CmdExecuteService::class);
-        $mock_service = $prophecy->reveal();
-
-        // Mock a Fedora response.
-        $prophecy = $this->prophesize(ResponseInterface::class);
-        $prophecy->getBody()->willReturn();
-        $prophecy->getHeaders()->willReturn();
-        $prophecy->getStatusCode()->willReturn(401);
-        $prophecy->getReasonPhrase()->willReturn("Unauthorized");
-        $mock_fedora_response = $prophecy->reveal();
-
-        $prophecy = $this->prophesize(ApixFedoraResourceRetriever::class);
-        $prophecy->getFedoraResource(Argument::any())->willReturn($mock_fedora_response);
-        $mock_apix_retriever = $prophecy->reveal();
-
+        $mock_service = $this->prophesize(CmdExecuteService::class)->reveal();
         $controller = new HoudiniController(
             $mock_service,
-            $mock_apix_retriever,
             [],
             '',
             'convert',
             $this->prophesize(Logger::class)->reveal()
         );
 
-        // Create a Request.
-        $request = Request::create(
-            "/",
-            "GET"
-        );
-        $request->headers->set('Authorization', 'some_token');
-        $request->headers->set('Apix-Ldp-Resource', 'http://localhost:8080/fcrepo/rest/foo');
-
-        // Test convert
-        $response = $controller->convert($request);
-
-        print_r($response->getContent());
-
+        $response = $controller->identifyOptions();
+        $this->assertTrue($response->getStatusCode() == 200, 'Identify OPTIONS should return 200');
         $this->assertTrue(
-            $response->getStatusCode() == 401,
-            "Response code must be Fedora response code"
-        );
-        $this->assertTrue(
-            $response->getContent() == "Unauthorized",
-            "Response must return Fedora's reason phrase"
+            $response->headers->get('Content-Type') == 'text/turtle',
+            'Identify OPTIONS should return turtle'
         );
 
-        // Test identify
-        $response = $controller->identify($request);
-
+        $response = $controller->convertOptions();
+        $this->assertTrue($response->getStatusCode() == 200, 'Convert OPTIONS should return 200');
         $this->assertTrue(
-            $response->getStatusCode() == 401,
-            "Response code must be Fedora response code"
-        );
-        $this->assertTrue(
-            $response->getContent() == "Unauthorized",
-            "Response must return Fedora's reason phrase"
+            $response->headers->get('Content-Type') == 'text/turtle',
+            'Convert OPTIONS should return turtle'
         );
     }
 
-*/
     public function testErrorReturns500()
     {
         // Mock a CmdExecuteService to create a controller.
