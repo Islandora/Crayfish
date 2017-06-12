@@ -30,8 +30,8 @@ Houdini sets up two endpoints:
  - /identify/
  - /convert/
 
-Houdini is meant for use wtih Api-X, and accepts `GET` and `OPTIONS` requests to those endpoints.  The `OPTIONS` requests are for use with the Api-X service loading mechanism, and return RDF describing the
-service for Api-X.  The `GET` requests are used to execute the services, and must contain the uri to an image in Fedora in the `ApixLdpResource` header.
+Houdini is meant for use with API-X, and accepts `GET` and `OPTIONS` requests to those endpoints.  The `OPTIONS` requests are for use with the API-X service loading mechanism, and return RDF describing the
+service for API-X.  The `GET` requests are used to execute the services, and must contain the URI to an image in Fedora in the `ApixLdpResource` header.
 
 ### Identify
 
@@ -42,7 +42,7 @@ For example, suppose if you have a TIFF in Fedora at `http://localhost:8080/fcre
 $ curl -H "Authorization: Bearer blabhlahblah" -H "ApixLdpResource: http://localhost:8080/fcrepo/rest/foo/bar" "localhost:8888/identify"
 ```
 
-But you're probably going to use Houdini through Api-X, which exposes this service as `svc:indentify`.  Assuming your Api-X proxy is on port 8081, you can access the service with
+But you're probably going to use Houdini through API-X, which exposes this service as `svc:identify`.  Assuming your API-X proxy is on port 8081, you can access the service with
 ```
 $ curl -H "Authorization: Bearer blabhlahblah" "http://localhost:8081/services/foo/bar/svc:identify"
 ```
@@ -63,7 +63,7 @@ Additional arguments can be specified using the X-Islandora-Args header. For exa
 $ curl -H "Authorization: Bearer blabhlahblah" -H "ApixLdpResource: http://localhost:8080/fcrepo/rest/foo/bar" -H "X-Islandora-Args: -resize 10%" "localhost:8888/convert/foo/bar"
 ```
 
-But you're probably going to use Houdini through Api-X, which exposes this service as `svc:convert`.  Assuming your Api-X proxy is on port 8081, you can access the service with
+But you're probably going to use Houdini through API-X, which exposes this service as `svc:convert`.  Assuming your API-X proxy is on port 8081, you can access the service with
 ```
 $ curl -H "Authorization: Bearer blabhlahblah" "http://localhost:8081/services/foo/bar/svc:convert"
 ```
