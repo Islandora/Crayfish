@@ -37,61 +37,24 @@ class MillinerController
     }
 
     /**
-     * @param \Psr\Http\Message\ResponseInterface $drupal_entity
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function createRdf(ResponseInterface $drupal_entity, Request $request)
+    public function saveBinary(Request $request)
     {
-        if ($response = $this->processDrupalResponse($drupal_entity)) {
-            return $response;
-        }
-
-        $drupal_jsonld = (string)$drupal_entity->getBody();
-        $drupal_path = $request->get('path');
+        $drupal_response = $request->attributes->get("drupal_response");
+        $stream = $drupal_response->getBody();
+        $mimetype = $drupal_response->getHeader("Content-Type");
+        $url = $request->attributes->get('file_url');
+        $uuid = $request->attributes->get('uuid');
         $token = $request->headers->get('Authorization');
 
         try {
-            $fedora_response = $this->milliner->createRdf(
-                $drupal_jsonld,
-                $drupal_path,
-                $token
-            );
-            return new Response(
-                $fedora_response->getBody(),
-                $fedora_response->getStatusCode(),
-                $fedora_response->getHeaders()
-            );
-        } catch (\Exception $e) {
-            $this->log->debug("Exception Creating Fedora Resource: ", [
-              'body' => $e->getMessage(),
-              'status' => $e->getCode(),
-            ]);
-            return new Response(
-                $e->getMessage(),
-                $e->getCode()
-            );
-        }
-    }
-
-    public function createBinary(
-        ResponseInterface $drupal_entity,
-        Request $request
-    ) {
-        if ($response = $this->processDrupalResponse($drupal_entity)) {
-            return $response;
-        }
-
-        $drupal_binary = $drupal_entity->getBody();
-        $mimetype = $drupal_entity->getHeader("Content-Type");
-        $drupal_path = $request->get('path');
-        $token = $request->headers->get('Authorization');
-
-        try {
-            $fedora_response = $this->milliner->createBinary(
-                $drupal_binary,
+            $fedora_response = $this->milliner->saveBinary(
+                $stream,
                 $mimetype,
-                $drupal_path,
+                $url,
+                $uuid,
                 $token
             );
             return new Response(
@@ -100,7 +63,7 @@ class MillinerController
                 $fedora_response->getHeaders()
             );
         } catch (\Exception $e) {
-            $this->log->debug("Exception Creating Fedora Resource: ", [
+            $this->log->debug("Exception Saving Fedora Binary: ", [
                 'body' => $e->getMessage(),
                 'status' => $e->getCode(),
             ]);
@@ -112,24 +75,22 @@ class MillinerController
     }
 
     /**
-     * @param \Psr\Http\Message\ResponseInterface $drupal_entity
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function updateRdf(ResponseInterface $drupal_entity, Request $request)
+    public function saveJsonld(Request $request)
     {
-        if ($response = $this->processDrupalResponse($drupal_entity)) {
-            return $response;
-        }
-
-        $drupal_jsonld = (string)$drupal_entity->getBody();
-        $drupal_path = $request->get('path');
+        $drupal_response = $request->attributes->get("drupal_response");
+        $jsonld = (string)$drupal_response->getBody();
+        $url = $request->attributes->get('html_url');
+        $uuid = $request->attributes->get('uuid');
         $token = $request->headers->get('Authorization');
 
         try {
-            $fedora_response = $this->milliner->updateRdf(
-                $drupal_jsonld,
-                $drupal_path,
+            $fedora_response = $this->milliner->saveJsonld(
+                $jsonld,
+                $url,
+                $uuid,
                 $token
             );
             return new Response(
@@ -149,25 +110,33 @@ class MillinerController
     }
 
     /**
-     * @param $drupal_path
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function delete($drupal_path, Request $request)
+    public function deleteBinary(Request $request)
     {
         $token = $request->headers->get('Authorization');
+        $url = $request->attributes->get('file_url');
 
         try {
             $fedora_response = $this->milliner->delete(
-                $drupal_path,
+                $url,
                 $token
             );
-            return new Response(
-                $fedora_response->getBody(),
-                $fedora_response->getStatusCode()
-            );
+
+            if ($fedora_response) {
+                return new Response(
+                    $fedora_response->getBody(),
+                    $fedora_response->getStatusCode()
+                );
+            } else {
+                return new Response(
+                    "No Fedora binary found for $url",
+                    404
+                );
+            }
         } catch (\Exception $e) {
-            $this->log->debug("Exception Deleting Fedora Resource: ", [
+            $this->log->debug("Exception Deleting Fedora Binary: ", [
                 'body' => $e->getMessage(),
                 'status' => $e->getCode(),
             ]);
@@ -179,27 +148,40 @@ class MillinerController
     }
 
     /**
-     * @param \Psr\Http\Message\ResponseInterface $drupal_entity
-     * @return null|\Symfony\Component\HttpFoundation\Response
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    protected function processDrupalResponse(ResponseInterface $drupal_entity)
+    public function deleteJsonld(Request $request)
     {
-        $status = $drupal_entity->getStatusCode();
+        $token = $request->headers->get('Authorization');
+        $url = $request->attributes->get('html_url');
 
-        // Exit early if response was OK.
-        if ($status == 200) {
-            return null;
+        try {
+            $fedora_response = $this->milliner->delete(
+                $url,
+                $token
+            );
+
+            if ($fedora_response) {
+                return new Response(
+                    $fedora_response->getBody(),
+                    $fedora_response->getStatusCode()
+                );
+            } else {
+                return new Response(
+                    "No Fedora resource found for $url",
+                    404
+                );
+            }
+        } catch (\Exception $e) {
+            $this->log->debug("Exception Deleting Fedora Binary: ", [
+                'body' => $e->getMessage(),
+                'status' => $e->getCode(),
+            ]);
+            return new Response(
+                $e->getMessage(),
+                $e->getCode()
+            );
         }
-
-        // Otherwise return error response.
-        $this->log->debug("Drupal Entity: ", [
-            'body' => (string)$drupal_entity->getBody(),
-            'status' => $status,
-            'headers' => $drupal_entity->getHeaders()
-        ]);
-        return new Response(
-            "Error from Drupal: " . $drupal_entity->getReasonPhrase(),
-            $status
-        );
     }
 }

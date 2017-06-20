@@ -9,62 +9,51 @@ namespace Islandora\Milliner\Service;
 interface MillinerServiceInterface
 {
     /**
-     * @param $drupal_jsonld
-     * @param $drupal_path
-     * @param $token
-     *
-     * @throws \RuntimeException
-     *
-     * @return \GuzzleHttp\Psr7\Response
-     */
-    public function createRdf(
-        $drupal_jsonld,
-        $drupal_path,
-        $token
-    );
-
-    /**
-     * @param $drupal_binary
+     * @param $stream
      * @param $mimetype
-     * @param $drupal_path
+     * @param $drupal_url
+     * @param $uuid
      * @param $token
      *
      * @throws \RuntimeException
      *
-     * @return mixed
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function createBinary(
-        $drupal_binary,
+    public function saveBinary(
+        $stream,
         $mimetype,
-        $drupal_path,
+        $drupal_url,
+        $uuid,
         $token
     );
 
     /**
-     * @param $drupal_jsonld
-     * @param $drupal_path
+     * @param $jsonld
+     * @param $drupal_url
+     * @param $uuid
      * @param $token
      *
      * @throws \RuntimeException
      *
-     * @return \GuzzleHttp\Psr7\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function updateRdf(
-        $drupal_jsonld,
-        $drupal_path,
+    public function saveJsonld(
+        $jsonld,
+        $drupal_url,
+        $uuid,
         $token
     );
 
     /**
-     * @param $drupal_path
+     * @param $drupal_url
      * @param $token
      *
      * @throws \RuntimeException
      *
-     * @return \GuzzleHttp\Psr7\Response
+     * @return \Psr\Http\Message\ResponseInterface|null
      */
     public function delete(
-        $drupal_path,
+        $drupal_url,
         $token
     );
 }
