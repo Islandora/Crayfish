@@ -1,6 +1,6 @@
 <?php
 
-namespace Islandora\Milliner\Converter;
+namespace Islandora\Milliner\Middleware;
 
 use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
@@ -40,15 +40,15 @@ class MillinerMiddleware
      */
     public function parseEvent(Request $request)
     {
-        if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
+        if (0 === strpos($request->headers->get('Content-Type'), 'application/ld+json')) {
             $data = json_decode($request->getContent(), true);
-            $request->request->replace(is_array($data) ? $data : array());
+            $request->attributes->set("event", $data);
 
             if ($error_response = $this->extractUuid($request)) {
                 return $error_response;
             }
 
-            if ($error_response = $this->extractObjectRdfUrl($request)) {
+            if ($error_response = $this->extractObjectJsonldUrl($request)) {
                 return $error_response;
             }
 
@@ -59,7 +59,7 @@ class MillinerMiddleware
         else {
             // Short circuit if the request is not JSON.
             return new Response(
-                "Content-Type MUST be application/json",
+                "Content-Type MUST be application/ld+json",
                 400
             );
         }
@@ -71,9 +71,9 @@ class MillinerMiddleware
      */
     protected function extractUuid(Request $request)
     {
-        $event = $request->getContent();
+        $event = $request->attributes->get("event");
         $urn = $event['object']['id'];
-        if (!preg_match("/urn:islandora:(?<uuid>.*)/", $urn, $matches)) {
+        if (preg_match("/urn:islandora:(?<uuid>.*)/", $urn, $matches)) {
             if (isset($matches['uuid'])) {
                 $request->attributes->set("uuid", $matches['uuid']);
             }
@@ -96,21 +96,22 @@ class MillinerMiddleware
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    protected function extractObjectRdfUrl(Request $request)
+    protected function extractObjectJsonldUrl(Request $request)
     {
-        $event = $request->getContent();
-        $url = array_filter($event['object']['url'], function ($elem) {
+        $event = $request->attributes->get("event");
+        $filtered = array_filter($event['object']['url'], function ($elem) {
             return $elem['mediaType'] == 'application/ld+json';
         });
 
-        if (empty($url)) {
+        if (empty($filtered)) {
             return new Response(
                 "Request is missing 'application/ld+json' url for object",
                 400
             );
         }
 
-        $request->attributes->set("rdf_url", $url['href']);
+        $url = reset($filtered);
+        $request->attributes->set("jsonld_url", $url['href']);
     }
 
     /**
@@ -119,18 +120,19 @@ class MillinerMiddleware
      */
     protected function extractObjectHtmlUrl(Request $request)
     {
-        $event = $request->getContent();
-        $url = array_filter($event['object']['url'], function ($elem) {
+        $event = $request->attributes->get("event");
+        $filtered = array_filter($event['object']['url'], function ($elem) {
             return $elem['mediaType'] == 'text/html';
         });
 
-        if (empty($url)) {
+        if (empty($filtered)) {
             return new Response(
                 "Request is missing 'text/html' url for object",
                 400
             );
         }
 
+        $url = reset($filtered);
         $request->attributes->set("html_url", $url['href']);
     }
 
@@ -140,7 +142,7 @@ class MillinerMiddleware
      */
     public function extractFileUrl(Request $request)
     {
-        $event = $request->getContent();
+        $event = $request->attributes->get("event");
         if (!isset($event['object']['attachment'])) {
             return new Response(
                 "Event is missing 'attachment' for object",
@@ -168,7 +170,7 @@ class MillinerMiddleware
      */
     public function getDrupalJsonld(Request $request)
     {
-        $url = $request->attributes->get("rdf_url");
+        $url = $request->attributes->get("jsonld_url");
         return $this->getDrupalResponse($url, $request);
     }
 

@@ -6,7 +6,6 @@ use GuzzleHttp\Client;
 use Islandora\Chullo\IFedoraApi;
 use Islandora\Crayfish\Commons\IdMapper\IdMapperInterface;
 use Psr\Log\LoggerInterface;
-use SebastianBergmann\GlobalState\RuntimeException;
 
 /**
  * Class MillinerService
@@ -110,8 +109,6 @@ class MillinerService implements MillinerServiceInterface
         $uuid,
         $token
     ) {
-        $jsonld = $this->processJsonld($jsonld, $drupal_url);
-
         $headers = [
             'Authorization' => $token,
             'Content-Type' => 'application/ld+json',
@@ -135,6 +132,8 @@ class MillinerService implements MillinerServiceInterface
         else {
             $fedora_url = $this->urlMinter->mint($uuid);
         }
+
+        $jsonld = $this->processJsonld($jsonld, $drupal_url, $fedora_url);
 
         $fedora_response = $this->fedora->saveResource(
             $fedora_url,
@@ -187,7 +186,7 @@ class MillinerService implements MillinerServiceInterface
      * @param $drupal_path
      * @return string
      */
-    protected function processJsonld($drupal_jsonld, $drupal_url)
+    protected function processJsonld($drupal_jsonld, $drupal_url, $fedora_url)
     {
         // Get graph as array.
         $rdf = json_decode($drupal_jsonld, true);
@@ -200,8 +199,8 @@ class MillinerService implements MillinerServiceInterface
             }
         );
 
-        // Put in an empty string as a placeholder for fedora path.
-        $resource[0]['@id'] = "";
+        // Put in an fedora url for the resource.
+        $resource[0]['@id'] = $fedora_url;
 
         return json_encode($resource);
     }

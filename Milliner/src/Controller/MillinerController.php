@@ -57,11 +57,17 @@ class MillinerController
                 $uuid,
                 $token
             );
-            return new Response(
+
+            $response = new Response(
                 $fedora_response->getBody(),
-                $fedora_response->getStatusCode(),
-                $fedora_response->getHeaders()
+                $fedora_response->getStatusCode()
             );
+
+            if ($location = $fedora_response->getHeader("Location")) {
+                $response->headers->set("Location", $location);
+            }
+
+            return $response;
         } catch (\Exception $e) {
             $this->log->debug("Exception Saving Fedora Binary: ", [
                 'body' => $e->getMessage(),
@@ -82,7 +88,7 @@ class MillinerController
     {
         $drupal_response = $request->attributes->get("drupal_response");
         $jsonld = (string)$drupal_response->getBody();
-        $url = $request->attributes->get('html_url');
+        $url = $request->attributes->get('jsonld_url');
         $uuid = $request->attributes->get('uuid');
         $token = $request->headers->get('Authorization');
 
@@ -93,10 +99,17 @@ class MillinerController
                 $uuid,
                 $token
             );
-            return new Response(
+
+            $response = new Response(
                 $fedora_response->getBody(),
                 $fedora_response->getStatusCode()
             );
+
+            if ($location = $fedora_response->getHeader("Location")) {
+                $response->headers->set("Location", $location);
+            }
+
+            return $response;
         } catch (\Exception $e) {
             $this->log->debug("Exception Updating Fedora Resource: ", [
                 'body' => $e->getMessage(),

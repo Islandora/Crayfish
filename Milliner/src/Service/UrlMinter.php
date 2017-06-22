@@ -15,7 +15,8 @@ class UrlMinter implements UrlMinterInterface
     public function __construct(
        $base_url
     ) {
-        $this->base_url = $base_url;
+        $trimmed = trim($base_url);
+        $this->base_url = rtrim($trimmed, '/') . '/';
     }
 
     /**

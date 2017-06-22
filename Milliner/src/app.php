@@ -8,7 +8,7 @@ use Islandora\Crayfish\Commons\IdMapper\IdMapper;
 use Islandora\Crayfish\Commons\Provider\IslandoraServiceProvider;
 use Islandora\Crayfish\Commons\Provider\YamlConfigServiceProvider;
 use Islandora\Milliner\Controller\MillinerController;
-use Islandora\Milliner\Converter\MillinerMiddleware;
+use Islandora\Milliner\Middleware\MillinerMiddleware;
 use Islandora\Milliner\Service\MillinerService;
 use Islandora\Milliner\Service\UrlMinter;
 use Silex\Application;
