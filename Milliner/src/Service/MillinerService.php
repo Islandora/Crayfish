@@ -97,6 +97,9 @@ class MillinerService implements MillinerServiceInterface
             'headers' => $fedora_response->getHeaders()
         ]);
 
+        if (!$fedora_response->hasHeader("Location")) {
+            return $fedora_response->withHeader("Location", $fedora_url);
+        }
         return $fedora_response;
     }
 
@@ -147,7 +150,34 @@ class MillinerService implements MillinerServiceInterface
             'headers' => $fedora_response->getHeaders()
         ]);
 
+        if (!$fedora_response->hasHeader("Location")) {
+            return $fedora_response->withHeader("Location", $fedora_url);
+        }
         return $fedora_response;
+    }
+
+    /**
+     * @param $jsonld
+     * @param $drupal_path
+     * @return string
+     */
+    protected function processJsonld($jsonld, $drupal_url, $fedora_url)
+    {
+        // Get graph as array.
+        $rdf = json_decode($jsonld, true);
+
+        // Strip out everything other than the resource in question.
+        $resource = array_filter(
+            $rdf['@graph'],
+            function (array $elem) use ($drupal_url) {
+                return $elem['@id'] == $drupal_url;
+            }
+        );
+
+        // Put in an fedora url for the resource.
+        $resource[0]['@id'] = $fedora_url;
+
+        return json_encode($resource);
     }
 
     /**
@@ -179,30 +209,6 @@ class MillinerService implements MillinerServiceInterface
         }
 
         return null;
-    }
-
-    /**
-     * @param $drupal_jsonld
-     * @param $drupal_path
-     * @return string
-     */
-    protected function processJsonld($drupal_jsonld, $drupal_url, $fedora_url)
-    {
-        // Get graph as array.
-        $rdf = json_decode($drupal_jsonld, true);
-
-        // Strip out everything other than the resource in question.
-        $resource = array_filter(
-            $rdf['@graph'],
-            function (array $elem) use ($drupal_url) {
-                return $elem['@id'] == $drupal_url;
-            }
-        );
-
-        // Put in an fedora url for the resource.
-        $resource[0]['@id'] = $fedora_url;
-
-        return json_encode($resource);
     }
 
 }

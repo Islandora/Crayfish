@@ -2,7 +2,7 @@
 
 namespace Islandora\Gemini\Controller;
 
-use Islandora\Crayfish\Commons\PathMapper\PathMapperInterface;
+use Islandora\Crayfish\Commons\IdMapper\IdMapperInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -14,27 +14,27 @@ class GeminiController
 {
 
     /**
-     * @var \Islandora\Crayfish\Commons\PathMapper\PathMapperInterface
+     * @var \Islandora\Crayfish\Commons\IdMapper\IdMapperInterface
      */
-    protected $pathMapper;
+    protected $idMapper;
 
     /**
      * GeminiController constructor.
-     * @param \Islandora\Crayfish\Commons\PathMapper\PathMapperInterface
+     * @param \Islandora\Crayfish\Commons\IdMapper\IdMapperInterface
      */
-    public function __construct(PathMapperInterface $pathMapper)
+    public function __construct(IdMapperInterface $idMapper)
     {
-        $this->pathMapper = $pathMapper;
+        $this->idMapper = $idMapper;
     }
 
     /**
-     * @param string $fedora_path
+     * @param string $fedora_id
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function getDrupalPath($fedora_path)
+    public function getDrupalId($fedora_id)
     {
         try {
-            if (!$result = $this->pathMapper->getDrupalPath($fedora_path)) {
+            if (!$result = $this->idMapper->getDrupalId($fedora_id)) {
                 return new Response(null, 404);
             }
 
@@ -45,13 +45,13 @@ class GeminiController
     }
 
     /**
-     * @param string $drupal_path
+     * @param string $drupal_id
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function getFedoraPath($drupal_path)
+    public function getFedoraId($drupal_id)
     {
         try {
-            if (!$result = $this->pathMapper->getFedoraPath($drupal_path)) {
+            if (!$result = $this->idMapper->getFedoraId($drupal_id)) {
                 return new Response(null, 404);
             }
 
@@ -75,15 +75,15 @@ class GeminiController
         $body = json_decode($request->getContent(), true);
 
         if (!isset($body['drupal'])) {
-            return new Response("POST body must contain Drupal path", 400);
+            return new Response("POST body must contain Drupal id", 400);
         }
 
         if (!isset($body['fedora'])) {
-            return new Response("POST body must contain Fedora path", 400);
+            return new Response("POST body must contain Fedora id", 400);
         }
 
         try {
-            $this->pathMapper->createPair(
+            $this->idMapper->createPair(
                 $this->sanitize($body['drupal']),
                 $this->sanitize($body['fedora'])
             );
@@ -94,13 +94,13 @@ class GeminiController
     }
 
     /**
-     * @param string $drupal_path
+     * @param string $drupal_id
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function deleteFromDrupalPath($drupal_path)
+    public function deleteFromDrupalId($drupal_id)
     {
         try {
-            if (!$result = $this->pathMapper->deleteFromDrupalPath($drupal_path)) {
+            if (!$result = $this->idMapper->deleteFromDrupalId($drupal_id)) {
                 return new Response("Not Found", 404);
             }
 
@@ -111,13 +111,13 @@ class GeminiController
     }
 
     /**
-     * @param string $fedora_path
+     * @param string $fedora_id
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function deleteFromFedoraPath($fedora_path)
+    public function deleteFromFedoraId($fedora_id)
     {
         try {
-            if (!$result = $this->pathMapper->deleteFromFedoraPath($fedora_path)) {
+            if (!$result = $this->idMapper->deleteFromFedoraId($fedora_id)) {
                 return new Response(null, 404);
             }
 
@@ -128,12 +128,12 @@ class GeminiController
     }
 
     /**
-     * @param string $path
+     * @param string $id
      * @return string
      */
-    public function sanitize($path)
+    public function sanitize($id)
     {
-        $sanitized = ltrim($path);
+        $sanitized = ltrim($id);
         return ltrim($sanitized, '/');
     }
 }

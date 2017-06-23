@@ -3,7 +3,7 @@
 namespace Islandora\Milliner\Controller;
 
 use Islandora\Milliner\Service\MillinerServiceInterface;
-use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Psr7;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,15 +42,25 @@ class MillinerController
      */
     public function saveBinary(Request $request)
     {
-        $drupal_response = $request->attributes->get("drupal_response");
-        $stream = $drupal_response->getBody();
-        $mimetype = $drupal_response->getHeader("Content-Type");
+        // Middeware will already have returned error if these don't exist.
+        $stream = $request->attributes->get("file");
+        $mimetype = $request->attributes->get("mimetype");
         $url = $request->attributes->get('file_url');
-        $uuid = $request->attributes->get('uuid');
-        $token = $request->headers->get('Authorization');
+
+        // Return error if UUID could not be extracted.
+        $uuid = $request->attributes->get('uuid', null);
+        if (!$uuid) {
+            return new Response(
+                "Could not extract UUID from AS2 event",
+                400
+            );
+        }
+
+        // Get token if it exists.
+        $token = $request->headers->get('Authorization', null);
 
         try {
-            $fedora_response = $this->milliner->saveBinary(
+            $response = $this->milliner->saveBinary(
                 $stream,
                 $mimetype,
                 $url,
@@ -58,16 +68,47 @@ class MillinerController
                 $token
             );
 
-            $response = new Response(
-                $fedora_response->getBody(),
-                $fedora_response->getStatusCode()
-            );
+            $status = $response->getStatusCode();
 
-            if ($location = $fedora_response->getHeader("Location")) {
-                $response->headers->set("Location", $location);
+            // Return errors as-is.
+            if (!($status == 201 || $status == 204)) {
+                return new Response(
+                    $response->getBody(),
+                    $response->getStatusCode()
+                );
             }
 
-            return $response;
+            // Otherwise enrich the event with additional URLs and return it.
+            $event = $request->attributes->get("event");
+            $event['object']['url'][] = [
+                "name" => "Drupal File",
+                "type" => "Link",
+                "href" => $url,
+                "mediaType" => $mimetype,
+            ];
+            $event['object']['url'][] = [
+                "name" => "Fedora File",
+                "type" => "Link",
+                "href" => $response->getHeader("Location"),
+                "mediaType" => $mimetype,
+            ];
+            $parsed = Psr7\parse_header($response->getHeader("Link"));
+            foreach ($parsed as $header) {
+                if (isset($header['rel']) && $header['rel'] = 'describedby') {
+                    $event['object']['url'][] = [
+                        "name" => "Fedora Metadata",
+                        "type" => "Link",
+                        "href" => trim($parsed[0], '<>'),
+                    ];
+                    break;
+                }
+            }
+
+            return new Response(
+                json_encode($event),
+                $status,
+                ['Content-Type' => 'application/ld+json']
+            );
         } catch (\Exception $e) {
             $this->log->debug("Exception Saving Fedora Binary: ", [
                 'body' => $e->getMessage(),
@@ -86,30 +127,42 @@ class MillinerController
      */
     public function saveJsonld(Request $request)
     {
-        $drupal_response = $request->attributes->get("drupal_response");
-        $jsonld = (string)$drupal_response->getBody();
+        $jsonld = $request->attributes->get('jsonld');
         $url = $request->attributes->get('jsonld_url');
         $uuid = $request->attributes->get('uuid');
         $token = $request->headers->get('Authorization');
 
         try {
-            $fedora_response = $this->milliner->saveJsonld(
+            $response = $this->milliner->saveJsonld(
                 $jsonld,
                 $url,
                 $uuid,
                 $token
             );
 
-            $response = new Response(
-                $fedora_response->getBody(),
-                $fedora_response->getStatusCode()
-            );
+            $status = $response->getStatusCode();
 
-            if ($location = $fedora_response->getHeader("Location")) {
-                $response->headers->set("Location", $location);
+            // Return errors as-is.
+            if (!($status == 201 || $status == 204)) {
+                return new Response(
+                    $response->getBody(),
+                    $response->getStatusCode()
+                );
             }
 
-            return $response;
+            // Otherwise enrich the event with Fedora URL and return it.
+            $event = $request->attributes->get("event");
+            $event['object']['url'][] = [
+                "name" => "Fedora Metadata",
+                "type" => "Link",
+                "href" => $response->getHeader("Location"),
+            ];
+
+            return new Response(
+                json_encode($event),
+                $status,
+                ['Content-Type' => 'application/ld+json']
+            );
         } catch (\Exception $e) {
             $this->log->debug("Exception Updating Fedora Resource: ", [
                 'body' => $e->getMessage(),

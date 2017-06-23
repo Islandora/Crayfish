@@ -8,7 +8,7 @@ use Islandora\Crayfish\Commons\IdMapper\IdMapper;
 use Islandora\Crayfish\Commons\Provider\IslandoraServiceProvider;
 use Islandora\Crayfish\Commons\Provider\YamlConfigServiceProvider;
 use Islandora\Milliner\Controller\MillinerController;
-use Islandora\Milliner\Middleware\MillinerMiddleware;
+use Islandora\Milliner\Middleware\AS2Middleware;
 use Islandora\Milliner\Service\MillinerService;
 use Islandora\Milliner\Service\UrlMinter;
 use Silex\Application;
@@ -31,7 +31,7 @@ $app['milliner.controller'] = function () use ($app) {
     );
 };
 $app['milliner.middleware'] = function () use ($app) {
-    return new MillinerMiddleware(
+    return new AS2Middleware(
         new Client(),
         $app['monolog']
     );
@@ -42,7 +42,7 @@ $app->post('/jsonld/save', "milliner.controller:saveJsonld")
         return $app['milliner.middleware']->parseEvent($request);
     })
     ->before(function (Request $request, Application $app) {
-        return $app['milliner.middleware']->getDrupalJsonld($request);
+        return $app['milliner.middleware']->getJsonld($request);
     });
 $app->post('/jsonld/delete', "milliner.controller:deleteJsonld")
     ->before(function (Request $request, Application $app) {
@@ -54,17 +54,14 @@ $app->post('/binary/save', "milliner.controller:saveBinary")
         return $app['milliner.middleware']->parseEvent($request);
     })
     ->before(function (Request $request, Application $app) {
-        return $app['milliner.middleware']->extractFileUrl($request);
+        return $app['milliner.middleware']->getJsonld($request);
     })
     ->before(function (Request $request, Application $app) {
-        return $app['milliner.middleware']->getDrupalFile($request);
+        return $app['milliner.middleware']->getFile($request);
     });
 $app->post('/binary/delete', "milliner.controller:deleteBinary")
     ->before(function (Request $request, Application $app) {
         return $app['milliner.middleware']->parseEvent($request);
-    })
-    ->before(function (Request $request, Application $app) {
-        return $app['milliner.middleware']->extractFileUrl($request);
     });
 
 return $app;

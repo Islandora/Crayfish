@@ -17,7 +17,7 @@ interface MillinerServiceInterface
      *
      * @throws \RuntimeException
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return \GuzzleHttp\Psr7\Response
      */
     public function saveBinary(
         $stream,
@@ -35,7 +35,7 @@ interface MillinerServiceInterface
      *
      * @throws \RuntimeException
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return \GuzzleHttp\Psr7\Response
      */
     public function saveJsonld(
         $jsonld,
@@ -50,7 +50,7 @@ interface MillinerServiceInterface
      *
      * @throws \RuntimeException
      *
-     * @return \Psr\Http\Message\ResponseInterface|null
+     * @return \GuzzleHttp\Psr7\Response
      */
     public function delete(
         $drupal_url,

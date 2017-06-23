@@ -19,22 +19,13 @@ $app['gemini.controller'] = function ($app) {
     );
 };
 
-$app->get('/drupal/{drupal_path}', "gemini.controller:getFedoraPath")
-    ->assert("drupal_path", ".+")
-    ->convert("drupal_path", "gemini.controller:sanitize");
+$app->get('/fedora', "gemini.controller:getDrupalId");
+$app->get('/drupal', "gemini.controller:getFedoraId");
 
-$app->get('/fedora/{fedora_path}', "gemini.controller:getDrupalPath")
-    ->assert("fedora_path", ".+")
-    ->convert("drupal_path", "gemini.controller:sanitize");
+$app->put('/fedora', "gemini.controller:upsertDrupalId");
+$app->put('/drupal', "gemini.controller:upsertFedoraId");
 
-$app->post('/', "gemini.controller:createPair");
-
-$app->delete("/drupal/{drupal_path}", "gemini.controller:deleteFromDrupalPath")
-    ->assert("drupal_path", ".+")
-    ->convert("drupal_path", "gemini.controller:sanitize");
-
-$app->delete("/fedora/{fedora_path}", "gemini.controller:deleteFromFedoraPath")
-    ->assert("fedora_path", ".+")
-    ->convert("drupal_path", "gemini.controller:sanitize");
+$app->delete('/fedora', "gemini.controller:deleteFromDrupalId");
+$app->delete('/drupal', "gemini.controller:deleteFromFedoraId");
 
 return $app;
