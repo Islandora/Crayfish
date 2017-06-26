@@ -28,30 +28,18 @@ class GeminiController
     }
 
     /**
-     * @param string $fedora_id
+     * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function getDrupalId($fedora_id)
+    public function getMetadataId(Request $request)
     {
-        try {
-            if (!$result = $this->idMapper->getDrupalId($fedora_id)) {
-                return new Response(null, 404);
-            }
-
-            return new Response($result, 200);
-        } catch (\Exception $e) {
-            return new Response($e->getMessage(), 500);
+        $drupal = $request->query->get('drupal', null);
+        if (!$drupal) {
+            return new Response("Missing 'drupal' query param", 400);
         }
-    }
 
-    /**
-     * @param string $drupal_id
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function getFedoraId($drupal_id)
-    {
         try {
-            if (!$result = $this->idMapper->getFedoraId($drupal_id)) {
+            if (!$result = $this->idMapper->getMetadataId($drupal)) {
                 return new Response(null, 404);
             }
 
@@ -65,27 +53,44 @@ class GeminiController
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function createPair(Request $request)
+    public function getBinaryId(Request $request)
     {
-        $content_type = $request->headers->get("Content-Type");
-        if (strcmp($content_type, "application/json") != 0) {
-            return new Response("POST only accepts json requests", 400);
-        }
-
-        $body = json_decode($request->getContent(), true);
-
-        if (!isset($body['drupal'])) {
-            return new Response("POST body must contain Drupal id", 400);
-        }
-
-        if (!isset($body['fedora'])) {
-            return new Response("POST body must contain Fedora id", 400);
+        $drupal = $request->query->get('drupal', null);
+        if (!$drupal) {
+            return new Response("Missing 'drupal' query param", 400);
         }
 
         try {
-            $this->idMapper->createPair(
-                $this->sanitize($body['drupal']),
-                $this->sanitize($body['fedora'])
+            if (!$result = $this->idMapper->getBinaryId($drupal)) {
+                return new Response(null, 404);
+            }
+
+            return new Response($result, 200);
+        } catch (\Exception $e) {
+            return new Response($e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function saveMetadataId(Request $request)
+    {
+        $drupal = $request->query->get('drupal', null);
+        if (!$drupal) {
+            return new Response("Missing 'drupal' query param", 400);
+        }
+
+        $fedora = $request->query->get('fedora', null);
+        if (!$fedora) {
+            return new Response("Missing 'fedora' query param", 400);
+        }
+
+        try {
+            $this->idMapper->saveMetadataId(
+                $drupal,
+                $fedora
             );
              return new Response(null, 201);
         } catch (\Exception $e) {
@@ -94,13 +99,50 @@ class GeminiController
     }
 
     /**
-     * @param string $drupal_id
+     * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function deleteFromDrupalId($drupal_id)
+    public function saveBinaryId(Request $request)
     {
+        $drupal = $request->query->get('drupal', null);
+        if (!$drupal) {
+            return new Response("Missing 'drupal' query param", 400);
+        }
+
+        $fedora = $request->query->get('fedora', null);
+        if (!$fedora) {
+            return new Response("Missing 'fedora' query param", 400);
+        }
+
+        $describedby = $request->query->get('describedby', null);
+        if (!$describedby) {
+            return new Response("Missing 'describedby' query param", 400);
+        }
+
         try {
-            if (!$result = $this->idMapper->deleteFromDrupalId($drupal_id)) {
+            $this->idMapper->saveBinaryId(
+                $drupal,
+                $fedora,
+                $describedby
+            );
+            return new Response(null, 201);
+        } catch (\Exception $e) {
+            return new Response($e->getMessage(), 500);
+        }
+    }
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function deleteMetadataId(Request $request)
+    {
+        $drupal = $request->query->get('drupal', null);
+        if (!$drupal) {
+            return new Response("Missing 'drupal' query param", 400);
+        }
+
+        try {
+            if (!$result = $this->idMapper->deleteMetadataId($drupal)) {
                 return new Response("Not Found", 404);
             }
 
@@ -111,29 +153,24 @@ class GeminiController
     }
 
     /**
-     * @param string $fedora_id
+     * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function deleteFromFedoraId($fedora_id)
+    public function deleteBinaryId(Request $request)
     {
+        $describedby = $request->query->get('describedby', null);
+        if (!$describedby) {
+            return new Response("Missing 'describedby' query param", 400);
+        }
+
         try {
-            if (!$result = $this->idMapper->deleteFromFedoraId($fedora_id)) {
-                return new Response(null, 404);
+            if (!$result = $this->idMapper->deleteBinaryId($describedby)) {
+                return new Response("Not Found", 404);
             }
 
             return new Response(null, 204);
         } catch (\Exception $e) {
             return new Response($e->getMessage(), 500);
         }
-    }
-
-    /**
-     * @param string $id
-     * @return string
-     */
-    public function sanitize($id)
-    {
-        $sanitized = ltrim($id);
-        return ltrim($sanitized, '/');
     }
 }
