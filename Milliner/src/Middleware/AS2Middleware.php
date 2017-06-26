@@ -44,9 +44,15 @@ class AS2Middleware
             $event = json_decode($request->getContent(), true);
             $request->attributes->set("event", $event);
 
-            $this->extractUuid($request);
-            $this->extractJsonldUrl($request);
-            $this->extractHtmlUrl($request);
+            if ($response = $this->extractUuid($request)) {
+                return $repsonse;
+            }
+            if ($response = $this->extractJsonldUrl($request)) {
+                return $repsonse;
+            }
+            if ($response = $this->extractHtmlUrl($request)) {
+                return $repsonse;
+            }
         }
         else {
             // Short circuit if the request is not JSONLD.
@@ -70,6 +76,12 @@ class AS2Middleware
                 $request->attributes->set("uuid", $matches['uuid']);
             }
         }
+        else {
+            return new Response(
+                "Could not extract UUID from AS2 event",
+                400
+            );
+        }
     }
 
     /**
@@ -84,6 +96,12 @@ class AS2Middleware
         });
         if ($url = reset($filtered)) {
             $request->attributes->set("jsonld_url", $url['href']);
+        }
+        else {
+            return new Response(
+                "Could not extract 'Drupal Metadata' url from AS2 event",
+                400
+            );
         }
     }
 
@@ -100,6 +118,12 @@ class AS2Middleware
         if ($url = reset($filtered)) {
             $request->attributes->set("html_url", $url['href']);
         }
+        else {
+            return new Response(
+                "Could not extract 'Drupal HTML' url from AS2 event",
+                400
+            );
+        }
     }
 
     /**
@@ -108,6 +132,8 @@ class AS2Middleware
      */
     public function getJsonld(Request $request)
     {
+        $url = $request->attributes->get("jsonld_url", null);
+
         if ($request->headers->has("Authorization")) {
             $options['headers'] = [
                 "Authorization" => $request->headers->get("Authorization")
@@ -115,7 +141,7 @@ class AS2Middleware
         }
 
         $response = $this->client->get(
-            $request->attributes->get("jsonld_url"),
+            $url,
             $options
         );
 
@@ -137,6 +163,10 @@ class AS2Middleware
         $request->attributes->set('jsonld', json_decode($response->getBody(true), true));
     }
 
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function getFile(Request $request)
     {
         $jsonld = $request->attributes->get("jsonld");
@@ -146,7 +176,10 @@ class AS2Middleware
             !isset($jsonld['uri'][0]['value']);
 
         if ($malformed) {
-            return new Response("Malformed Media jsonld. Cannot extract file url.", 500);
+            return new Response(
+                "Malformed Media jsonld. Cannot extract file url.",
+                500
+            );
         }
 
         $file_url = $jsonld['uri'][0]['value'];
@@ -159,7 +192,7 @@ class AS2Middleware
         }
 
         $response = $this->client->get(
-            $request->attributes->get($file_url),
+            $file_url,
             $options
         );
 
@@ -178,7 +211,7 @@ class AS2Middleware
 
         // Otherwise set request attributes.
         $request->attributes->set('file', $response->getBody());
-        $request->attributes->set('mimetype', $response->getHeader('Content-Type'));
+        $request->attributes->set('mimetype', reset($response->getHeader('Content-Type')));
     }
 
 }

@@ -3,6 +3,7 @@
 namespace Islandora\Milliner\Service;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7;
 use Islandora\Chullo\IFedoraApi;
 use Islandora\Crayfish\Commons\IdMapper\IdMapperInterface;
 use Psr\Log\LoggerInterface;
@@ -58,7 +59,8 @@ class MillinerService implements MillinerServiceInterface
     public function saveBinary(
         $stream,
         $mimetype,
-        $drupal_url,
+        $file_url,
+        $jsonld_url,
         $uuid,
         $token
     ) {
@@ -68,6 +70,7 @@ class MillinerService implements MillinerServiceInterface
         ];
 
         $fedora_url = $this->idMapper->getFedoraId($drupal_url);
+        $fedora_metadata_url = null;
 
         if ($fedora_url) {
             $head_response = $this->fedora->getResourceHeaders(
@@ -97,10 +100,26 @@ class MillinerService implements MillinerServiceInterface
             'headers' => $fedora_response->getHeaders()
         ]);
 
-        if (!$fedora_response->hasHeader("Location")) {
-            return $fedora_response->withHeader("Location", $fedora_url);
+        $status = $fedora_response->getStatusCode();
+        if ($status == 201 || $status == 204) {
+            $fedora_metadata_url = $this->getFedoraMetadataUrl($fedora_response);
+
+            // Map IDs.
+            $this->idMapper->saveFromDrupalId($file_url, $fedora_url);
+            $this->idMapper->saveFromDrupalId($jsonld_url, $fedora_metadata_url);
         }
+
         return $fedora_response;
+    }
+
+    protected getFedoraMetadataUrl($response) {
+        $parsed = Psr7\parse_header($response->getHeader("Link"));
+        foreach ($parsed as $header) {
+            if (isset($header['rel']) && $header['rel'] = 'describedby') {
+                return trim($header[0], '<>');
+            }
+        }
+        return null;
     }
 
     /**
@@ -108,7 +127,7 @@ class MillinerService implements MillinerServiceInterface
      */
     public function saveJsonld(
         $jsonld,
-        $drupal_url,
+        $url,
         $uuid,
         $token
     ) {
@@ -118,7 +137,7 @@ class MillinerService implements MillinerServiceInterface
             'Prefer' => 'return=representation; omit="http://fedora.info/definitions/v4/repository#ServerManaged"',
         ];
 
-        $fedora_url = $this->idMapper->getFedoraId($drupal_url);
+        $fedora_url = $this->idMapper->getFedoraId($url);
 
         if ($fedora_url) {
             $head_response = $this->fedora->getResourceHeaders(
@@ -136,7 +155,7 @@ class MillinerService implements MillinerServiceInterface
             $fedora_url = $this->urlMinter->mint($uuid);
         }
 
-        $jsonld = $this->processJsonld($jsonld, $drupal_url, $fedora_url);
+        $jsonld = $this->processJsonld($jsonld, $url, $fedora_url);
 
         $fedora_response = $this->fedora->saveResource(
             $fedora_url,
@@ -150,9 +169,11 @@ class MillinerService implements MillinerServiceInterface
             'headers' => $fedora_response->getHeaders()
         ]);
 
-        if (!$fedora_response->hasHeader("Location")) {
-            return $fedora_response->withHeader("Location", $fedora_url);
+        $status = $fedora_response->getStatusCode();
+        if ($status == 201 || $status == 204) {
+            $this->idMapper->saveFromDrupalId($url, $fedora_url);
         }
+
         return $fedora_response;
     }
 
@@ -163,12 +184,9 @@ class MillinerService implements MillinerServiceInterface
      */
     protected function processJsonld($jsonld, $drupal_url, $fedora_url)
     {
-        // Get graph as array.
-        $rdf = json_decode($jsonld, true);
-
         // Strip out everything other than the resource in question.
         $resource = array_filter(
-            $rdf['@graph'],
+            $jsonld['@graph'],
             function (array $elem) use ($drupal_url) {
                 return $elem['@id'] == $drupal_url;
             }
@@ -184,14 +202,14 @@ class MillinerService implements MillinerServiceInterface
      * {@inheritDoc}
      */
     public function delete(
-        $drupal_url,
+        $url,
         $token
     ) {
         $headers = [
             'Authorization' => $token,
         ];
 
-        $fedora_url = $this->idMapper->getFedoraId($drupal_url);
+        $fedora_url = $this->idMapper->getFedoraId($url);
 
         if ($fedora_url) {
             $fedora_response = $this->fedora->deleteResource(
@@ -205,10 +223,55 @@ class MillinerService implements MillinerServiceInterface
                 'headers' => $fedora_response->getHeaders()
             ]);
 
+            $this->idMapper->deleteFromDrupalId($url, $fedora_url);
+
             return $fedora_response;
         }
+
+        $this->idMapper->deleteFromDrupalId($url);
 
         return null;
     }
 
+    public function deleteBinary(
+        $file_url,
+        $jsonld_url,
+        $token
+    ) {
+// TODO: HAVE TO UPDATE ID MAPPER AND GEMINI TABLE TO HANDLE ASSOCIATION OF LDP-NR TO LDP-RS THERE.
+        $headers = [
+            'Authorization' => $token,
+        ];
+
+        $fedora_url = $this->idMapper->getFedoraId($url);
+
+        if ($fedora_url) {
+            $head_response = $this->fedora->getResourceHeaders(
+                $fedora_url,
+                ['Authorization' => $token]
+            );
+
+            $fedora_metadata_url = $this->getFedoraMetadataUrl($head_response);
+
+            $fedora_response = $this->fedora->deleteResource(
+                $fedora_url,
+                $headers
+            );
+
+            $this->log->debug("Fedora DELETE Response: ", [
+                'body' => $fedora_response->getBody(),
+                'status' => $fedora_response->getStatusCode(),
+                'headers' => $fedora_response->getHeaders()
+            ]);
+
+            $this->idMapper->deleteFromDrupalId($url, $fedora_url);
+
+            return $fedora_response;
+        }
+
+        $this->idMapper->deleteFromDrupalId($url);
+
+        return null;
+        $this->idMapper->deleteFromDrupalId($jsonld_url);
+    }
 }

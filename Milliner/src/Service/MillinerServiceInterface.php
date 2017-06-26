@@ -11,7 +11,8 @@ interface MillinerServiceInterface
     /**
      * @param $stream
      * @param $mimetype
-     * @param $drupal_url
+     * @param $file_url
+     * @param $jsonld_url
      * @param $uuid
      * @param $token
      *
@@ -22,14 +23,15 @@ interface MillinerServiceInterface
     public function saveBinary(
         $stream,
         $mimetype,
-        $drupal_url,
+        $file_url,
+        $jsonld_url,
         $uuid,
         $token
     );
 
     /**
      * @param $jsonld
-     * @param $drupal_url
+     * @param $url
      * @param $uuid
      * @param $token
      *
@@ -39,21 +41,35 @@ interface MillinerServiceInterface
      */
     public function saveJsonld(
         $jsonld,
-        $drupal_url,
+        $url,
         $uuid,
         $token
     );
 
     /**
-     * @param $drupal_url
+     * @param $url
      * @param $token
      *
      * @throws \RuntimeException
      *
-     * @return \GuzzleHttp\Psr7\Response
+     * @return \GuzzleHttp\Psr7\Response|null
      */
     public function delete(
-        $drupal_url,
+        $url,
+        $token
+    );
+
+    /**
+     * @param $url
+     * @param $token
+     *
+     * @throws \RuntimeException
+     *
+     * @return \GuzzleHttp\Psr7\Response|null
+     */
+    public function deleteBinary(
+        $file_url,
+        $jsonld_url,
         $token
     );
 }
