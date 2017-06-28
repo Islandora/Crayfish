@@ -1,7 +1,7 @@
 @prefix apix:<http://fedora.info/definitions/v4/api-extension#> .
 @prefix owl:<http://www.w3.org/2002/07/owl#> .
 @prefix ebucore:<http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#> .
-@prefix fedora:<http://fedora.info/definitions/v4/repository#> .
+@prefix ldp:<http://www.w3.org/ns/ldp#> .
 @prefix islandora:<http://islandora.ca/CLAW#> .
 @prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#> .
 
@@ -13,6 +13,6 @@
     apix:bindsTo <#class> .
 
 <#class> owl:intersectionOf (
-        fedora:Binary
+        ldp:NonRDFSource
         [ a owl:Restriction; owl:onProperty ebucore:hasMimeType; owl:hasValue "image/tiff", "image/jp2", "image/jpeg", "image/png", "image/gif", "image/bmp" ]
 ) .
