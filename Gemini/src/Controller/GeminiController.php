@@ -2,7 +2,8 @@
 
 namespace Islandora\Gemini\Controller;
 
-use Islandora\Crayfish\Commons\UrlMapper\UrlMapperInterface;
+use Islandora\Gemini\UrlMapper\UrlMapperInterface;
+use Islandora\Gemini\UrlMinter\UrlMinterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,17 +16,25 @@ class GeminiController
 {
 
     /**
-     * @var \Islandora\Crayfish\Commons\UrlMapper\UrlMapperInterface
+     * @var \Islandora\Gemini\UrlMapper\UrlMapperInterface
      */
     protected $urlMapper;
+
+    /**
+     * @var \Islandora\Gemini\UrlMinter\UrlMinterInterface
+     */
+    protected $urlMinter;
 
     /**
      * GeminiController constructor.
      * @param \Islandora\Crayfish\Commons\UrlMapper\UrlMapperInterface
      */
-    public function __construct(UrlMapperInterface $urlMapper)
-    {
+    public function __construct(
+        UrlMapperInterface $urlMapper,
+        UrlMinterInterface $urlMinter
+    ) {
         $this->urlMapper = $urlMapper;
+        $this->urlMinter = $urlMinter;
     }
 
     /**
@@ -34,16 +43,26 @@ class GeminiController
      */
     public function get($uuid)
     {
-        try {
-            $result = $this->urlMapper->getUrls($uuid);
-            if (empty($result)) {
-                return new Response(null, 404);
-            }
-
-            return new JsonResponse($result, 200);
-        } catch (\Exception $e) {
-            return new Response($e->getMessage(), 500);
+        $result = $this->urlMapper->getUrls($uuid);
+        if (empty($result)) {
+            return new Response("Could not locate URL pair for $uuid", 404);
         }
+        return new JsonResponse($result, 200);
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function post(Request $request)
+    {
+        // Request contents are a UUID.
+        $uuid = $request->getContent();
+
+        return new Response(
+            $this->urlMinter->mint($uuid),
+            200
+        );
     }
 
     /**
@@ -58,41 +77,23 @@ class GeminiController
             return new Response("Invalid Content-Type.  Expecting application/json", 400);
         }
 
+        // Parse request and reject malformed bodies.
         $urls = json_decode($request->getContent(), true);
 
-        // Parse request reject malformed bodies.
-        if (!isset($urls['drupal_rdf'])) {
-            return new Response("Missing 'drupal_rdf' entry in reqeust body.", 400);
-        }
-        $drupal_rdf = $urls['drupal_rdf'];
-
-        if (!isset($urls['fedora_rdf'])) {
-            return new Response("Missing 'fedora_rdf' entry in reqeust body.", 400);
-        }
-        $fedora_rdf = $urls['fedora_rdf'];
-
-        $drupal_nonrdf = isset($urls['drupal_nonrdf']) ? $urls['drupal_nonrdf'] : null;
-        if (count($urls) > 2 && empty($drupal_nonrdf)) {
-            return new Response("Missing 'drupal_nonrdf' entry in reqeust body.", 400);
+        if (!isset($urls['drupal'])) {
+            return new Response("Missing 'drupal' entry in reqeust body.", 400);
         }
 
-        $fedora_nonrdf = isset($urls['fedora_nonrdf']) ? $urls['fedora_nonrdf'] : null;
-        if (count($urls) > 2 && empty($fedora_nonrdf)) {
-            return new Response("Missing 'fedora_nonrdf' entry in reqeust body.", 400);
+        if (!isset($urls['fedora'])) {
+            return new Response("Missing 'fedora' entry in reqeust body.", 400);
         }
 
-        try {
-            $this->urlMapper->saveUrls(
-                $uuid,
-                $drupal_rdf,
-                $fedora_rdf,
-                $drupal_nonrdf,
-                $fedora_nonrdf
-            );
-            return new Response(null, 204);
-        } catch (\Exception $e) {
-            return new Response($e->getMessage(), 500);
-        }
+        $this->urlMapper->saveUrls(
+            $uuid,
+            $urls['drupal'],
+            $urls['fedora']
+        );
+        return new Response(null, 204);
     }
 
     /**
@@ -101,12 +102,8 @@ class GeminiController
      */
     public function delete($uuid)
     {
-        try {
-            $this->urlMapper->deleteUrls($uuid);
-            return new Response(null, 204);
-        } catch (\Exception $e) {
-            return new Response($e->getMessage(), 500);
-        }
+        $this->urlMapper->deleteUrls($uuid);
+        return new Response(null, 204);
     }
 
 }

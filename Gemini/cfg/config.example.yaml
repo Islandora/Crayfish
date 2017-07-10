@@ -1,5 +1,9 @@
 ---
 
+debug: false 
+
+fedora_base_url: http://localhost:8080/fcrepo/rest
+
 db.options:
   driver: pdo_mysql
   host: 127.0.0.1

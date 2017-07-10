@@ -39,21 +39,21 @@ class MillinerController
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function saveBinary(Request $request)
+    public function saveNonRdf(Request $request)
     {
-        $stream = $request->attributes->get('file');
+        $stream = $request->attributes->get('stream');
         $mimetype = $request->attributes->get('mimetype');
-        $jsonld_url = $request->attributes->get('jsonld_url');
-        $file_url = $request->attributes->get('file_url');
+        $rdf_url = $request->attributes->get('rdf_url');
+        $file_url = $request->attributes->get('nonrdf_url');
         $uuid = $request->attributes->get('uuid');
         $token = $request->headers->get('Authorization', null);
 
         try {
-            $response = $this->milliner->saveBinary(
+            $response = $this->milliner->saveNonRdf(
                 $stream,
                 $mimetype,
-                $file_url,
-                $jsonld_url,
+                $nonrdf_url,
+                $rdf_url,
                 $uuid,
                 $token
             );
@@ -63,7 +63,7 @@ class MillinerController
                 $response->getStatusCode()
             );
         } catch (\Exception $e) {
-            $this->log->debug("Exception Saving Fedora Binary: ", [
+            $this->log->debug("Exception Saving NonRdf Resource: ", [
                 'body' => $e->getMessage(),
                 'status' => $e->getCode(),
             ]);
@@ -78,17 +78,17 @@ class MillinerController
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function saveJsonld(Request $request)
+    public function saveRdf(Request $request)
     {
-        $jsonld = $request->attributes->get('jsonld');
-        $url = $request->attributes->get('jsonld_url');
+        $rdf = $request->attributes->get('rdf');
+        $rdf_url = $request->attributes->get('rdf_url');
         $uuid = $request->attributes->get('uuid');
         $token = $request->headers->get('Authorization', null);
 
         try {
-            $response = $this->milliner->saveJsonld(
-                $jsonld,
-                $url,
+            $response = $this->milliner->saveRdf(
+                $rdf,
+                $rdf_url,
                 $uuid,
                 $token
             );
@@ -98,7 +98,7 @@ class MillinerController
                 $response->getStatusCode()
             );
         } catch (\Exception $e) {
-            $this->log->debug("Exception Updating Fedora Resource: ", [
+            $this->log->debug("Exception Saving Rdf Resource: ", [
                 'body' => $e->getMessage(),
                 'status' => $e->getCode(),
             ]);
@@ -109,11 +109,12 @@ class MillinerController
         }
     }
 
+    // TODO: FINISH CHANGING ATTRIBUTE NAMES FOR THE DELETES AND THEN TOUCH UP THE MIDDLEWARE
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function deleteBinary(Request $request)
+    public function deleteNonRdf(Request $request)
     {
         $token = $request->headers->get('Authorization');
         $file_url = $request->attributes->get('file_url');
@@ -153,14 +154,16 @@ class MillinerController
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function deleteJsonld(Request $request)
+    public function deleteRdf(Request $request)
     {
+        $uuid = $request->attributes->get('uuid');
         $token = $request->headers->get('Authorization');
-        $url = $request->attributes->get('jsonld_url');
+        $url = $request->attributes->get('rdf_url');
 
         try {
-            $fedora_response = $this->milliner->delete(
+            $fedora_response = $this->milliner->deleteRdf(
                 $url,
+                $uuid,
                 $token
             );
 

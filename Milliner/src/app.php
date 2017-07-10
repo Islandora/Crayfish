@@ -4,7 +4,7 @@ require_once __DIR__.'/../vendor/autoload.php';
 
 use GuzzleHttp\Client;
 use Islandora\Chullo\FedoraApi;
-use Islandora\Crayfish\Commons\IdMapper\IdMapper;
+use Islandora\Crayfish\Commons\UrlMapper\UrlMapper;
 use Islandora\Crayfish\Commons\Provider\IslandoraServiceProvider;
 use Islandora\Crayfish\Commons\Provider\YamlConfigServiceProvider;
 use Islandora\Milliner\Controller\MillinerController;
@@ -23,7 +23,7 @@ $app['milliner.controller'] = function () use ($app) {
     return new MillinerController(
         new MillinerService(
             FedoraApi::create($app['crayfish.fedora_base_url']),
-            new IdMapper($app['db']),
+            new UrlMapper($app['db']),
             new UrlMinter($app['crayfish.fedora_base_url']),
             $app['monolog']
         ),
@@ -37,29 +37,29 @@ $app['milliner.middleware'] = function () use ($app) {
     );
 };
 
-$app->post('/jsonld/save', "milliner.controller:saveJsonld")
+$app->post('/save/rdf', "milliner.controller:saveRdf")
     ->before(function (Request $request, Application $app) {
         return $app['milliner.middleware']->parseEvent($request);
     })
     ->before(function (Request $request, Application $app) {
-        return $app['milliner.middleware']->getJsonld($request);
+        return $app['milliner.middleware']->getrdf($request);
     });
-$app->post('/jsonld/delete', "milliner.controller:deleteJsonld")
+$app->post('/delete/rdf', "milliner.controller:deleteRdf")
     ->before(function (Request $request, Application $app) {
         return $app['milliner.middleware']->parseEvent($request);
     });
 
-$app->post('/binary/save', "milliner.controller:saveBinary")
+$app->post('/save/nonrdf', "milliner.controller:saveNonRdf")
     ->before(function (Request $request, Application $app) {
         return $app['milliner.middleware']->parseEvent($request);
     })
     ->before(function (Request $request, Application $app) {
-        return $app['milliner.middleware']->getJsonld($request);
+        return $app['milliner.middleware']->getRdf($request);
     })
     ->before(function (Request $request, Application $app) {
-        return $app['milliner.middleware']->getFile($request);
+        return $app['milliner.middleware']->getNonRdf($request);
     });
-$app->post('/binary/delete', "milliner.controller:deleteBinary")
+$app->post('/delete/nonrdf', "milliner.controller:deleteNonRdf")
     ->before(function (Request $request, Application $app) {
         return $app['milliner.middleware']->parseEvent($request);
     });

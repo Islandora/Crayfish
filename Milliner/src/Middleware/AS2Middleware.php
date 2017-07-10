@@ -47,7 +47,7 @@ class AS2Middleware
             if ($response = $this->extractUuid($request)) {
                 return $repsonse;
             }
-            if ($response = $this->extractJsonldUrl($request)) {
+            if ($response = $this->extractRdfUrl($request)) {
                 return $repsonse;
             }
             if ($response = $this->extractHtmlUrl($request)) {
@@ -88,14 +88,14 @@ class AS2Middleware
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    protected function extractJsonldUrl(Request $request)
+    protected function extractRdfUrl(Request $request)
     {
         $event = $request->attributes->get("event");
         $filtered = array_filter($event['object']['url'], function ($elem) {
             return $elem['name'] == 'Drupal Metadata';
         });
         if ($url = reset($filtered)) {
-            $request->attributes->set("jsonld_url", $url['href']);
+            $request->attributes->set("rdf_url", $url['href']);
         }
         else {
             return new Response(
@@ -130,9 +130,9 @@ class AS2Middleware
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function getJsonld(Request $request)
+    public function getRdf(Request $request)
     {
-        $url = $request->attributes->get("jsonld_url", null);
+        $url = $request->attributes->get("rdf_url", null);
 
         if ($request->headers->has("Authorization")) {
             $options['headers'] = [
@@ -145,7 +145,7 @@ class AS2Middleware
             $options
         );
 
-        $this->log->debug("Drupal Jsonld Response: ", [
+        $this->log->debug("Drupal Rdf Response: ", [
             'body' => $response->getBody(true),
             'status' => $response->getStatusCode(),
             'headers' => $response->getHeaders()
@@ -154,22 +154,22 @@ class AS2Middleware
         // Short circuit if the response is not OK.
         if ($response->getStatusCode() != 200) {
             return new Response(
-                "Error from Drupal retrieving jsonld: " . $response->getReasonPhrase(),
+                "Error from Drupal retrieving rdf: " . $response->getReasonPhrase(),
                 $response->getStatusCode()
             );
         }
 
         // Otherwise set the entity as a request attribute.
-        $request->attributes->set('jsonld', json_decode($response->getBody(true), true));
+        $request->attributes->set('rdf', json_decode($response->getBody(true), true));
     }
 
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function getFile(Request $request)
+    public function getNonRdf(Request $request)
     {
-        $jsonld = $request->attributes->get("jsonld");
+        $jsonld = $request->attributes->get("rdf");
 
         $malformed = !isset($jsonld['uri']) ||
             empty($jsonld['uri']) ||
@@ -177,7 +177,7 @@ class AS2Middleware
 
         if ($malformed) {
             return new Response(
-                "Malformed Media jsonld. Cannot extract file url.",
+                "Malformed Media rdf. Cannot extract file url.",
                 500
             );
         }
@@ -196,7 +196,7 @@ class AS2Middleware
             $options
         );
 
-        $this->log->debug("Drupal File Response: ", [
+        $this->log->debug("Drupal NonRdf Response: ", [
             'status' => $response->getStatusCode(),
             'headers' => $response->getHeaders()
         ]);
@@ -210,7 +210,7 @@ class AS2Middleware
         }
 
         // Otherwise set request attributes.
-        $request->attributes->set('file', $response->getBody());
+        $request->attributes->set('nonrdf', $response->getBody());
         $request->attributes->set('mimetype', reset($response->getHeader('Content-Type')));
     }
 

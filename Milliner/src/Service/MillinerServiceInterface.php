@@ -20,7 +20,7 @@ interface MillinerServiceInterface
      *
      * @return \GuzzleHttp\Psr7\Response
      */
-    public function saveBinary(
+    public function saveNonRdf(
         $stream,
         $mimetype,
         $file_url,
@@ -39,7 +39,7 @@ interface MillinerServiceInterface
      *
      * @return \GuzzleHttp\Psr7\Response
      */
-    public function saveJsonld(
+    public function saveRdf(
         $jsonld,
         $url,
         $uuid,
@@ -54,8 +54,9 @@ interface MillinerServiceInterface
      *
      * @return \GuzzleHttp\Psr7\Response|null
      */
-    public function delete(
+    public function deleteRdf(
         $url,
+        $uuid,
         $token
     );
 
@@ -67,7 +68,7 @@ interface MillinerServiceInterface
      *
      * @return \GuzzleHttp\Psr7\Response|null
      */
-    public function deleteBinary(
+    public function deleteNonRdf(
         $file_url,
         $jsonld_url,
         $token
