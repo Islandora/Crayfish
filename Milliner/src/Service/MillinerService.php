@@ -358,11 +358,8 @@ class MillinerService implements MillinerServiceInterface
         $jsonld_url,
         $token
     ) {
-        $urls = $this->gemini->getUrls($uuid, $token);
-
-        // If it's not in Gemini, try to see if you can back your way
-        // into the URL.
-        $fedora_url = empty($urls) ? $this->getFedoraMediaUrl($json_url, $token) : $urls['fedora'];
+        // Back your way into the media url in Fedora by looking up the file first.
+        $fedora_url = $this->getFedoraMediaUrl($json_url, $token);
 
         // Get the RDF from Fedora.
         $headers = empty($token) ? [] : ['Authorization' => $token];
@@ -372,17 +369,7 @@ class MillinerService implements MillinerServiceInterface
             $headers
         );
 
-        // If 404, try again, but attempt to back your way into the URL.
         $status = $fedora_response->getStatusCode();
-        if ($status == 404) {
-            $fedora_url = $this->getFedoraMediaUrl($json_url, $token);
-            $fedora_response = $this->fedora->getResource(
-                $fedora_url,
-                $headers
-            );
-            $status = $fedora_response->getStatusCode();
-        }
-
         if ($status != 200) {
             $reason = $fedora_response->getReasonPhrase();
             throw new \RuntimeException(
@@ -473,14 +460,6 @@ class MillinerService implements MillinerServiceInterface
                 $status
             );
         }
-
-        // Map the URLS.
-        $this->gemini->saveUrls(
-            $uuid,
-            $jsonld_url,
-            $fedora_url,
-            $token
-        );
 
         // Return the response from Fedora.
         return $response;
