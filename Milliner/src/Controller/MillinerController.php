@@ -69,7 +69,7 @@ class MillinerController
         }
 
         try {
-            $response = $this->milliner->saveNode(
+            $response = $this->milliner->saveContent(
                 $uuid,
                 $jsonld_url,
                 $token

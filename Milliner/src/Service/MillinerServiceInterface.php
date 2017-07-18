@@ -20,7 +20,7 @@ interface MillinerServiceInterface
     public function saveContent(
         $uuid,
         $jsonld_url,
-        $token
+        $token = null
     );
 
     /**
@@ -37,7 +37,7 @@ interface MillinerServiceInterface
         $uuid,
         $json_url,
         $jsonld_url,
-        $token
+        $token = null
     );
 
     /**
@@ -54,7 +54,7 @@ interface MillinerServiceInterface
         $uuid,
         $file_url,
         $checksum_url,
-        $token
+        $token = null
     );
 
     /**
@@ -67,7 +67,7 @@ interface MillinerServiceInterface
      */
     public function delete(
         $uuid,
-        $token
+        $token = null
     );
 
 }

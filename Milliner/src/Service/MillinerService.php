@@ -73,13 +73,13 @@ class MillinerService implements MillinerServiceInterface
         $urls = $this->gemini->getUrls($uuid, $token);
 
         if (empty($urls)) {
-            return $this->createNode(
+            return $this->createContent(
                 $uuid,
                 $jsonld_url,
                 $token
             );
         } else {
-            return $this->updateNode(
+            return $this->updateContent(
                 $uuid,
                 $jsonld_url,
                 $urls['fedora'],
@@ -356,7 +356,7 @@ class MillinerService implements MillinerServiceInterface
         $uuid,
         $json_url,
         $jsonld_url,
-        $token
+        $token = null
     ) {
         // Back your way into the media url in Fedora by looking up the file first.
         $fedora_url = $this->getFedoraMediaUrl($json_url, $token);
@@ -560,7 +560,7 @@ class MillinerService implements MillinerServiceInterface
         $uuid,
         $file_url,
         $checksum_url,
-        $token
+        $token = null
     ) {
         $urls = $this->gemini->getUrls($uuid, $token);
 
@@ -596,7 +596,7 @@ class MillinerService implements MillinerServiceInterface
     protected function createFile(
         $uuid,
         $file_url,
-        $token
+        $token = null
     ) {
         // Mint a new Fedora URL.
         $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token);
@@ -656,7 +656,7 @@ class MillinerService implements MillinerServiceInterface
         $file_url,
         $checksum_url,
         $fedora_url,
-        $token
+        $token = null
     ) {
         // Get the headers for the file from Fedora.
         $headers = empty($token) ? [] : ['Authorization' => $token];
@@ -817,7 +817,7 @@ class MillinerService implements MillinerServiceInterface
      */
     public function delete(
         $uuid,
-        $token
+        $token = null
     ) {
         $urls = $this->gemini->getUrls($uuid, $token);
 
