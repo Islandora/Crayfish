@@ -4,8 +4,9 @@ namespace Islandora\Milliner\Service;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\Response;
 use Islandora\Chullo\IFedoraApi;
-use Islandora\Crayfish\Commons\UrlMapper\UrlMapperInterface;
+use Islandora\Milliner\Client\GeminiClient;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -19,14 +20,14 @@ class MillinerService implements MillinerServiceInterface
     protected $fedora;
 
     /**
-     * @var \Islandora\Crayfish\Commons\UrlMapper\UrlMapperInterface
+     * @var \GuzzleHttp\Client
      */
-    protected $urlMapper;
+    protected $drupal;
 
     /**
-     * @var \Islandora\Milliner\Service\UrlMinterInterface
+     * @var \Islandora\Milliner\Client\GeminiClient
      */
-    protected $urlMinter;
+    protected $gemini;
 
     /**
      * @var \Psr\Log\LoggerInterface
@@ -34,134 +35,249 @@ class MillinerService implements MillinerServiceInterface
     protected $log;
 
     /**
+     * @var string
+     */
+    protected $modifiedDatePredicate;
+
+    /**
      * MillinerService constructor.
+     *
      * @param \Islandora\Chullo\IFedoraApi $fedora
-     * @param \Islandora\Crayfish\Commons\UrlMapper\UrlMapperInterface
-     * @param \Islandora\Milliner\Service\UrlMinterInterface
+     * @param \GuzzleHttp\Client
+     * @param \Islandora\Milliner\Client\GeminiClient
+     * @param string $modifiedDatePredicate
      * @param \Psr\Log\LoggerInterface $log
      */
     public function __construct(
         IFedoraApi $fedora,
-        UrlMapperInterface $id_mapper,
-        UrlMinterInterface $url_minter,
-        LoggerInterface $log
+        Client $drupal,
+        GeminiClient $gemini,
+        LoggerInterface $log,
+        $modifiedDatePredicate
     ) {
         $this->fedora = $fedora;
-        $this->urlMapper = $id_mapper;
-        $this->urlMinter = $url_minter;
+        $this->drupal = $drupal;
+        $this->gemini = $gemini;
         $this->log = $log;
+        $this->modifiedDatePredicate = $modifiedDatePredicate;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function saveRdf(
-        $rdf,
-        $rdf_url,
+    public function saveContent(
         $uuid,
-        $token
+        $jsonld_url,
+        $token = null
     ) {
-        $urls = $this->urlMapper->getUrls($uuid);
+        $urls = $this->gemini->getUrls($uuid, $token);
 
-        if (!empty($urls) && isset($urls['fedora_rdf'])) {
-            // GET the resource if it's already been mapped.
-            $fedora_rdf_url = $urls['fedora_rdf'];
-            $get_response = $this->fedora->getResource(
-                $fedora_rdf_url,
-                ['Authorization' => $token, 'Accept' => 'application/ld+json']
+        if (empty($urls)) {
+            return $this->createNode(
+                $uuid,
+                $jsonld_url,
+                $token
             );
-
-            // Exit early if GET fails.
-            if ($get_response->getStatusCode() != 200) {
-                return $get_response;
-            }
-
-            // Compare modified dates from each copy, and ignore if Drupal rdf is stale.
-            $drupal_rdf = $this->processJsonld($rdf, $rdf_url, $fedora_rdf_url);
-            $fedora_rdf = json_decode($get_response->getBody(true), true);
-
-            $predicate = "http://schema.org/dateModified";
-            $drupal_modified = \DateTime::createFromFormat(
-                \DateTime::W3C,
-                $this->getFirstPredicateValue($drupal_rdf, $predicate)
+        } else {
+            return $this->updateNode(
+                $uuid,
+                $jsonld_url,
+                $urls['fedora'],
+                $token
             );
-            $fedora_modified = \DateTime::createFromFormat( 
-                \DateTime::W3C,
-                $this->getFirstPredicateValue($fedora_rdf, $predicate)
-            );
-            
-            if ($drupal_modified->getTimestamp() <= $fedora_modified->getTimestamp()) {
-                $msg = "Ignoring save because drupal rdf is old." .
-                    " Drupal modified date: " . $drupal_modified->format(\DateTime::W3C) . 
-                    " Fedora modified date: " . $fedora_modified->format(\DateTime::W3C) . ".";
-                throw new \RuntimeException(
-                    $msg,
-                    200
-                );
-            }
-
-            // Get ETag from GET response.
-            $etags = $get_response->getHeader("ETag");
-            $headers['If-Match'] = ltrim(reset($etags), "W/");
         }
-        else {
-            // Mint a new url if it hasn't been mapped yet.
-            $fedora_rdf_url = $this->urlMinter->mint($uuid);
-            $drupal_rdf = $this->processJsonld($rdf, $rdf_url, $fedora_rdf_url);
-        }
+    }
 
-        // Save the resource in Fedora.
-        $headers = [
-            'Authorization' => $token,
-            'Content-Type' => 'application/ld+json',
-            'Prefer' => 'return=representation; omit="http://fedora.info/definitions/v4/repository#ServerManaged"',
-        ];
-        $fedora_response = $this->fedora->saveResource(
-            $fedora_rdf_url,
-            json_encode($drupal_rdf),
+    /**
+     * Creates a new LDP-RS in Fedora from a Node.
+     *
+     * @param string $uuid
+     * @param string $jsonld_url
+     * @param string $token
+     *
+     * @return \GuzzleHttp\Psr7\Response
+     *
+     * @throws \RuntimeException
+     * @throws \GuzzleHttp\Exception\RequestException
+     */
+    protected function createContent(
+        $uuid,
+        $jsonld_url,
+        $token = null
+    ) {
+        // Mint a new Fedora URL.
+        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token);
+
+        // Get the jsonld from Drupal.
+        $headers = empty($token) ? [] : ['Authorization' => $token];
+        $drupal_response = $this->drupal->get(
+            $jsonld_url,
+            ['headers' => $headers]
+        );
+
+        $jsonld = json_decode(
+            $drupal_response->getBody(),
+            true
+        );
+
+        // Mash it into the shape Fedora accepts.
+        $jsonld = $this->processJsonld(
+            $jsonld,
+            $jsonld_url,
+            $fedora_url
+        );
+
+        // Save it in Fedora.
+        $headers['Content-Type'] = 'application/ld+json';
+        $headers['Prefer'] = 'return=minimal; handling=lenient';
+        $response = $this->fedora->saveResource(
+            $fedora_url,
+            json_encode($jsonld),
             $headers
         );
 
-        $this->log->debug("Fedora PUT Response: ", [
-            'body' => $fedora_response->getBody(),
-            'status' => $fedora_response->getStatusCode(),
-            'headers' => $fedora_response->getHeaders()
-        ]);
-
-        // Map the urls if successful.
-        $status = $fedora_response->getStatusCode();
-        if ($status == 201 || $status == 204) {
-            $this->urlMapper->saveUrls($uuid, $rdf_url, $fedora_rdf_url);
-        }
-
-        return $fedora_response;
-    }
-
-    /**
-     * @param $rdf
-     * @return \DateTime
-     */
-    protected function getFirstPredicateValue(array $rdf, $predicate) {
-        // Check to make sure date exists before extracting it.
-        $malformed = empty($rdf) ||
-            !isset($rdf[0][$predicate]) ||
-            empty($rdf[0][$predicate]) ||
-            !isset($rdf[0][$predicate][0]['@value']); 
-        if ($malformed) {
+        $status = $response->getStatusCode();
+        if (!in_array($status, [201, 204])) {
+            $reason = $response->getReasonPhrase();
             throw new \RuntimeException(
-                "Cannot extract $predicate from rdf",
-                "500"
+                "Client error: `PUT $fedora_url` resulted in a `$status $reason` response: " . $response->getBody(),
+                $status
             );
         }
 
-        // Extract as W3C string and conver to DateTime.
-        return $rdf[0][$predicate][0]['@value'];
+        // Map the URLS.
+        $this->gemini->saveUrls(
+            $uuid,
+            $jsonld_url,
+            $fedora_url,
+            $token
+        );
+
+        // Return the response from Fedora.
+        return $response;
     }
 
     /**
-     * @param $jsonld
-     * @param $drupal_path
-     * @return array 
+     * Updates an existing LDP-RS in Fedora from a Node.
+     *
+     * @param string $uuid
+     * @param string $jsonld_url
+     * @param string $fedora_url
+     * @param string $token
+     *
+     * @return \GuzzleHttp\Psr7\Response
+     *
+     * @throws \RuntimeException
+     * @throws \GuzzleHttp\Exception\RequestException
+     */
+    protected function updateContent(
+        $uuid,
+        $jsonld_url,
+        $fedora_url,
+        $token = null
+    ) {
+        // Get the jsonld from Fedora.
+        $headers = empty($token) ? [] : ['Authorization' => $token];
+        $headers['Accept'] = 'application/ld+json';
+        $fedora_response = $this->fedora->getResource(
+            $fedora_url,
+            $headers
+        );
+
+        $status = $fedora_response->getStatusCode();
+        if ($status != 200) {
+            $reason = $fedora_response->getReasonPhrase();
+            throw new \RuntimeException(
+                "Client error: `GET $fedora_url` resulted in a `$status $reason` response: " . $fedora_response->getBody(),
+                $status
+            );
+        }
+
+        // Strip off the W/ prefix to make the ETag strong.
+        $etags = $fedora_response->getHeader("ETag");
+        $etag = ltrim(reset($etags), "W/");
+
+        // Get the modified date from the RDF.
+        $fedora_jsonld = json_decode(
+            $fedora_response->getBody(),
+            true
+        );
+
+        $fedora_modified = $this->getModifiedTimestamp(
+            $fedora_jsonld
+        );
+
+        // Get the jsonld from Drupal.
+        $headers = empty($token) ? [] : ['Authorization' => $token];
+        $drupal_response = $this->drupal->get(
+            $jsonld_url,
+            ['headers' => $headers]
+        );
+
+        $drupal_jsonld = json_decode(
+            $drupal_response->getBody(),
+            true
+        );
+
+        // Mash it into the shape Fedora accepts.
+        $drupal_jsonld = $this->processJsonld(
+            $drupal_jsonld,
+            $jsonld_url,
+            $fedora_url
+        );
+
+        // Get the modified date from the RDF.
+        $drupal_modified = $this->getModifiedTimestamp(
+            $drupal_jsonld
+        );
+
+        // Abort with 412 if the Drupal RDF is stale.
+        if ($drupal_modified <= $fedora_modified) {
+            throw new \RuntimeException(
+                "Not updating $fedora_url because RDF at $jsonld_url is not newer",
+                412
+            );
+        }
+
+        // Conditional save it in Fedora.
+        $headers['Content-Type'] = 'application/ld+json';
+        $headers['Prefer'] = 'return=minimal; handling=lenient';
+        $headers['If-Match'] = $etag;
+        $response = $this->fedora->saveResource(
+            $fedora_url,
+            json_encode($drupal_jsonld),
+            $headers
+        );
+
+        $status = $response->getStatusCode();
+        if (!in_array($status, [201, 204])) {
+            $reason = $response->getReasonPhrase();
+            throw new \RuntimeException(
+                "Client error: `PUT $fedora_url` resulted in a `$status $reason` response: " . $response->getBody(),
+                $status
+            );
+        }
+
+        // Map the URLS.
+        $this->gemini->saveUrls(
+            $uuid,
+            $jsonld_url,
+            $fedora_url,
+            $token
+        );
+
+        // Return the response from Fedora.
+        return $response;
+    }
+
+    /**
+     * Normalizes Drupal jsonld into a shape Fedora understands.
+     *
+     * @param array $jsonld
+     * @param string $drupal_url
+     * @param string $fedora_url
+     *
+     * @return array
      */
     protected function processJsonld(array $jsonld, $drupal_url, $fedora_url)
     {
@@ -180,312 +296,572 @@ class MillinerService implements MillinerServiceInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the first value for a predicate in a JSONLD array.
+     *
+     * @param $jsonld
+     * @param $predicate
+     * @param $value
+     *
+     * @return mixed string|null
      */
-    public function deleteRdf(
-        $url,
-        $uuid,
-        $token
-    ) {
-        $headers = [
-            'Authorization' => $token,
-        ];
+    protected function getFirstPredicate(array $jsonld, $predicate, $value = true) {
+        $key = $value ? '@value' : '@id';
+        $malformed = empty($jsonld) ||
+            !isset($jsonld[0][$predicate]) ||
+            empty($jsonld[0][$predicate]) ||
+            !isset($jsonld[0][$predicate][0][$key]);
 
-        $urls = $this->urlMapper->getUrls($uuid);
-
-        if (!empty($urls) && isset($urls['fedora_rdf'])) {
-            $fedora_rdf_url = $urls['fedora_rdf'];
-            $fedora_response = $this->fedora->deleteResource(
-                $fedora_rdf_url,
-                $headers
-            );
-
-            $this->log->debug("Fedora DELETE Response: ", [
-                'body' => $fedora_response->getBody(),
-                'status' => $fedora_response->getStatusCode(),
-                'headers' => $fedora_response->getHeaders()
-            ]);
-
-            $this->urlMapper->deleteUrls($uuid);
-
-            return $fedora_response;
+        if ($malformed) {
+            return null;
         }
 
-        $this->urlMapper->deleteUrls($uuid);
-        return null;
+        return $jsonld[0][$predicate][0][$key];
+    }
+
+    /**
+     * Extracts a modified date from jsonld and returns it as a timestamp.
+     *
+     * @param array $jsonld
+     *
+     * @return int
+     *
+     * @throws \RuntimeException
+     */
+    protected function getModifiedTimestamp(array $jsonld)
+    {
+        $modified = $this->getFirstPredicate(
+            $jsonld,
+            $this->modifiedDatePredicate
+        );
+
+        if (empty($modified)) {
+            throw new \RuntimeException(
+                "Could not parse {$this->modifiedDatePredicate} from " . json_encode($jsonld),
+                500
+            );
+        }
+
+        $date = \DateTime::createFromFormat(
+            \DateTime::W3C,
+            $modified
+        );
+
+        return $date->getTimestamp();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function saveNonRdf(
-        $rdf,
-        $rdf_url,
-        $stream,
-        $mimetype,
-        $nonrdf_url,
+    public function saveMedia(
         $uuid,
+        $json_url,
+        $jsonld_url,
         $token
     ) {
-        $headers = [
-            'Authorization' => $token,
-            'Content-Type' => $mimetype,
-        ];
+        $urls = $this->gemini->getUrls($uuid, $token);
 
-        $urls = $this->urlMapper->getUrls($uuid);
+        // If it's not in Gemini, try to see if you can back your way
+        // into the URL.
+        $fedora_url = empty($urls) ? $this->getFedoraMediaUrl($json_url, $token) : $urls['fedora'];
 
-        if (empty($urls)) {
-            // Mint a new url if it hasn't been mapped yet.
-            $fedora_nonrdf_url = $this->urlMinter->mint($uuid);
-
-            // Save the nonrdf source in Fedora.
-            $headers = [
-                'Authorization' => $token,
-                'Content-Type' => $mimetype,
-            ];
-
-            $fedora_response = $this->fedora->saveResource(
-                $fedora_nonrdf_url,
-                $stream,
-                $headers
-            );
-
-            $this->log->debug("Fedora PUT Response: ", [
-                'body' => $fedora_response->getBody(),
-                'status' => $fedora_response->getStatusCode(),
-                'headers' => $fedora_response->getHeaders()
-            ]);
-
-            $status = $fedora_response->getStatusCode();
-
-            // Exit early on fail.
-            if ($status != 201 && $status != 204) {
-                return $fedora_response;
-            }
-
-            // Get the metadata url from link header.
-            $fedora_rdf_url = $this->getLinkHeader($fedora_response, 'describedby');
-
-            // Save the rdf source in Fedora.
-            $headers = [
-                'Authorization' => $token,
-                'Content-Type' => 'application/ld+json',
-                'Prefer' => 'return=representation; omit="http://fedora.info/definitions/v4/repository#ServerManaged"',
-            ];
-            $rdf_fedora_response = $this->fedora->saveResource(
-                $fedora_rdf_url,
-                $this->processJsonld($rdf, $rdf_url, $fedora_rdf_url),
-                $headers
-            );
-
-            $this->log->debug("Fedora PUT Response: ", [
-                'body' => $rdf_fedora_response->getBody(),
-                'status' => $rdf_fedora_response->getStatusCode(),
-                'headers' => $rdf_fedora_response->getHeaders()
-            ]);
-
-            $status = $rdf_fedora_response->getStatusCode();
-
-            // Exit early on fail.
-            if ($status != 201 && $status != 204) {
-                return $rdf_fedora_response;
-            }
-
-            // Save urls.
-            $this->urlMapper->saveUrls($uuid, $rdf_url, $fedora_rdf_url, $nonrdf_url, $fedora_nonrdf_url);
-
-            // Return nonrdf response.
-            return $fedora_response;
-        }
-        else {
-            // GET the RDF resource.
-            $fedora_rdf_url = $urls['fedora_rdf'];
-            $get_response = $this->fedora->getResource(
-                $fedora_rdf_url,
-                ['Authorization' => $token, 'Accept' => 'application/ld+json']
-            );
-
-            // Exit early if GET fails.
-            if ($get_response->getStatusCode() != 200) {
-                return $get_response;
-            }
-
-            // Compare modified dates from each copy, and ignore if Drupal rdf is stale.
-            $drupal_rdf = $this->processJsonld($rdf, $rdf_url, $fedora_rdf_url);
-            $fedora_rdf = json_decode($get_response->getBody(true), true);
-
-            $predicate = "http://schema.org/dateModified";
-            $drupal_modified = \DateTime::createFromFormat(
-                \DateTime::W3C,
-                $this->getFirstPredicateValue($drupal_rdf, $predicate)
-            );
-            $fedora_modified = \DateTime::createFromFormat( 
-                \DateTime::W3C,
-                $this->getFirstPredicateValue($fedora_rdf, $predicate)
-            );
-            
-            if ($drupal_modified->getTimestamp() <= $fedora_modified->getTimestamp()) {
-                $msg = "Ignoring save because drupal rdf is old." .
-                    " Drupal modified date: " . $drupal_modified->format(\DateTime::W3C) . 
-                    " Fedora modified date: " . $fedora_modified->format(\DateTime::W3C) . ".";
-                throw new \RuntimeException(
-                    $msg,
-                    200
-                );
-            }
-
-            // Save the rdf source in Fedora.
-            $headers = [
-                'Authorization' => $token,
-                'Content-Type' => 'application/ld+json',
-                'Prefer' => 'return=representation; omit="http://fedora.info/definitions/v4/repository#ServerManaged"',
-            ];
-            $rdf_fedora_response = $this->fedora->saveResource(
-                $fedora_rdf_url,
-                $this->processJsonld($rdf, $rdf_url, $fedora_rdf_url),
-                $headers
-            );
-
-            $this->log->debug("Fedora PUT Response: ", [
-                'body' => $rdf_fedora_response->getBody(),
-                'status' => $rdf_fedora_response->getStatusCode(),
-                'headers' => $rdf_fedora_response->getHeaders()
-            ]);
-
-            $status = $rdf_fedora_response->getStatusCode();
-
-            // Exit early on fail.
-            if ($status != 201 && $status != 204) {
-                return $rdf_fedora_response;
-            }
-
-            // Check to see if the file has changed. 
-        }
-/*
-        if (!empty($urls) && isset($urls['fedora_rdf']) && !empty($rdf) && !empty($rdf_url)) {
-            $this->saveRdf(
-
-
-            // Compare modified dates from each copy, and ignore if Drupal rdf is stale.
-            $drupal_rdf = $this->processJsonld($rdf, $rdf_url, $fedora_rdf_url);
-            $fedora_rdf = json_decode($get_response->getBody(true), true);
-
-            $drupal_modified = $this->getModifiedDateTime($drupal_rdf);
-            $fedora_modified = $this->getModifiedDateTime($fedora_rdf); 
-            
-            if ($drupal_modified->getTimestamp() <= $fedora_modified->getTimestamp()) {
-                $msg = "Ignoring save because drupal rdf is old." .
-                    " Drupal modified date: " . $drupal_modified->format(\DateTime::W3C) . 
-                    " Fedora modified date: " . $fedora_modified->format(\DateTime::W3C) . ".";
-                throw new \RuntimeException(
-                    $msg,
-                    200
-                );
-            }
-
-            // Get ETag from GET response.
-            $etags = $get_response->getHeader("ETag");
-            $headers['If-Match'] = ltrim(reset($etags), "W/");
-        }
-        if (!empty($urls) && isset($urls['drupal_nonrdf']) && isset($urls['fedora_nonrdf'])) {
-            $fedora_nonrdf_url = $urls['fedora_nonrdf'];
-
-            $head_response = $this->fedora->getResourceHeaders(
-                $fedora_nonrdf_url,
-                ['Authorization' => $token]
-            );
-
-            if ($head_response->getStatusCode() != 200) {
-                return $head_response;
-            }
-
-            $headers['If-Match'] = $head_response->getEtag();
-        }
-        else {
-            $fedora_nonrdf_url = $this->urlMinter->mint($uuid);
-        }
-
-        $fedora_metadata_url = null;
-
-        $fedora_response = $this->fedora->saveResource(
-            $fedora_nonrdf_url,
-            $stream,
+        // Get the RDF from Fedora.
+        $headers = empty($token) ? [] : ['Authorization' => $token];
+        $headers['Accept'] = 'application/ld+json';
+        $fedora_response = $this->fedora->getResource(
+            $fedora_url,
             $headers
         );
 
-        $this->log->debug("Fedora PUT Response: ", [
-            'body' => $fedora_response->getBody(),
-            'status' => $fedora_response->getStatusCode(),
-            'headers' => $fedora_response->getHeaders()
-        ]);
-
-        $fedora_rdf_url = $this->getFedoraMetadataUrl($fedora_response);
-
+        // If 404, try again, but attempt to back your way into the URL.
         $status = $fedora_response->getStatusCode();
-        if ($status == 201) {
-            // Map IDs.
-            $this->urlMapper->save(
-                $uuid,
-                $rdf_url,
-                $fedora_rdf_url,
-                $nonrdf_url,
-                $fedora_nonrdf_url
+        if ($status == 404) {
+            $fedora_url = $this->getFedoraMediaUrl($json_url, $token);
+            $fedora_response = $this->fedora->getResource(
+                $fedora_url,
+                $headers
+            );
+            $status = $fedora_response->getStatusCode();
+        }
+
+        if ($status != 200) {
+            $reason = $fedora_response->getReasonPhrase();
+            throw new \RuntimeException(
+                "Client error: `GET $fedora_url` resulted in a `$status $reason` response: " . $fedora_response->getBody(),
+                $status
             );
         }
 
-        return $fedora_response;
-*/
+        // Get the URL for the LDP-NR the media describes.
+        $describes_url = $this->getLinkHeader($fedora_response, "describes");
+
+        if (empty($describes_url)) {
+            throw new \RuntimeException(
+                "Cannot parse 'describes' link header from response to `HEAD $fedora_url`",
+                500
+            );
+        }
+
+        // Strip off the W/ prefix to make the ETag strong.
+        $etags = $fedora_response->getHeader("ETag");
+        $etag = ltrim(reset($etags), "W/");
+
+        // Get the modified date from the RDF.
+        $fedora_jsonld = json_decode(
+            $fedora_response->getBody(),
+            true
+        );
+
+        // Account for the fact that new media haven't got a modified date
+        // pushed to it from Drupal yet.
+        try {
+            $fedora_modified = $this->getModifiedTimestamp(
+                $fedora_jsonld
+            );
+        } catch (\RuntimeException $e) {
+            $fedora_modified = 0;
+        }
+
+        // Get the jsonld from Drupal.
+        $headers = empty($token) ? [] : ['Authorization' => $token];
+        $drupal_response = $this->drupal->get(
+            $jsonld_url,
+            ['headers' => $headers]
+        );
+
+        $drupal_jsonld = json_decode(
+            $drupal_response->getBody(),
+            true
+        );
+
+        // Mash it into the shape Fedora accepts.
+        // Be sure to give it the URL of the file being described, not that of
+        // the RDF itself.
+        $drupal_jsonld = $this->processJsonld(
+            $drupal_jsonld,
+            $jsonld_url,
+            $describes_url
+        );
+
+        // Get the modified date from the RDF.
+        $drupal_modified = $this->getModifiedTimestamp(
+            $drupal_jsonld
+        );
+
+        // Abort with 412 if the Drupal RDF is stale.
+        if ($drupal_modified <= $fedora_modified) {
+            throw new \RuntimeException(
+                "Not updating $fedora_url because RDF at $jsonld_url is not newer",
+                412
+            );
+        }
+
+        // Conditional save it in Fedora.
+        $headers['Content-Type'] = 'application/ld+json';
+        $headers['Prefer'] = 'return=minimal; handling=lenient';
+        $headers['If-Match'] = $etag;
+        $response = $this->fedora->saveResource(
+            $fedora_url,
+            json_encode($drupal_jsonld),
+            $headers
+        );
+
+        $status = $response->getStatusCode();
+        if (!in_array($status, [201, 204])) {
+            $reason = $response->getReasonPhrase();
+            throw new \RuntimeException(
+                "Client error: `PUT $fedora_url` resulted in a `$status $reason` response: " . $response->getBody(),
+                $status
+            );
+        }
+
+        // Map the URLS.
+        $this->gemini->saveUrls(
+            $uuid,
+            $jsonld_url,
+            $fedora_url,
+            $token
+        );
+
+        // Return the response from Fedora.
+        return $response;
     }
 
+    /**
+     * Backs its way into the Fedora URL for a Media entity by getting the Media
+     * JSON from Drupal, getting the File UUID, looking that up in Gemini, and
+     * then issuing HEAD request for the 'describedby' Link header.
+     *
+     * @param $json_url
+     * @param $token
+     *
+     * @return string
+     *
+     * @throws \RuntimeException
+     * @throws \GuzzleHttp\Exception\RequestException
+     */
+    protected function getFedoraMediaUrl(
+        $json_url,
+        $token = null
+    ) {
+        // First get the media json from Drupal.
+        $headers = empty($token) ? [] : ['Authorization' => $token];
+        $drupal_response = $this->drupal->get(
+            $json_url,
+            ['headers' => $headers]
+        );
+
+        $media_json = json_decode(
+            $drupal_response->getBody(),
+            true
+        );
+
+        // Extract the file uuid.  It can be under 'field_file' or 'field_image'.
+        if (!isset($media_json['field_image']) && !isset($media_json['field_file'])) {
+            throw new \RuntimeException(
+                "Cannot parse file UUID from $json_url.  Media must use 'field_file' or 'field_image'.",
+                500
+            );
+        }
+
+        $field_name = isset($media_json['field_image']) ? 'field_image' : 'field_file';
+
+        if (empty($media_json[$field_name])) {
+            throw new \RuntimeException(
+                "Cannot parse file UUID from $json_url.  'field_file' or 'field_image' is empty.",
+                500
+            );
+        }
+
+        $file_uuid = $media_json[$field_name][0]['target_uuid'];
+
+        // Get the file's LDP-NR counterpart in Fedora.
+        $urls = $this->gemini->getUrls($file_uuid, $token);
+
+        if (empty($urls)) {
+            $file_url = $media_json[$field_name][0]['url'];
+            throw new \RuntimeException(
+                "$file_url has not been mapped in Gemini with uuid $file_uuid",
+                404
+            );
+        }
+
+        $fedora_file_url = $urls['fedora'];
+
+        // Now look for the 'describedby' link header on the file in Fedora.
+        $fedora_response = $this->fedora->getResourceHeaders(
+            $fedora_file_url,
+            $headers
+        );
+
+        $status = $fedora_response->getStatusCode();
+        if ($status != 200) {
+            $reason = $fedora_response->getReasonPhrase();
+            throw new \RuntimeException(
+                "Client error: `HEAD $fedora_file_url` resulted in a `$status $reason` response: " . $fedora_response->getBody(),
+                $status
+            );
+        }
+
+        $described_by = $this->getLinkHeader($fedora_response, "describedby");
+
+        if (empty($described_by)) {
+            throw new \RuntimeException(
+                "Cannot parse 'describedby' link header from response to `HEAD $fedora_file_url`",
+                500
+            );
+        }
+
+        return $described_by;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function saveFile(
+        $uuid,
+        $file_url,
+        $checksum_url,
+        $token
+    ) {
+        $urls = $this->gemini->getUrls($uuid, $token);
+
+        if (empty($urls)) {
+            return $this->createFile(
+                $uuid,
+                $file_url,
+                $token
+            );
+        } else {
+            return $this->updateFile(
+                $uuid,
+                $file_url,
+                $checksum_url,
+                $urls['fedora'],
+                $token
+            );
+        }
+    }
+
+    /**
+     * Creates a new LDP-NR in Fedora from a Drupal file.
+     *
+     * @param $uuid
+     * @param $file_url
+     * @param $token
+     *
+     * @return \GuzzleHttp\Psr7\Response
+     *
+     * @throws \RuntimeException
+     * @throws \GuzzleHttp\Exception\RequestException
+     */
+    protected function createFile(
+        $uuid,
+        $file_url,
+        $token
+    ) {
+        // Mint a new Fedora URL.
+        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token);
+
+        // Get the file from Drupal.
+        $headers = empty($token) ? [] : ['Authorization' => $token];
+        $drupal_response = $this->drupal->get(
+            $file_url,
+            ['headers' => $headers]
+        );
+
+        // Save it in Fedora.
+        $headers['Content-Type'] = reset($drupal_response->getHeader('Content-Type'));
+        $response = $this->fedora->saveResource(
+            $fedora_url,
+            $drupal_response->getBody(),
+            $headers
+        );
+
+        $status = $response->getStatusCode();
+        if (!in_array($status, [201, 204])) {
+            $reason = $response->getReasonPhrase();
+            throw new \RuntimeException(
+                "Client error: `PUT $fedora_url` resulted in a `$status $reason` response: " . $response->getBody(),
+                $status
+            );
+        }
+
+        // Map the URLS.
+        $this->gemini->saveUrls(
+            $uuid,
+            $file_url,
+            $fedora_url,
+            $token
+        );
+
+        // Return the response from Fedora.
+        return $response;
+    }
+
+    /**
+     * Updates an existing LDP-NR in Fedora from a Drupal file.
+     *
+     * @param $uuid
+     * @param $file_url
+     * @param $checksum_url
+     * @param $fedora_url
+     * @param $token
+     *
+     * @return \GuzzleHttp\Psr7\Response
+     *
+     * @throws \RuntimeException
+     * @throws \GuzzleHttp\Exception\RequestException
+     */
+    protected function updateFile(
+        $uuid,
+        $file_url,
+        $checksum_url,
+        $fedora_url,
+        $token
+    ) {
+        // Get the headers for the file from Fedora.
+        $headers = empty($token) ? [] : ['Authorization' => $token];
+        $fedora_response = $this->fedora->getResourceHeaders(
+            $fedora_url,
+            $headers
+        );
+
+        $status = $fedora_response->getStatusCode();
+        if ($status != 200) {
+            $reason = $fedora_response->getReasonPhrase();
+            throw new \RuntimeException(
+                "Client error: `HEAD $fedora_url` resulted in a `$status $reason` response: " . $fedora_response->getBody(),
+                $status
+            );
+        }
+
+        // Get the ETag.
+        $etags = $fedora_response->getHeader("ETag");
+        $etag = reset($etags);
+
+        // Get the 'describedby' link.
+        $described_by = $this->getLinkHeader($fedora_response, "describedby");
+        if (empty($described_by)) {
+            throw new \RuntimeException(
+                "Cannot parse 'describedby' link header from response to `HEAD $fedora_url`",
+                500
+            );
+        }
+
+        // Get the RDF describing the file from Fedora.
+        $headers['Accept'] = 'application/ld+json';
+        $fedora_response = $this->fedora->getResource(
+            $described_by,
+            $headers
+        );
+
+        $status = $fedora_response->getStatusCode();
+        if ($status != 200) {
+            $reason = $fedora_response->getReasonPhrase();
+            throw new \RuntimeException(
+                "Client error: `GET $described_by` resulted in a `$status $reason` response: " . $fedora_response->getBody(),
+                $status
+            );
+        }
+
+        $fedora_jsonld = json_decode(
+            $fedora_response->getBody(),
+            true
+        );
+
+        // Get the checksum from the RDF.
+        $fedora_checksum = $this->parseChecksum($fedora_jsonld);
+
+        // Get the checksum from Drupal.
+        unset($headers['Accept']);
+        $drupal_response = $this->drupal->get(
+            $checksum_url,
+            ['headers' => $headers]
+        );
+
+        $checksum_json = json_decode(
+            $drupal_response->getBody(),
+            true
+        );
+
+        $drupal_checksum = $checksum_json[0]['sha1'];
+
+        // Abort with 412 if the files haven't changed.
+        if ($fedora_checksum == $drupal_checksum) {
+            throw new \RuntimeException(
+                "Not updating $fedora_url because file at $file_url has not changed",
+                412
+            );
+        }
+
+        // Get the file from Drupal.
+        $drupal_response = $this->drupal->get(
+            $file_url,
+            ['headers' => $headers]
+        );
+
+        // Save it in Fedora.
+        $headers['Content-Type'] = reset($drupal_response->getHeader('Content-Type'));
+        $headers['If-Match'] = $etag;
+        $response = $this->fedora->saveResource(
+            $fedora_url,
+            $drupal_response->getBody(),
+            $headers
+        );
+
+        $status = $response->getStatusCode();
+        if (!in_array($status, [201, 204])) {
+            $reason = $response->getReasonPhrase();
+            throw new \RuntimeException(
+                "Client error: `PUT $fedora_url` resulted in a `$status $reason` response: " . $response->getBody(),
+                $status
+            );
+        }
+
+        // Map the URLS.
+        $this->gemini->saveUrls(
+            $uuid,
+            $file_url,
+            $fedora_url,
+            $token
+        );
+
+        // Return the response from Fedora.
+        return $response;
+    }
+
+    /**
+     * Gets a Link header with the supplied rel name.
+     *
+     * @param $response
+     * @param $rel_name
+     *
+     * @return null|string
+     */
     protected function getLinkHeader($response, $rel_name) {
         $parsed = Psr7\parse_header($response->getHeader("Link"));
         foreach ($parsed as $header) {
-            if (isset($header['rel']) && $header['rel'] = $rel_name) {
+            if (isset($header['rel']) && $header['rel'] == $rel_name) {
                 return trim($header[0], '<>');
             }
         }
         return null;
     }
 
-    public function deleteNonRdf(
-        $nonrdf_url,
-        $rdf_url,
+    /**
+     * Gets a checksum from Fedora jsonld.
+     *
+     * @param array $jsonld
+     *
+     * @return string
+     *
+     * @throws \RuntimeException
+     */
+    protected function parseChecksum(array $jsonld) {
+        $predicate = 'http://www.loc.gov/premis/rdf/v1#hasMessageDigest';
+        $urn = $this->getFirstPredicate($jsonld, $predicate, false);
+
+        if (preg_match("/urn:sha1:(?<checksum>.*)/", $urn, $matches)) {
+            if (isset($matches['checksum'])) {
+                return $matches['checksum'];
+            }
+        }
+
+        throw new \RuntimeException(
+            "Could not parse $predicate from " . json_encode($jsonld),
+            500
+        );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function delete(
+        $uuid,
         $token
     ) {
-// TODO: HAVE TO UPDATE ID MAPPER AND GEMINI TABLE TO HANDLE ASSOCIATION OF LDP-NR TO LDP-RS THERE.
-        $headers = [
-            'Authorization' => $token,
-        ];
+        $urls = $this->gemini->getUrls($uuid, $token);
 
-        $fedora_url = $this->urlMapper->getFedoraId($url);
-
-        if ($fedora_url) {
-            $head_response = $this->fedora->getResourceHeaders(
-                $fedora_url,
-                ['Authorization' => $token]
-            );
-
-            $fedora_metadata_url = $this->getFedoraMetadataUrl($head_response);
-
-            $fedora_response = $this->fedora->deleteResource(
+        if (!empty($urls)) {
+            $fedora_url = $urls['fedora'];
+            $headers = empty($token) ? [] : ['Authorization' => $token];
+            $response = $this->fedora->deleteResource(
                 $fedora_url,
                 $headers
             );
 
-            $this->log->debug("Fedora DELETE Response: ", [
-                'body' => $fedora_response->getBody(),
-                'status' => $fedora_response->getStatusCode(),
-                'headers' => $fedora_response->getHeaders()
-            ]);
+            $status = $response->getStatusCode();
+            if (!in_array($status, [204, 410])) {
+                $reason = $response->getReasonPhrase();
+                throw new \RuntimeException(
+                    "Client error: `DELETE $fedora_url` resulted in a `$status $reason` response: " . $response->getBody(),
+                    $status
+                );
+            }
 
-            $this->urlMapper->deleteFromDrupalId($url, $fedora_url);
-
-            return $fedora_response;
+            $this->gemini->deleteUrls($uuid, $token);
         }
 
-        $this->urlMapper->deleteFromDrupalId($url);
-
-        return null;
-        $this->urlMapper->deleteFromDrupalId($jsonld_url);
+        return new Response(204);
     }
 }

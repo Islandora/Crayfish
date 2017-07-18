@@ -58,7 +58,6 @@ class GeminiController
     {
         // Request contents are a UUID.
         $uuid = $request->getContent();
-
         return new Response(
             $this->urlMinter->mint($uuid),
             200
@@ -88,6 +87,7 @@ class GeminiController
             return new Response("Missing 'fedora' entry in reqeust body.", 400);
         }
 
+        // Save URL pair.
         $this->urlMapper->saveUrls(
             $uuid,
             $urls['drupal'],

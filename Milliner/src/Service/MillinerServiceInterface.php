@@ -9,68 +9,65 @@ namespace Islandora\Milliner\Service;
 interface MillinerServiceInterface
 {
     /**
-     * @param $stream
-     * @param $mimetype
-     * @param $file_url
+     * @param $uuid
      * @param $jsonld_url
-     * @param $uuid
      * @param $token
      *
-     * @throws \RuntimeException
+     * @throws \Exception
      *
      * @return \GuzzleHttp\Psr7\Response
      */
-    public function saveNonRdf(
-        $stream,
-        $mimetype,
-        $file_url,
-        $jsonld_url,
+    public function saveContent(
         $uuid,
+        $jsonld_url,
         $token
     );
 
     /**
-     * @param $jsonld
-     * @param $url
      * @param $uuid
+     * @param $json_url
+     * @param $jsonld_url
      * @param $token
      *
-     * @throws \RuntimeException
+     * @throws \Exception
      *
      * @return \GuzzleHttp\Psr7\Response
      */
-    public function saveRdf(
-        $jsonld,
-        $url,
+    public function saveMedia(
         $uuid,
-        $token
-    );
-
-    /**
-     * @param $url
-     * @param $token
-     *
-     * @throws \RuntimeException
-     *
-     * @return \GuzzleHttp\Psr7\Response|null
-     */
-    public function deleteRdf(
-        $url,
-        $uuid,
-        $token
-    );
-
-    /**
-     * @param $url
-     * @param $token
-     *
-     * @throws \RuntimeException
-     *
-     * @return \GuzzleHttp\Psr7\Response|null
-     */
-    public function deleteNonRdf(
-        $file_url,
+        $json_url,
         $jsonld_url,
         $token
     );
+
+    /**
+     * @param $uuid
+     * @param $file_url
+     * @param $checksum_url
+     * @param $token
+     *
+     * @throws \Exception
+     *
+     * @return \GuzzleHttp\Psr7\Response
+     */
+    public function saveFile(
+        $uuid,
+        $file_url,
+        $checksum_url,
+        $token
+    );
+
+    /**
+     * @param $uuid
+     * @param $token
+     *
+     * @throws \Exception
+     *
+     * @return \GuzzleHttp\Psr7\Response|null
+     */
+    public function delete(
+        $uuid,
+        $token
+    );
+
 }
