@@ -7,6 +7,7 @@ use Islandora\Gemini\UrlMinter\UrlMinterInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGenerator;
 
 /**
  * Class GeminiController
@@ -26,15 +27,24 @@ class GeminiController
     protected $urlMinter;
 
     /**
+     * @var \Symfony\Component\Routing\Generator\UrlGenerator
+     */
+    protected $urlGenerator;
+
+    /**
      * GeminiController constructor.
-     * @param \Islandora\Crayfish\Commons\UrlMapper\UrlMapperInterface
+     * @param \Islandora\Gemini\UrlMapper\UrlMapperInterface
+     * @param \Islandora\Gemini\UrlMinter\UrlMinterInterface
+     * @param \Symfony\Component\Routing\Generator\UrlGenerator
      */
     public function __construct(
         UrlMapperInterface $urlMapper,
-        UrlMinterInterface $urlMinter
+        UrlMinterInterface $urlMinter,
+        UrlGenerator $urlGenerator
     ) {
         $this->urlMapper = $urlMapper;
         $this->urlMinter = $urlMinter;
+        $this->urlGenerator = $urlGenerator;
     }
 
     /**
@@ -58,10 +68,25 @@ class GeminiController
     {
         // Request contents are a UUID.
         $uuid = $request->getContent();
-        return new Response(
-            $this->urlMinter->mint($uuid),
-            200
-        );
+
+        if (empty($uuid)) {
+            return new Response(
+                "Requests to mint new URLS must contain a UUID in the request body",
+                400
+            );
+        }
+
+        try {
+            return new Response(
+                $this->urlMinter->mint($uuid),
+                200
+            );
+        } catch (\InvalidArgumentException $e) {
+            return new Response(
+                $e->getMessage(),
+                $e->getCode()
+            );
+        }
     }
 
     /**
@@ -88,12 +113,24 @@ class GeminiController
         }
 
         // Save URL pair.
-        $this->urlMapper->saveUrls(
+        $is_new = $this->urlMapper->saveUrls(
             $uuid,
             $urls['drupal'],
             $urls['fedora']
         );
-        return new Response(null, 204);
+
+        // Return 201 or 204 depending on if a new record was created.
+        $response = new Response(null, $is_new ? 201 : 204);
+        if ($is_new) {
+            // Add a Location header if a new record was created.
+            $url = $this->urlGenerator->generate(
+                'GET_uuid',
+                ['uuid' => $uuid],
+                UrlGenerator::ABSOLUTE_URL
+            );
+            $response->headers->add(['Location' => $url]);
+        }
+        return $response;
     }
 
     /**
@@ -102,8 +139,7 @@ class GeminiController
      */
     public function delete($uuid)
     {
-        $this->urlMapper->deleteUrls($uuid);
-        return new Response(null, 204);
+        $deleted = $this->urlMapper->deleteUrls($uuid);
+        return new Response(null, $deleted ? 204 : 404);
     }
-
 }

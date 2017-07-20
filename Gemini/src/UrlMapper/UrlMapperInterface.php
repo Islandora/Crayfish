@@ -26,7 +26,7 @@ interface UrlMapperInterface
      *
      * @throws \Exception
      *
-     * @return bool
+     * @return bool True if new record is created.
      */
     public function saveUrls(
         $uuid,
@@ -39,7 +39,7 @@ interface UrlMapperInterface
      *
      * @throws \Exception
      *
-     * @return bool
+     * @return bool True if record is found and deleted.
      */
     public function deleteUrls(
         $uuid

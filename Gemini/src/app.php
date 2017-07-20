@@ -23,7 +23,8 @@ $app['gemini.minter'] = function ($app) {
 $app['gemini.controller'] = function ($app) {
     return new GeminiController(
         $app['gemini.mapper'],
-        $app['gemini.minter']
+        $app['gemini.minter'],
+        $app['url_generator']
     );
 };
 

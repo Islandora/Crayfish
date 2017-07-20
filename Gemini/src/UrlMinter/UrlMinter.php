@@ -13,7 +13,7 @@ class UrlMinter implements UrlMinterInterface
     protected $base_url;
 
     public function __construct(
-       $base_url
+        $base_url
     ) {
         $trimmed = trim($base_url);
         $this->base_url = rtrim($trimmed, '/') . '/';
@@ -22,7 +22,15 @@ class UrlMinter implements UrlMinterInterface
     /**
      * {@inheritdoc}
      */
-    public function mint($context) {
+    public function mint($context)
+    {
+        if (strlen($context) < 8) {
+            throw new \InvalidArgumentException(
+                "Provided UUID must be at least of length 8 to account for pair-trees",
+                400
+            );
+        }
+
         $segments = [
             substr($context, 0, 2),
             substr($context, 2, 2),

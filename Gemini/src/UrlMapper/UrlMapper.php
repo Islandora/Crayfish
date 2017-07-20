@@ -46,22 +46,30 @@ class UrlMapper implements UrlMapperInterface
         $drupal,
         $fedora
     ) {
-        return $this->connection->transactional(function() use ($uuid, $drupal, $fedora) {
-            // Try to insert first, and if the record already exists, upate it.
+        $this->connection->beginTransaction();
+
+        try {
+            // Try to insert first, and if the record already exists, update it.
             try {
-                return $this->connection->insert(
+                $this->connection->insert(
                     'Gemini',
                     ['uuid' => $uuid, 'drupal' => $drupal, 'fedora' => $fedora]
                 );
-            }
-            catch (UniqueConstraintViolationException $e) {
+                $this->connection->commit();
+                return true;
+            } catch (UniqueConstraintViolationException $e) {
                 $sql = "UPDATE Gemini SET fedora = :fedora, drupal = :drupal WHERE uuid = :uuid";
-                return $this->connection->executeUpdate(
+                $this->connection->executeUpdate(
                     $sql,
                     ['uuid' => $uuid, 'drupal' => $drupal, 'fedora' => $fedora]
                 );
+                $this->connection->commit();
+                return false;
             }
-        });
+        } catch (\Exception $e) {
+            $this->connection->rollBack();
+            throw $e;
+        }
     }
 
     /**
@@ -69,11 +77,20 @@ class UrlMapper implements UrlMapperInterface
      */
     public function deleteUrls($uuid)
     {
-        return $this->connection->transactional(function() use ($uuid) {
-            return $this->connection->delete(
+        $this->connection->beginTransaction();
+
+        try {
+            $count = $this->connection->delete(
                 'Gemini',
                 ['uuid' => $uuid]
             );
-        });
+
+            $this->connection->commit();
+
+            return $count > 0;
+        } catch (\Exception $e) {
+            $this->connection->rollBack();
+            throw $e;
+        }
     }
 }

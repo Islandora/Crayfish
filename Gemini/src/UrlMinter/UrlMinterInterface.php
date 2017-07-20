@@ -8,7 +8,6 @@
 
 namespace Islandora\Gemini\UrlMinter;
 
-
 interface UrlMinterInterface
 {
     /**
