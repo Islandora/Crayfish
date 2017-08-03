@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\Response;
 use Islandora\Chullo\IFedoraApi;
-use Islandora\Milliner\Client\GeminiClient;
+use Islandora\Milliner\Gemini\GeminiClient;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -25,7 +25,7 @@ class MillinerService implements MillinerServiceInterface
     protected $drupal;
 
     /**
-     * @var \Islandora\Milliner\Client\GeminiClient
+     * @var \Islandora\Milliner\Gemini\GeminiClient
      */
     protected $gemini;
 
@@ -44,7 +44,7 @@ class MillinerService implements MillinerServiceInterface
      *
      * @param \Islandora\Chullo\IFedoraApi $fedora
      * @param \GuzzleHttp\Client
-     * @param \Islandora\Milliner\Client\GeminiClient
+     * @param \Islandora\Milliner\Gemini\GeminiClient
      * @param string $modifiedDatePredicate
      * @param \Psr\Log\LoggerInterface $log
      */
@@ -353,133 +353,8 @@ class MillinerService implements MillinerServiceInterface
      * {@inheritDoc}
      */
     public function saveMedia(
-        $uuid,
         $json_url,
         $jsonld_url,
-        $token = null
-    ) {
-        // Back your way into the media url in Fedora by looking up the file first.
-        $fedora_url = $this->getFedoraMediaUrl($json_url, $token);
-
-        // Get the RDF from Fedora.
-        $headers = empty($token) ? [] : ['Authorization' => $token];
-        $headers['Accept'] = 'application/ld+json';
-        $fedora_response = $this->fedora->getResource(
-            $fedora_url,
-            $headers
-        );
-
-        $status = $fedora_response->getStatusCode();
-        if ($status != 200) {
-            $reason = $fedora_response->getReasonPhrase();
-            throw new \RuntimeException(
-                "Client error: `GET $fedora_url` resulted in a `$status $reason` response: " . $fedora_response->getBody(),
-                $status
-            );
-        }
-
-        // Get the URL for the LDP-NR the media describes.
-        $describes_url = $this->getLinkHeader($fedora_response, "describes");
-
-        if (empty($describes_url)) {
-            throw new \RuntimeException(
-                "Cannot parse 'describes' link header from response to `HEAD $fedora_url`",
-                500
-            );
-        }
-
-        // Strip off the W/ prefix to make the ETag strong.
-        $etags = $fedora_response->getHeader("ETag");
-        $etag = ltrim(reset($etags), "W/");
-
-        // Get the modified date from the RDF.
-        $fedora_jsonld = json_decode(
-            $fedora_response->getBody(),
-            true
-        );
-
-        // Account for the fact that new media haven't got a modified date
-        // pushed to it from Drupal yet.
-        try {
-            $fedora_modified = $this->getModifiedTimestamp(
-                $fedora_jsonld
-            );
-        } catch (\RuntimeException $e) {
-            $fedora_modified = 0;
-        }
-
-        // Get the jsonld from Drupal.
-        $headers = empty($token) ? [] : ['Authorization' => $token];
-        $drupal_response = $this->drupal->get(
-            $jsonld_url,
-            ['headers' => $headers]
-        );
-
-        $drupal_jsonld = json_decode(
-            $drupal_response->getBody(),
-            true
-        );
-
-        // Mash it into the shape Fedora accepts.
-        // Be sure to give it the URL of the file being described, not that of
-        // the RDF itself.
-        $drupal_jsonld = $this->processJsonld(
-            $drupal_jsonld,
-            $jsonld_url,
-            $describes_url
-        );
-
-        // Get the modified date from the RDF.
-        $drupal_modified = $this->getModifiedTimestamp(
-            $drupal_jsonld
-        );
-
-        // Abort with 412 if the Drupal RDF is stale.
-        if ($drupal_modified <= $fedora_modified) {
-            throw new \RuntimeException(
-                "Not updating $fedora_url because RDF at $jsonld_url is not newer",
-                412
-            );
-        }
-
-        // Conditional save it in Fedora.
-        $headers['Content-Type'] = 'application/ld+json';
-        $headers['Prefer'] = 'return=minimal; handling=lenient';
-        $headers['If-Match'] = $etag;
-        $response = $this->fedora->saveResource(
-            $fedora_url,
-            json_encode($drupal_jsonld),
-            $headers
-        );
-
-        $status = $response->getStatusCode();
-        if (!in_array($status, [201, 204])) {
-            $reason = $response->getReasonPhrase();
-            throw new \RuntimeException(
-                "Client error: `PUT $fedora_url` resulted in a `$status $reason` response: " . $response->getBody(),
-                $status
-            );
-        }
-
-        // Return the response from Fedora.
-        return $response;
-    }
-
-    /**
-     * Backs its way into the Fedora URL for a Media entity by getting the Media
-     * JSON from Drupal, getting the File UUID, looking that up in Gemini, and
-     * then issuing HEAD request for the 'describedby' Link header.
-     *
-     * @param $json_url
-     * @param $token
-     *
-     * @return string
-     *
-     * @throws \RuntimeException
-     * @throws \GuzzleHttp\Exception\RequestException
-     */
-    protected function getFedoraMediaUrl(
-        $json_url,
         $token = null
     ) {
         // First get the media json from Drupal.
@@ -541,16 +416,107 @@ class MillinerService implements MillinerServiceInterface
             );
         }
 
-        $described_by = $this->getLinkHeader($fedora_response, "describedby");
+        $fedora_url = $this->getLinkHeader($fedora_response, "describedby");
 
-        if (empty($described_by)) {
+        if (empty($fedora_url)) {
             throw new \RuntimeException(
                 "Cannot parse 'describedby' link header from response to `HEAD $fedora_file_url`",
                 500
             );
         }
 
-        return $described_by;
+        // Get the RDF from Fedora.
+        $headers = empty($token) ? [] : ['Authorization' => $token];
+        $headers['Accept'] = 'application/ld+json';
+        $fedora_response = $this->fedora->getResource(
+            $fedora_url,
+            $headers
+        );
+
+        $status = $fedora_response->getStatusCode();
+        if ($status != 200) {
+            $reason = $fedora_response->getReasonPhrase();
+            throw new \RuntimeException(
+                "Client error: `GET $fedora_url` resulted in a `$status $reason` response: " . $fedora_response->getBody(),
+                $status
+            );
+        }
+
+        // Strip off the W/ prefix to make the ETag strong.
+        $etags = $fedora_response->getHeader("ETag");
+        $etag = ltrim(reset($etags), "W/");
+
+        // Get the modified date from the RDF.
+        $fedora_jsonld = json_decode(
+            $fedora_response->getBody(),
+            true
+        );
+
+        // Account for the fact that new media haven't got a modified date
+        // pushed to it from Drupal yet.
+        try {
+            $fedora_modified = $this->getModifiedTimestamp(
+                $fedora_jsonld
+            );
+        } catch (\RuntimeException $e) {
+            $fedora_modified = 0;
+        }
+
+        // Get the jsonld from Drupal.
+        $headers = empty($token) ? [] : ['Authorization' => $token];
+        $drupal_response = $this->drupal->get(
+            $jsonld_url,
+            ['headers' => $headers]
+        );
+
+        $drupal_jsonld = json_decode(
+            $drupal_response->getBody(),
+            true
+        );
+
+        // Mash it into the shape Fedora accepts.
+        // Be sure to give it the URL of the file being described, not that of
+        // the RDF itself.
+        $drupal_jsonld = $this->processJsonld(
+            $drupal_jsonld,
+            $jsonld_url,
+            $fedora_file_url
+        );
+
+        // Get the modified date from the RDF.
+        $drupal_modified = $this->getModifiedTimestamp(
+            $drupal_jsonld
+        );
+
+        // Abort with 412 if the Drupal RDF is stale.
+        if ($drupal_modified <= $fedora_modified) {
+            throw new \RuntimeException(
+                "Not updating $fedora_url because RDF at $jsonld_url is not newer",
+                412
+            );
+        }
+
+        // Conditional save it in Fedora.
+        $headers['Content-Type'] = 'application/ld+json';
+        $headers['Prefer'] = 'return=minimal; handling=lenient';
+        $headers['If-Match'] = $etag;
+        $response = $this->fedora->saveResource(
+            $fedora_url,
+            json_encode($drupal_jsonld),
+            $headers
+        );
+
+        $status = $response->getStatusCode();
+        if (!in_array($status, [201, 204])) {
+            $reason = $response->getReasonPhrase();
+            throw new \RuntimeException(
+                "Client error: `PUT $fedora_url` resulted in a `$status $reason` response: " . $response->getBody(),
+                $status
+            );
+        }
+
+        // Return the response from Fedora.
+        return $response;
     }
 
     /**
@@ -609,7 +575,8 @@ class MillinerService implements MillinerServiceInterface
         );
 
         // Save it in Fedora.
-        $headers['Content-Type'] = reset($drupal_response->getHeader('Content-Type'));
+        $content_types = $drupal_response->getHeader('Content-Type');
+        $headers['Content-Type'] = reset($content_types);
         $response = $this->fedora->saveResource(
             $fedora_url,
             $drupal_response->getBody(),
@@ -740,7 +707,8 @@ class MillinerService implements MillinerServiceInterface
         );
 
         // Save it in Fedora.
-        $headers['Content-Type'] = reset($drupal_response->getHeader('Content-Type'));
+        $content_types = $drupal_response->getHeader('Content-Type');
+        $headers['Content-Type'] = reset($content_types);
         $headers['If-Match'] = $etag;
         $response = $this->fedora->saveResource(
             $fedora_url,
@@ -818,7 +786,8 @@ class MillinerService implements MillinerServiceInterface
     public function delete(
         $uuid,
         $token = null
-    ) {
+    )
+    {
         $urls = $this->gemini->getUrls($uuid, $token);
 
         if (!empty($urls)) {
@@ -830,17 +799,21 @@ class MillinerService implements MillinerServiceInterface
             );
 
             $status = $response->getStatusCode();
-            if (!in_array($status, [204, 410])) {
+            if (!in_array($status, [204, 410, 404])) {
                 $reason = $response->getReasonPhrase();
                 throw new \RuntimeException(
                     "Client error: `DELETE $fedora_url` resulted in a `$status $reason` response: " . $response->getBody(),
                     $status
                 );
             }
-
-            $this->gemini->deleteUrls($uuid, $token);
         }
 
-        return new Response(204);
+        $gemini_success = $this->gemini->deleteUrls($uuid, $token);
+
+        if ($gemini_success) {
+            return new Response(204);
+        }
+
+        return new Response(isset($status) ? $status : 404);
     }
 }

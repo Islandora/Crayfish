@@ -24,7 +24,6 @@ interface MillinerServiceInterface
     );
 
     /**
-     * @param $uuid
      * @param $json_url
      * @param $jsonld_url
      * @param $token
@@ -34,7 +33,6 @@ interface MillinerServiceInterface
      * @return \GuzzleHttp\Psr7\Response
      */
     public function saveMedia(
-        $uuid,
         $json_url,
         $jsonld_url,
         $token = null

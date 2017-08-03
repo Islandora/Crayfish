@@ -1,0 +1,46 @@
+[
+  {
+    "@id": "http://localhost:8080/fcrepo/rest/5d/aa/f3/3a/5daaf33a-8acf-428b-84ac-3f57fe756fea",
+    "http://schema.org/dateModified": [
+      {
+        "@value": "2017-07-19T16:57:47+00:00",
+        "@language": "en"
+      }
+    ],
+    "http://pcdm.org/models#hasFile": [
+      {
+        "@id": "http://localhost:8000/media/2?_format=jsonld"
+      },
+      {
+        "@id": "http://localhost:8000/media/1?_format=jsonld"
+      },
+      {
+        "@id": "http://localhost:8000/media/4?_format=jsonld"
+      },
+      {
+        "@id": "http://localhost:8000/media/3?_format=jsonld"
+      }
+    ],
+    "http://purl.org/dc/terms/title": [
+      {
+        "@value": "Test Image",
+        "@language": "en"
+      }
+    ],
+    "http://schema.org/author": [
+      {
+        "@id": "http://localhost:8000/user/1?_format=jsonld"
+      }
+    ],
+    "@type": [
+      "http://pcdm.org/models#Object",
+      "http://schema.org/ImageObject"
+    ],
+    "http://schema.org/dateCreated": [
+      {
+        "@value": "2017-07-19T16:57:01+00:00",
+        "@language": "en"
+      }
+    ]
+  }
+]

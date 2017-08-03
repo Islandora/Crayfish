@@ -1,0 +1,184 @@
+<?php
+
+namespace Islandora\Milliner\Tests;
+
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Response;
+use Islandora\Chullo\IFedoraClient;
+use Islandora\Milliner\Gemini\GeminiClient;
+use Islandora\Milliner\Service\MillinerService;
+use Monolog\Handler\NullHandler;
+use Monolog\Logger;
+use Prophecy\Argument;
+
+/**
+ * Class MillinerServiceTest
+ * @package Islandora\Milliner\Tests
+ * @coversDefaultClass \Islandora\Milliner\Service\MillinerService
+ */
+class DeleteTest extends \PHPUnit_Framework_TestCase
+{
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * @var string
+     */
+    protected $modifiedDatePredicate;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $this->logger = new Logger('milliner');
+        $this->logger->pushHandler(new NullHandler());
+
+        $this->modifiedDatePredicate = "http://schema.org/dateModified";
+    }
+
+    /**
+     * @covers ::delete
+     * @expectedException \RuntimeException
+     * @expectedExceptionCode 403
+     */
+    public function testDeleteReturnsFedoraError()
+    {
+        $gemini = $this->prophesize(GeminiClient::class);
+        $gemini->getUrls(Argument::any(), Argument::any())
+            ->willReturn(['drupal' => 'foo', 'fedora' => 'bar']);
+        $gemini = $gemini->reveal();
+
+        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora->deleteResource(Argument::any(), Argument::any())
+            ->willReturn(new Response(403));
+        $fedora = $fedora->reveal();
+
+        $drupal = $this->prophesize(Client::class)->reveal();
+
+        $milliner = new MillinerService(
+            $fedora,
+            $drupal,
+            $gemini,
+            $this->logger,
+            $this->modifiedDatePredicate
+        );
+
+        $milliner->delete("abc123", "Bearer islandora");
+    }
+
+    /**
+     * @covers ::delete
+     */
+    public function testDeleteReturns204OnGeminiSuccess()
+    {
+        $gemini = $this->prophesize(GeminiClient::class);
+        $gemini->getUrls("first", Argument::any())
+            ->willReturn(['drupal' => 'foo', 'fedora' => 'bar']);
+        $gemini->getUrls("second", Argument::any())
+            ->willReturn([]);
+        $gemini->deleteUrls(Argument::any(), Argument::any())
+            ->willReturn(true);
+        $gemini = $gemini->reveal();
+
+        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora->deleteResource(Argument::any(), Argument::any())
+            ->willReturn(new Response(404));
+        $fedora = $fedora->reveal();
+
+        $drupal = $this->prophesize(Client::class)->reveal();
+
+        $milliner = new MillinerService(
+            $fedora,
+            $drupal,
+            $gemini,
+            $this->logger,
+            $this->modifiedDatePredicate
+        );
+
+        $response = $milliner->delete("first", "Bearer islandora");
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 204,
+            "Milliner must return 204 when Gemini returns success.  Received: $status"
+        );
+
+        $response = $milliner->delete("second", "Bearer islandora");
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 204,
+            "Milliner must return 204 when Gemini returns success.  Received: $status"
+        );
+    }
+
+    /**
+     * @covers ::delete
+     */
+    public function testDeleteReturns404IfNotMappedAndGeminiFails()
+    {
+        $gemini = $this->prophesize(GeminiClient::class);
+        $gemini->getUrls(Argument::any(), Argument::any())
+            ->willReturn([]);
+        $gemini->deleteUrls(Argument::any(), Argument::any())
+            ->willReturn(false);
+        $gemini = $gemini->reveal();
+
+        $fedora = $this->prophesize(IFedoraClient::class)->reveal();
+
+        $drupal = $this->prophesize(Client::class)->reveal();
+
+        $milliner = new MillinerService(
+            $fedora,
+            $drupal,
+            $gemini,
+            $this->logger,
+            $this->modifiedDatePredicate
+        );
+
+        $response = $milliner->delete("abc123", "Bearer islandora");
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 404,
+            "Milliner must return 404 when Gemini returns fail and resource was not mapped.  Received: $status"
+        );
+    }
+
+    /**
+     * @covers ::delete
+     */
+    public function testDeleteReturnsFedoraErrorIfMappedButGeminiFails()
+    {
+        $gemini = $this->prophesize(GeminiClient::class);
+        $gemini->getUrls(Argument::any(), Argument::any())
+            ->willReturn(['drupal' => 'foo', 'fedora' => 'bar']);
+        $gemini->deleteUrls(Argument::any(), Argument::any())
+            ->willReturn(false);
+        $gemini = $gemini->reveal();
+
+        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora->deleteResource(Argument::any(), Argument::any())
+            ->willReturn(new Response(410));
+        $fedora = $fedora->reveal();
+
+        $drupal = $this->prophesize(Client::class)->reveal();
+
+        $milliner = new MillinerService(
+            $fedora,
+            $drupal,
+            $gemini,
+            $this->logger,
+            $this->modifiedDatePredicate
+        );
+
+        $response = $milliner->delete("abc123", "Bearer islandora");
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 410,
+            "Milliner must return Fedora response when mapped but Gemini fails.  Expected 410, Received: $status"
+        );
+    }
+}

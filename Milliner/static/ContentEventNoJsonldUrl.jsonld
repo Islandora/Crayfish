@@ -1,0 +1,47 @@
+{
+  "@context":"https:\/\/www.w3.org\/ns\/activitystreams",
+  "actor":{
+    "type":"Person",
+    "id":"urn:uuid:2fcb7300-6d2e-43d5-b07b-4d4784690117",
+    "url":[
+      {
+        "name":"Drupal Canonical",
+        "type":"Link",
+        "href":"http:\/\/localhost:8000\/user\/1",
+        "mediaType":"text\/html",
+        "rel":"canonical"
+      },
+      {
+        "name":"Drupal JSONLD",
+        "type":"Link",
+        "href":"http:\/\/localhost:8000\/user\/1?_format=jsonld",
+        "mediaType":"application\/ld+json"
+      },
+      {
+        "name":"Drupal JSON",
+        "type":"Link",
+        "href":"http:\/\/localhost:8000\/user\/1?_format=json",
+        "mediaType":"application\/json"
+      }
+    ]
+  },
+  "object":{
+    "id":"urn:uuid:9541c0c1-5bee-4973-a9d0-e55c1658bc81",
+    "url":[
+      {
+        "name":"Drupal Canoncial",
+        "type":"Link",
+        "href":"http:\/\/localhost:8000\/node\/5",
+        "mediaType":"text\/html",
+        "rel":"canonical"
+      },
+      {
+        "name":"Drupal JSON",
+        "type":"Link",
+        "href":"http:\/\/localhost:8000\/node\/5?_format=json",
+        "mediaType":"application\/json"
+      }
+    ]
+  },
+  "type":"Update"
+}

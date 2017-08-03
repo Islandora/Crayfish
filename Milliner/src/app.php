@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 use Islandora\Chullo\FedoraApi;
 use Islandora\Crayfish\Commons\Provider\IslandoraServiceProvider;
 use Islandora\Crayfish\Commons\Provider\YamlConfigServiceProvider;
-use Islandora\Milliner\Client\GeminiClient;
+use Islandora\Milliner\Gemini\GeminiClient;
 use Islandora\Milliner\Controller\MillinerController;
 use Islandora\Milliner\Service\MillinerService;
 use Silex\Application;

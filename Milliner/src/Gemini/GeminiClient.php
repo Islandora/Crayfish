@@ -6,7 +6,7 @@
  * Time: 11:43 AM
  */
 
-namespace Islandora\Milliner\Client;
+namespace Islandora\Milliner\Gemini;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
@@ -169,17 +169,23 @@ class GeminiClient
      */
     public function deleteUrls(
         $uuid,
-        $token
+        $token = null
     ) {
+        $headers = [];
+
+        if (!empty($token)) {
+            $headers['Authorization'] = $token;
+        }
+
         $response = $this->client->delete($uuid, [
-            'headers' => [
-                'Authorization' => $token,
-            ],
+            'headers' => $headers,
         ]);
+
         $this->log->debug("Gemini DELETE response", [
             'uuid' => $uuid,
             'response' => $response,
         ]);
+
         return true;
     }
 }
