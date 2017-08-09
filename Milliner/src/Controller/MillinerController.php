@@ -240,7 +240,7 @@ class MillinerController
     protected function parseFileUrl(array $event)
     {
         $filtered = array_filter($event['object']['url'], function ($elem) {
-            return isset($elem['rel']) && $elem['rel'] == 'canonical';
+            return $elem['name'] == 'File';
         });
         if ($url = reset($filtered)) {
             return $url['href'];
@@ -255,7 +255,7 @@ class MillinerController
     protected function parseChecksumUrl(array $event)
     {
         $filtered = array_filter($event['object']['url'], function ($elem) {
-            return $elem['name'] == 'Drupal Checksum';
+            return $elem['name'] == 'Checksum';
         });
         if ($url = reset($filtered)) {
             return $url['href'];
