@@ -5,6 +5,7 @@ namespace Islandora\Hypercube\Controller;
 use GuzzleHttp\Psr7\StreamWrapper;
 use Islandora\Crayfish\Commons\CmdExecuteService;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -59,10 +60,19 @@ class HypercubeController
             return new StreamedResponse(
                 $this->cmd->execute($cmd_string, $body),
                 200,
-                array('Content-Type' => 'text/plain')
+                ['Content-Type' => 'text/plain']
             );
         } catch (\RuntimeException $e) {
             return new Response($e->getMessage(), 500);
         }
+    }
+
+    public function options()
+    {
+        return new BinaryFileResponse(
+            __DIR__ . "/../../static/hypercube.ttl",
+            200,
+            ['Content-Type' => 'text/turtle']
+        );
     }
 }

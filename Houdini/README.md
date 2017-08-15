@@ -30,7 +30,8 @@ Houdini sets up two endpoints:
  - /identify/
  - /convert/
 
-Houdini only accepts `GET` requests containing the path an image in Fedora at both of these endpoints.
+Houdini is meant for use with API-X, and accepts `GET` and `OPTIONS` requests to those endpoints.  The `OPTIONS` requests are for use with the API-X service loading mechanism, and return RDF describing the
+service for API-X.  The `GET` requests are used to execute the services, and must contain the URI to an image in Fedora in the `ApixLdpResource` header.
 
 ### Identify
 
@@ -38,7 +39,12 @@ This runs the imagemagick identify command on the specified resource and returns
 
 For example, suppose if you have a TIFF in Fedora at `http://localhost:8080/fcrepo/rest/foo/bar`.  If running the PHP built-in server command described in the Installation section:
 ```
-$ curl -H "Authorization: Bearer blabhlahblah" "localhost:8888/identify/foo/bar"
+$ curl -H "Authorization: Bearer blabhlahblah" -H "ApixLdpResource: http://localhost:8080/fcrepo/rest/foo/bar" "localhost:8888/identify"
+```
+
+But you're probably going to use Houdini through API-X, which exposes this service as `svc:identify`.  Assuming your API-X proxy is on port 8081, you can access the service with
+```
+$ curl -H "Authorization: Bearer blabhlahblah" "http://localhost:8081/services/foo/bar/svc:identify"
 ```
 
 ### Convert
@@ -47,14 +53,19 @@ This runs the imagemagick convert command on the specified resource. The output 
 
 For example, suppose if you have an image in Fedora at `http://localhost:8080/fcrepo/rest/foo/bar`.  If running the PHP built-in server command described in the Installation section:
 ```
-$ curl -H "Authorization: Bearer blabhlahblah" -H "Accept: image/png" "localhost:8888/convert/foo/bar"
+$ curl -H "Authorization: Bearer blabhlahblah" -H "ApixLdpResource: http://localhost:8080/fcrepo/rest/foo/bar" -H "Accept: image/png" "localhost:8888/convert/foo/bar"
 ```
 
 This will return the TIFF converted into a PNG file.
 
 Additional arguments can be specified using the X-Islandora-Args header. For example to resize to 10% the size use:
 ```
-$ curl -H "Authorization: Bearer blabhlahblah" -H "X-Islandora-Args: -resize 10%" "localhost:8888/convert/foo/bar"
+$ curl -H "Authorization: Bearer blabhlahblah" -H "ApixLdpResource: http://localhost:8080/fcrepo/rest/foo/bar" -H "X-Islandora-Args: -resize 10%" "localhost:8888/convert/foo/bar"
+```
+
+But you're probably going to use Houdini through API-X, which exposes this service as `svc:convert`.  Assuming your API-X proxy is on port 8081, you can access the service with
+```
+$ curl -H "Authorization: Bearer blabhlahblah" "http://localhost:8081/services/foo/bar/svc:convert"
 ```
 
 ## Maintainers
