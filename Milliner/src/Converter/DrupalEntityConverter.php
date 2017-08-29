@@ -40,8 +40,8 @@ class DrupalEntityConverter
     public function convert($path, Request $request)
     {
         // Return the response from Drupal.
-        $options = $this->preprocess($this->clean_path($path), $request);
-        return $this->client->get($this->clean_path($path), $options);
+        $options = $this->preprocess($this->cleanPath($path), $request);
+        return $this->client->get($this->cleanPath($path), $options);
     }
 
     /**
@@ -52,8 +52,8 @@ class DrupalEntityConverter
     public function convertJsonld($path, Request $request)
     {
         // Return the response from Drupal.
-        $options = $this->preprocess($this->clean_path($path), $request);
-        return $this->client->get($this->clean_path($path) . '?_format=jsonld', $options);
+        $options = $this->preprocess($this->cleanPath($path), $request);
+        return $this->client->get($this->cleanPath($path) . '?_format=jsonld', $options);
     }
 
     /**
@@ -83,10 +83,11 @@ class DrupalEntityConverter
      * @param $path
      * @return String of path with leading slash removed
      */
-    private function clean_path($path) {
+    private function cleanPath($path) 
+    {
         $new_path = $path;
-        // remove leading slash so path is relative to configured 'base_uri' 
-        if (0 === strpos($new_path, '/') ) {
+        // remove leading slash so path is relative to configured 'base_uri'
+        if (0 === strpos($new_path, '/')) {
             $new_path = substr($new_path, 1, strlen($new_path)-1);
         }
         return $new_path;
