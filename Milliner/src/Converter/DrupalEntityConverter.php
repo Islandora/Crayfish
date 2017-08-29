@@ -83,7 +83,7 @@ class DrupalEntityConverter
      * @param $path
      * @return String of path with leading slash removed
      */
-    private function cleanPath($path) 
+    private function cleanPath($path)
     {
         $new_path = $path;
         // remove leading slash so path is relative to configured 'base_uri'
