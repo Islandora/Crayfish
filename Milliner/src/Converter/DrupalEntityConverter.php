@@ -32,7 +32,6 @@ class DrupalEntityConverter
         $this->client = $client;
         $this->log = $log;
     }
-
     /**
      * @param $path
      * @param \Symfony\Component\HttpFoundation\Request $request
@@ -41,8 +40,8 @@ class DrupalEntityConverter
     public function convert($path, Request $request)
     {
         // Return the response from Drupal.
-        $options = $this->preprocess($path, $request);
-        return $this->client->get($path, $options);
+        $options = $this->preprocess($this->clean_path($path), $request);
+        return $this->client->get($this->clean_path($path), $options);
     }
 
     /**
@@ -53,8 +52,8 @@ class DrupalEntityConverter
     public function convertJsonld($path, Request $request)
     {
         // Return the response from Drupal.
-        $options = $this->preprocess($path, $request);
-        return $this->client->get("$path?_format=jsonld", $options);
+        $options = $this->preprocess($this->clean_path($path), $request);
+        return $this->client->get($this->clean_path($path) . '?_format=jsonld', $options);
     }
 
     /**
@@ -78,5 +77,18 @@ class DrupalEntityConverter
 
         // Return guzzle options.
         return $options;
+    }
+
+    /**
+     * @param $path
+     * @return String of path with leading slash removed
+     */
+    private function clean_path($path) {
+        $new_path = $path;
+        // remove leading slash so path is relative to configured 'base_uri' 
+        if (0 === strpos($new_path, '/') ) {
+            $new_path = substr($new_path, 1, strlen($new_path)-1);
+        }
+        return $new_path;
     }
 }
