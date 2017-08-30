@@ -43,10 +43,6 @@ class DrupalEntityConverterTest extends \PHPUnit_Framework_TestCase
         $this->logger_prophecy = $this->prophet->prophesize('Psr\Log\LoggerInterface');
     }
 
-    /**
-     * @covers ::__construct
-     * @covers ::convert
-     */
     public function testConverterWithAuth()
     {
         $token = "Bearer token";
@@ -92,6 +88,53 @@ EOF;
         $this->assertJsonStringEqualsJsonString(
             $drupal_jsonld,
             $response->getBody()->getContents(),
+            "Body doesn't match"
+        );
+        $this->assertEquals(200, $response->getStatusCode(), "Bad response code");
+    }
+
+    public function testConverterWithAuthBinary()
+    {
+        $token = "Bearer token";
+        $options = [
+            'http_errors' => false,
+            'headers' => [
+                'Authorization' => $token,
+            ],
+        ];
+        $drupal_path = "drupal/fedora_binary";
+        $escaped_path = addslashes($drupal_path);
+        $drupal_binary =<<<EOF
+Caerphilly fondue squirty cheese. Feta fromage halloumi fromage frais cheese 
+and biscuits cheesy grin mascarpone hard cheese. Jarlsberg parmesan rubber 
+cheese cream cheese smelly cheese cheesy feet camembert de normandie cheesecake. 
+Everyone loves say cheese when the cheese comes out everybody's happy when the 
+cheese comes out everybody's happy airedale goat cow port-salut. Fromage frais blue castello.
+EOF;
+        // Using newlines to fit in PSR2, but removing to make JSON easier to match.
+        $drupal_binary = str_replace("\n", "", $drupal_binary);
+
+        $this->client_prophecy->get($drupal_path, $options)->willReturn(new Response(
+            200,
+            [
+                "Content-type" => "text/plain",
+                "Content-length" => sizeof($drupal_binary),
+            ],
+            $drupal_binary
+        ));
+
+        $client = $this->client_prophecy->reveal();
+        $logger = $this->logger_prophecy->reveal();
+        $this->entity_converter = new DrupalEntityConverter($client, $logger);
+
+        $request = Request::create("/metadata/{$drupal_path}", "GET");
+        $request->headers->set("Authorization", $token);
+        // adding extra '/' to hit a code path in cleanPath() function
+        $drupal_path = '/' . $drupal_path;
+        $response = $this->entity_converter->convert($drupal_path, $request);
+
+        $this->assertTrue(
+            strcmp($drupal_binary, $response->getBody()->getContents()) == 0,
             "Body doesn't match"
         );
         $this->assertEquals(200, $response->getStatusCode(), "Bad response code");
