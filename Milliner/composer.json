@@ -31,7 +31,7 @@
         ],
         "test": [
             "@check",
-            "phpunit"
+	    "phpunit --coverage-html 'reports/clover_html' tests/"
         ]
     },
     "require-dev": {
