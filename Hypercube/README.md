@@ -49,12 +49,12 @@ Hypercube is meant for use with API-X.  It accepts only accepts one request, a `
 
 For example, suppose if you have a TIFF in Fedora at `http://localhost:8080/fcrepo/rest/foo/bar`.  If running the PHP built-in server command described in the Installation section:
 ```
-$ curl -H "Authorization: Bearer blabhlahblah" -H "ApixLdpResource: http://localhost:8080/fcrepo/rest/foo/bar" "http://localhost:8888"
+$ curl -H "Authorization: Bearer blabhlahblah" -H "Apix-Ldp-Resource: http://localhost:8080/fcrepo/rest/foo/bar" "http://localhost:8888"
 ```
 
 This will return the OCR generated from the TIFF in Fedora.  Additional arguments to `tesseract` can be provided using the `X-Islandora-Args` header.  For example, to change the page layout:
 ```
-$ curl -H "Authorization: Bearer blabhlahblah" -H "ApixLdpResource: http://localhost:8080/fcrepo/rest/foo/bar" -H "X-Islandora-Args: -psm 9" "http://localhost:8888"
+$ curl -H "Authorization: Bearer blabhlahblah" -H "Apix-Ldp-Resource: http://localhost:8080/fcrepo/rest/foo/bar" -H "X-Islandora-Args: -psm 9" "http://localhost:8888"
 ```
 
 But you're probably going to use Hypercube through API-X, which exposes it as `svc:ocr`.  Assuming your API-X proxy is on port 8081, you can access the service with
