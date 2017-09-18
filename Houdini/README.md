@@ -39,7 +39,7 @@ This runs the imagemagick identify command on the specified resource and returns
 
 For example, suppose if you have a TIFF in Fedora at `http://localhost:8080/fcrepo/rest/foo/bar`.  If running the PHP built-in server command described in the Installation section:
 ```
-$ curl -H "Authorization: Bearer blabhlahblah" -H "ApixLdpResource: http://localhost:8080/fcrepo/rest/foo/bar" "localhost:8888/identify"
+$ curl -H "Authorization: Bearer blabhlahblah" -H "Apix-Ldp-Resource: http://localhost:8080/fcrepo/rest/foo/bar" "localhost:8888/identify"
 ```
 
 But you're probably going to use Houdini through API-X, which exposes this service as `svc:identify`.  Assuming your API-X proxy is on port 8081, you can access the service with
@@ -53,14 +53,14 @@ This runs the imagemagick convert command on the specified resource. The output 
 
 For example, suppose if you have an image in Fedora at `http://localhost:8080/fcrepo/rest/foo/bar`.  If running the PHP built-in server command described in the Installation section:
 ```
-$ curl -H "Authorization: Bearer blabhlahblah" -H "ApixLdpResource: http://localhost:8080/fcrepo/rest/foo/bar" -H "Accept: image/png" "localhost:8888/convert/foo/bar"
+$ curl -H "Authorization: Bearer blabhlahblah" -H "Apix-Ldp-Resource: http://localhost:8080/fcrepo/rest/foo/bar" -H "Accept: image/png" "localhost:8888/convert/foo/bar"
 ```
 
 This will return the TIFF converted into a PNG file.
 
 Additional arguments can be specified using the X-Islandora-Args header. For example to resize to 10% the size use:
 ```
-$ curl -H "Authorization: Bearer blabhlahblah" -H "ApixLdpResource: http://localhost:8080/fcrepo/rest/foo/bar" -H "X-Islandora-Args: -resize 10%" "localhost:8888/convert/foo/bar"
+$ curl -H "Authorization: Bearer blabhlahblah" -H "Apix-Ldp-Resource: http://localhost:8080/fcrepo/rest/foo/bar" -H "X-Islandora-Args: -resize 10%" "localhost:8888/convert/foo/bar"
 ```
 
 But you're probably going to use Houdini through API-X, which exposes this service as `svc:convert`.  Assuming your API-X proxy is on port 8081, you can access the service with
