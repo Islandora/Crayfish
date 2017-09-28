@@ -6,6 +6,7 @@ use GuzzleHttp\Psr7\StreamWrapper;
 use Islandora\Crayfish\Commons\CmdExecuteService;
 use Islandora\Crayfish\Commons\ApixFedoraResourceRetriever;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -65,6 +66,18 @@ class HoudiniController
     }
 
     /**
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function convertOptions()
+    {
+        return new BinaryFileResponse(
+            __DIR__ . "/../../static/convert.ttl",
+            200,
+            ['Content-Type' => 'text/turtle']
+        );
+    }
+
+    /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\StreamedResponse
      */
@@ -114,6 +127,18 @@ class HoudiniController
             $this->log->error("RuntimeException:", ['exception' => $e]);
             return new Response($e->getMessage(), 500);
         }
+    }
+
+    /**
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function identifyOptions()
+    {
+        return new BinaryFileResponse(
+            __DIR__ . "/../../static/identify.ttl",
+            200,
+            ['Content-Type' => 'text/turtle']
+        );
     }
 
     /**

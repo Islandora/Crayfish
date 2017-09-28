@@ -23,12 +23,16 @@ $app['houdini.controller'] = function ($app) {
     );
 };
 
-$app->before(function (Request $request, Application $app) {
-    return $app['crayfish.apix_middleware']->before($request);
-});
+$app->options('/convert', "houdini.controller:convertOptions");
+$app->get('/convert', "houdini.controller:convert")
+    ->before(function (Request $request, Application $app) {
+        return $app['crayfish.apix_middleware']->before($request);
+    });
 
-$app->get('/convert', "houdini.controller:convert");
-
-$app->get('/identify', "houdini.controller:identify");
+$app->options('/identify', "houdini.controller:identifyOptions");
+$app->get('/identify', "houdini.controller:identify")
+    ->before(function (Request $request, Application $app) {
+        return $app['crayfish.apix_middleware']->before($request);
+    });
 
 return $app;
