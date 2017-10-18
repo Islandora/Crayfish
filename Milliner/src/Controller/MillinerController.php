@@ -81,6 +81,7 @@ class MillinerController
             );
 
         } catch (\Exception $e) {
+            $this->log->error("", ['Exception' => $e]);
             return new Response($e->getMessage(), $e->getCode());
         }
     }
@@ -158,6 +159,7 @@ class MillinerController
             );
 
         } catch (\Exception $e) {
+            $this->log->error("", ['Exception' => $e]);
             $code = $e->getCode() == 0 ? 500 : $e->getCode();
             return new Response($e->getMessage(), $code);
         }
@@ -229,6 +231,7 @@ class MillinerController
             );
 
         } catch (\Exception $e) {
+            $this->log->error("", ['Exception' => $e]);
             return new Response($e->getMessage(), $e->getCode());
         }
     }
@@ -284,6 +287,7 @@ class MillinerController
             );
 
         } catch (\Exception $e) {
+            $this->log->error("", ['Exception' => $e]);
             return new Response($e->getMessage(), $e->getCode());
         }
     }
