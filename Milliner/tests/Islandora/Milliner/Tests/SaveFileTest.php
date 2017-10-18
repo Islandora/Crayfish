@@ -487,8 +487,12 @@ class SaveFileTest extends \PHPUnit_Framework_TestCase
         $drupal = $this->prophesize(Client::class);
         $drupal->get("http://localhost:8000/checksum/29?_format=json", Argument::any(), Argument::any())
             ->willReturn($checksum_response);
-        $drupal->get("http://localhost:8000/sites/default/files/2017-07/fedora_logo.png", Argument::any(), Argument::any())
-            ->willReturn($get_response);
+        $drupal->get(
+            "http://localhost:8000/sites/default/files/2017-07/fedora_logo.png",
+            Argument::any(),
+            Argument::any()
+        )->willReturn($get_response);
+
         $drupal = $drupal->reveal();
 
         $milliner = new MillinerService(
@@ -558,8 +562,12 @@ class SaveFileTest extends \PHPUnit_Framework_TestCase
         $drupal = $this->prophesize(Client::class);
         $drupal->get("http://localhost:8000/checksum/29?_format=json", Argument::any(), Argument::any())
             ->willReturn($checksum_response);
-        $drupal->get("http://localhost:8000/sites/default/files/2017-07/fedora_logo.png", Argument::any(), Argument::any())
-            ->willReturn($get_response);
+        $drupal->get(
+            "http://localhost:8000/sites/default/files/2017-07/fedora_logo.png",
+            Argument::any(),
+            Argument::any()
+        )->willReturn($get_response);
+
         $drupal = $drupal->reveal();
 
         $milliner = new MillinerService(

@@ -263,9 +263,11 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             ->willReturn($drupal_response);
         $drupal = $drupal->reveal();
 
+        $link = '<http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b/fcr:metadata>';
+        $link .= ';rel="describedby"';
         $fedora_head_response = new Response(
             200,
-            ['Link' => '<http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b/fcr:metadata>; rel="describedby"']
+            ['Link' =>  $link]
         );
         $fedora_get_response = new Response(
             404
@@ -325,9 +327,11 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             ->willReturn($drupal_jsonld_response);
         $drupal = $drupal->reveal();
 
+        $link = '<http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b/fcr:metadata>';
+        $link .= '; rel="describedby"';
         $fedora_head_response = new Response(
             200,
-            ['Link' => '<http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b/fcr:metadata>; rel="describedby"']
+            ['Link' => $link]
         );
         $fedora_get_response = new Response(
             200,
@@ -389,9 +393,11 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             ->willReturn($drupal_jsonld_response);
         $drupal = $drupal->reveal();
 
+        $link = '<http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b/fcr:metadata>';
+        $link = '; rel="describedby"';
         $fedora_head_response = new Response(
             200,
-            ['Link' => '<http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b/fcr:metadata>; rel="describedby"']
+            ['Link' => $link]
         );
         $fedora_get_response = new Response(
             200,
@@ -456,9 +462,11 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             ->willReturn($drupal_jsonld_response);
         $drupal = $drupal->reveal();
 
+        $link = '<http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b/fcr:metadata>';
+        $link = '; rel="describedby"';
         $fedora_head_response = new Response(
             200,
-            ['Link' => '<http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b/fcr:metadata>; rel="describedby"']
+            ['Link' => $link]
         );
         $fedora_get_response = new Response(
             200,
