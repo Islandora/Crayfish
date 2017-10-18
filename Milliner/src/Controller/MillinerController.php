@@ -79,7 +79,6 @@ class MillinerController
                 $response->getBody(),
                 $response->getStatusCode()
             );
-
         } catch (\Exception $e) {
             $this->log->error("", ['Exception' => $e]);
             return new Response($e->getMessage(), $e->getCode());
@@ -157,7 +156,6 @@ class MillinerController
                 $response->getBody(),
                 $response->getStatusCode()
             );
-
         } catch (\Exception $e) {
             $this->log->error("", ['Exception' => $e]);
             $code = $e->getCode() == 0 ? 500 : $e->getCode();
@@ -229,7 +227,6 @@ class MillinerController
                 $response->getBody(),
                 $response->getStatusCode()
             );
-
         } catch (\Exception $e) {
             $this->log->error("", ['Exception' => $e]);
             return new Response($e->getMessage(), $e->getCode());
@@ -285,11 +282,9 @@ class MillinerController
                 $response->getBody(),
                 $response->getStatusCode()
             );
-
         } catch (\Exception $e) {
             $this->log->error("", ['Exception' => $e]);
             return new Response($e->getMessage(), $e->getCode());
         }
     }
-
 }

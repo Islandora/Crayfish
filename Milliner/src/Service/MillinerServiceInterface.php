@@ -67,5 +67,4 @@ interface MillinerServiceInterface
         $uuid,
         $token = null
     );
-
 }

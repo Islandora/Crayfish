@@ -188,7 +188,8 @@ class MillinerService implements MillinerServiceInterface
         if ($status != 200) {
             $reason = $fedora_response->getReasonPhrase();
             throw new \RuntimeException(
-                "Client error: `GET $fedora_url` resulted in a `$status $reason` response: " . $fedora_response->getBody(),
+                "Client error: `GET $fedora_url` resulted in a `$status $reason` response: " .
+                   $fedora_response->getBody(),
                 $status
             );
         }
@@ -304,7 +305,8 @@ class MillinerService implements MillinerServiceInterface
      *
      * @return mixed string|null
      */
-    protected function getFirstPredicate(array $jsonld, $predicate, $value = true) {
+    protected function getFirstPredicate(array $jsonld, $predicate, $value = true)
+    {
         $key = $value ? '@value' : '@id';
         $malformed = empty($jsonld) ||
             !isset($jsonld[0][$predicate]) ||
@@ -411,7 +413,8 @@ class MillinerService implements MillinerServiceInterface
         if ($status != 200) {
             $reason = $fedora_response->getReasonPhrase();
             throw new \RuntimeException(
-                "Client error: `HEAD $fedora_file_url` resulted in a `$status $reason` response: " . $fedora_response->getBody(),
+                "Client error: `HEAD $fedora_file_url` resulted in a `$status $reason` response: " .
+                    $fedora_response->getBody(),
                 $status
             );
         }
@@ -437,7 +440,8 @@ class MillinerService implements MillinerServiceInterface
         if ($status != 200) {
             $reason = $fedora_response->getReasonPhrase();
             throw new \RuntimeException(
-                "Client error: `GET $fedora_url` resulted in a `$status $reason` response: " . $fedora_response->getBody(),
+                "Client error: `GET $fedora_url` resulted in a `$status $reason` response: " .
+                    $fedora_response->getBody(),
                 $status
             );
         }
@@ -636,7 +640,8 @@ class MillinerService implements MillinerServiceInterface
         if ($status != 200) {
             $reason = $fedora_response->getReasonPhrase();
             throw new \RuntimeException(
-                "Client error: `HEAD $fedora_url` resulted in a `$status $reason` response: " . $fedora_response->getBody(),
+                "Client error: `HEAD $fedora_url` resulted in a `$status $reason` response: " .
+                    $fedora_response->getBody(),
                 $status
             );
         }
@@ -665,7 +670,8 @@ class MillinerService implements MillinerServiceInterface
         if ($status != 200) {
             $reason = $fedora_response->getReasonPhrase();
             throw new \RuntimeException(
-                "Client error: `GET $described_by` resulted in a `$status $reason` response: " . $fedora_response->getBody(),
+                "Client error: `GET $described_by` resulted in a `$status $reason` response: " .
+                    $fedora_response->getBody(),
                 $status
             );
         }
@@ -745,7 +751,8 @@ class MillinerService implements MillinerServiceInterface
      *
      * @return null|string
      */
-    protected function getLinkHeader($response, $rel_name) {
+    protected function getLinkHeader($response, $rel_name)
+    {
         $parsed = Psr7\parse_header($response->getHeader("Link"));
         foreach ($parsed as $header) {
             if (isset($header['rel']) && $header['rel'] == $rel_name) {
@@ -764,7 +771,8 @@ class MillinerService implements MillinerServiceInterface
      *
      * @throws \RuntimeException
      */
-    protected function parseChecksum(array $jsonld) {
+    protected function parseChecksum(array $jsonld)
+    {
         $predicate = 'http://www.loc.gov/premis/rdf/v1#hasMessageDigest';
         $urn = $this->getFirstPredicate($jsonld, $predicate, false);
 
@@ -786,8 +794,7 @@ class MillinerService implements MillinerServiceInterface
     public function delete(
         $uuid,
         $token = null
-    )
-    {
+    ) {
         $urls = $this->gemini->getUrls($uuid, $token);
 
         if (!empty($urls)) {
@@ -802,7 +809,8 @@ class MillinerService implements MillinerServiceInterface
             if (!in_array($status, [204, 410, 404])) {
                 $reason = $response->getReasonPhrase();
                 throw new \RuntimeException(
-                    "Client error: `DELETE $fedora_url` resulted in a `$status $reason` response: " . $response->getBody(),
+                    "Client error: `DELETE $fedora_url` resulted in a `$status $reason` response: " .
+                        $response->getBody(),
                     $status
                 );
             }
