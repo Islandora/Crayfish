@@ -14,7 +14,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Class GeminiClient
- * @package Islandora\Milliner\Client
+ * @package Islandora\Milliner\Gemini
  */
 class GeminiClient
 {

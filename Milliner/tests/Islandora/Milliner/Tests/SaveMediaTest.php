@@ -394,7 +394,7 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         $drupal = $drupal->reveal();
 
         $link = '<http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b/fcr:metadata>';
-        $link = '; rel="describedby"';
+        $link .= '; rel="describedby"';
         $fedora_head_response = new Response(
             200,
             ['Link' => $link]
@@ -463,7 +463,7 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         $drupal = $drupal->reveal();
 
         $link = '<http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b/fcr:metadata>';
-        $link = '; rel="describedby"';
+        $link .= '; rel="describedby"';
         $fedora_head_response = new Response(
             200,
             ['Link' => $link]

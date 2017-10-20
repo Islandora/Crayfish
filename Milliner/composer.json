@@ -37,8 +37,8 @@
     "require-dev": {
         "symfony/browser-kit": "^3.0",
         "symfony/css-selector": "^3.0",
-        "phpunit/phpunit": "^5.0",
         "squizlabs/php_codesniffer": "^2.0",
-        "sebastian/phpcpd": "^3.0"
+        "sebastian/phpcpd": "^3.0",
+        "phpunit/phpunit": "^5.0"
     }
 }
