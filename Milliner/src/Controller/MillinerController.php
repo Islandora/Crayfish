@@ -93,7 +93,7 @@ class MillinerController
 
         $urn = $event['object']['id'];
         if (preg_match("/urn:uuid:(?<uuid>.*)/", $urn, $matches)) {
-            if (isset($matches['uuid'])) {
+            if (!empty($matches['uuid'])) {
                 return $matches['uuid'];
             }
         }

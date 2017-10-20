@@ -31,12 +31,7 @@ class UrlMinter implements UrlMinterInterface
             );
         }
 
-        $segments = [
-            substr($context, 0, 2),
-            substr($context, 2, 2),
-            substr($context, 4, 2),
-            substr($context, 6, 2),
-        ];
+        $segments = str_split(substr($context, 0, 8), 2);
 
         $path = implode("/", $segments) . "/$context";
 

@@ -259,14 +259,6 @@ class MillinerService implements MillinerServiceInterface
             );
         }
 
-        // Map the URLS.
-        $this->gemini->saveUrls(
-            $uuid,
-            $jsonld_url,
-            $fedora_url,
-            $token
-        );
-
         // Return the response from Fedora.
         return $response;
     }
