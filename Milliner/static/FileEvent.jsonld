@@ -1,0 +1,53 @@
+{
+  "@context":"https:\/\/www.w3.org\/ns\/activitystreams",
+  "actor":{
+    "type":"Person",
+    "id":"urn:uuid:2fcb7300-6d2e-43d5-b07b-4d4784690117",
+    "url":[
+      {
+        "name":"Drupal Canonical",
+        "type":"Link",
+        "href":"http:\/\/localhost:8000\/user\/1",
+        "mediaType":"text\/html",
+        "rel":"canonical"
+      },
+      {
+        "name":"Drupal JSONLD",
+        "type":"Link",
+        "href":"http:\/\/localhost:8000\/user\/1?_format=jsonld",
+        "mediaType":"application\/ld+json"
+      },
+      {
+        "name":"Drupal JSON",
+        "type":"Link",
+        "href":"http:\/\/localhost:8000\/user\/1?_format=json",
+        "mediaType":"application\/json"
+      }
+    ]
+  },
+  "object":{
+    "id":"urn:uuid:fcc31225-51d3-46e8-add3-f4e33b456198",
+    "url":[
+      {
+        "name":"File",
+        "type":"Link",
+        "href":"http:\/\/localhost:8000\/sites\/default\/files\/2017-07\/fedora_logo.png",
+        "mediaType":"image\/png",
+        "rel":"canonical"
+      },
+      {
+        "name":"Checksum",
+        "type":"Link",
+        "href":"http:\/\/localhost:8000\/checksum\/29?_format=json",
+        "mediaType":"application\/json"
+      },
+      {
+        "name":"Drupal JSON",
+        "type":"Link",
+        "href":"http:\/\/localhost:8000\/entity\/file\/29?_format=json",
+        "mediaType":"application\/json"
+      }
+    ]
+  },
+  "type":"Create"
+}

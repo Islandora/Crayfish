@@ -1,0 +1,20 @@
+{
+  "@graph":[
+    {
+      "@id":"http:\/\/localhost:8000\/node\/1?_format=jsonld",
+      "@type":[
+        "http:\/\/schema.org\/Thing"
+      ],
+      "http:\/\/schema.org\/dateCreated":[
+        {
+          "@value":"2017-01-30T04:36:07+00:00"
+        }
+      ],
+      "http:\/\/schema.org\/dateModified":[
+        {
+          "@value":"2017-08-19T16:57:47+00:00"
+        }
+      ]
+    }
+  ]
+}

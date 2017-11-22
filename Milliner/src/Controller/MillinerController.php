@@ -3,7 +3,6 @@
 namespace Islandora\Milliner\Controller;
 
 use Islandora\Milliner\Service\MillinerServiceInterface;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,169 +36,255 @@ class MillinerController
     }
 
     /**
-     * @param \Psr\Http\Message\ResponseInterface $drupal_entity
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function createRdf(ResponseInterface $drupal_entity, Request $request)
+    public function saveContent(Request $request)
     {
-        if ($response = $this->processDrupalResponse($drupal_entity)) {
-            return $response;
+        if (0 !== strpos($request->headers->get('Content-Type'), 'application/ld+json')) {
+            return new Response(
+                "Expecting 'Content-Type' of 'application/ld+json'",
+                400
+            );
         }
 
-        $drupal_jsonld = (string)$drupal_entity->getBody();
-        $drupal_path = $request->get('path');
-        $token = $request->headers->get('Authorization');
+        $token = $request->headers->get("Authorization", null);
+
+        $event = json_decode($request->getContent(), true);
+
+        $uuid = $this->parseUuid($event);
+        if (empty($uuid)) {
+            return new Response(
+                "Could not parse UUID from request body",
+                400
+            );
+        }
+
+        $jsonld_url = $this->parseJsonldUrl($event);
+        if (empty($jsonld_url)) {
+            return new Response(
+                "Could not parse JSONLD url from request body",
+                400
+            );
+        }
 
         try {
-            $fedora_response = $this->milliner->createRdf(
-                $drupal_jsonld,
-                $drupal_path,
+            $response = $this->milliner->saveContent(
+                $uuid,
+                $jsonld_url,
                 $token
             );
+
             return new Response(
-                $fedora_response->getBody(),
-                $fedora_response->getStatusCode(),
-                $fedora_response->getHeaders()
+                $response->getBody(),
+                $response->getStatusCode()
             );
         } catch (\Exception $e) {
-            $this->log->debug("Exception Creating Fedora Resource: ", [
-              'body' => $e->getMessage(),
-              'status' => $e->getCode(),
-            ]);
-            return new Response(
-                $e->getMessage(),
-                $e->getCode()
-            );
+            $this->log->error("", ['Exception' => $e]);
+            return new Response($e->getMessage(), $e->getCode());
         }
     }
 
-    public function createBinary(
-        ResponseInterface $drupal_entity,
-        Request $request
-    ) {
-        if ($response = $this->processDrupalResponse($drupal_entity)) {
-            return $response;
-        }
-
-        $drupal_binary = $drupal_entity->getBody();
-        $mimetype = $drupal_entity->getHeader("Content-Type");
-        $drupal_path = $request->get('path');
-        $token = $request->headers->get('Authorization');
-
-        try {
-            $fedora_response = $this->milliner->createBinary(
-                $drupal_binary,
-                $mimetype,
-                $drupal_path,
-                $token
-            );
-            return new Response(
-                $fedora_response->getBody(),
-                $fedora_response->getStatusCode(),
-                $fedora_response->getHeaders()
-            );
-        } catch (\Exception $e) {
-            $this->log->debug("Exception Creating Fedora Resource: ", [
-                'body' => $e->getMessage(),
-                'status' => $e->getCode(),
-            ]);
-            return new Response(
-                $e->getMessage(),
-                $e->getCode()
-            );
-        }
-    }
-
-    /**
-     * @param \Psr\Http\Message\ResponseInterface $drupal_entity
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function updateRdf(ResponseInterface $drupal_entity, Request $request)
+    protected function parseUuid(array $event)
     {
-        if ($response = $this->processDrupalResponse($drupal_entity)) {
-            return $response;
-        }
-
-        $drupal_jsonld = (string)$drupal_entity->getBody();
-        $drupal_path = $request->get('path');
-        $token = $request->headers->get('Authorization');
-
-        try {
-            $fedora_response = $this->milliner->updateRdf(
-                $drupal_jsonld,
-                $drupal_path,
-                $token
-            );
-            return new Response(
-                $fedora_response->getBody(),
-                $fedora_response->getStatusCode()
-            );
-        } catch (\Exception $e) {
-            $this->log->debug("Exception Updating Fedora Resource: ", [
-                'body' => $e->getMessage(),
-                'status' => $e->getCode(),
-            ]);
-            return new Response(
-                $e->getMessage(),
-                $e->getCode()
-            );
-        }
-    }
-
-    /**
-     * @param $drupal_path
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function delete($drupal_path, Request $request)
-    {
-        $token = $request->headers->get('Authorization');
-
-        try {
-            $fedora_response = $this->milliner->delete(
-                $drupal_path,
-                $token
-            );
-            return new Response(
-                $fedora_response->getBody(),
-                $fedora_response->getStatusCode()
-            );
-        } catch (\Exception $e) {
-            $this->log->debug("Exception Deleting Fedora Resource: ", [
-                'body' => $e->getMessage(),
-                'status' => $e->getCode(),
-            ]);
-            return new Response(
-                $e->getMessage(),
-                $e->getCode()
-            );
-        }
-    }
-
-    /**
-     * @param \Psr\Http\Message\ResponseInterface $drupal_entity
-     * @return null|\Symfony\Component\HttpFoundation\Response
-     */
-    protected function processDrupalResponse(ResponseInterface $drupal_entity)
-    {
-        $status = $drupal_entity->getStatusCode();
-
-        // Exit early if response was OK.
-        if ($status == 200) {
+        if (!isset($event['object']) || !isset($event['object']['id'])) {
             return null;
         }
 
-        // Otherwise return error response.
-        $this->log->debug("Drupal Entity: ", [
-            'body' => (string)$drupal_entity->getBody(),
-            'status' => $status,
-            'headers' => $drupal_entity->getHeaders()
-        ]);
-        return new Response(
-            "Error from Drupal: " . $drupal_entity->getReasonPhrase(),
-            $status
-        );
+        $urn = $event['object']['id'];
+        if (preg_match("/urn:uuid:(?<uuid>.*)/", $urn, $matches)) {
+            if (!empty($matches['uuid'])) {
+                return $matches['uuid'];
+            }
+        }
+
+        return null;
+    }
+
+    protected function parseJsonldUrl(array $event)
+    {
+        $filtered = array_filter($event['object']['url'], function ($elem) {
+            return $elem['mediaType'] == 'application/ld+json';
+        });
+        if ($url = reset($filtered)) {
+            return $url['href'];
+        }
+        return null;
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function saveMedia(Request $request)
+    {
+        if (0 !== strpos($request->headers->get('Content-Type'), 'application/ld+json')) {
+            return new Response(
+                "Expecting 'Content-Type' of 'application/ld+json'",
+                400
+            );
+        }
+
+        $token = $request->headers->get("Authorization", null);
+
+        $event = json_decode($request->getContent(), true);
+
+        $jsonld_url = $this->parseJsonldUrl($event);
+        if (empty($jsonld_url)) {
+            return new Response(
+                "Could not parse JSONLD url from request body",
+                400
+            );
+        }
+
+        $json_url = $this->parseJsonUrl($event);
+        if (empty($json_url)) {
+            return new Response(
+                "Could not parse JSON url from request body",
+                400
+            );
+        }
+
+        try {
+            $response = $this->milliner->saveMedia(
+                $json_url,
+                $jsonld_url,
+                $token
+            );
+
+            return new Response(
+                $response->getBody(),
+                $response->getStatusCode()
+            );
+        } catch (\Exception $e) {
+            $this->log->error("", ['Exception' => $e]);
+            $code = $e->getCode() == 0 ? 500 : $e->getCode();
+            return new Response($e->getMessage(), $code);
+        }
+    }
+
+    protected function parseJsonUrl(array $event)
+    {
+        $filtered = array_filter($event['object']['url'], function ($elem) {
+            return $elem['mediaType'] == 'application/json';
+        });
+        if ($url = reset($filtered)) {
+            return $url['href'];
+        }
+        return null;
+    }
+
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function saveFile(Request $request)
+    {
+        if (0 !== strpos($request->headers->get('Content-Type'), 'application/ld+json')) {
+            return new Response(
+                "Expecting 'Content-Type' of 'application/ld+json'",
+                400
+            );
+        }
+
+        $token = $request->headers->get("Authorization", null);
+
+        $event = json_decode($request->getContent(), true);
+
+        $uuid = $this->parseUuid($event);
+        if (empty($uuid)) {
+            return new Response(
+                "Could not parse UUID from request body",
+                400
+            );
+        }
+
+        $file_url = $this->parseFileUrl($event);
+        if (empty($file_url)) {
+            return new Response(
+                "Could not parse Drupal File URL from request body",
+                400
+            );
+        }
+
+        $checksum_url = $this->parseChecksumUrl($event);
+        if (empty($checksum_url)) {
+            return new Response(
+                "Could not parse Drupal File Checksum URL from request body",
+                400
+            );
+        }
+
+        try {
+            $response = $this->milliner->saveFile(
+                $uuid,
+                $file_url,
+                $checksum_url,
+                $token
+            );
+
+            return new Response(
+                $response->getBody(),
+                $response->getStatusCode()
+            );
+        } catch (\Exception $e) {
+            $this->log->error("", ['Exception' => $e]);
+            return new Response($e->getMessage(), $e->getCode());
+        }
+    }
+
+    /**
+     * @param array $event
+     * @return string|null
+     */
+    protected function parseFileUrl(array $event)
+    {
+        $filtered = array_filter($event['object']['url'], function ($elem) {
+            return $elem['name'] == 'File';
+        });
+        if ($url = reset($filtered)) {
+            return $url['href'];
+        }
+        return null;
+    }
+
+    /**
+     * @param array $event
+     * @return string|null
+     */
+    protected function parseChecksumUrl(array $event)
+    {
+        $filtered = array_filter($event['object']['url'], function ($elem) {
+            return $elem['name'] == 'Checksum';
+        });
+        if ($url = reset($filtered)) {
+            return $url['href'];
+        }
+        return null;
+    }
+
+    /**
+     * @param string $uuid
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function delete($uuid, Request $request)
+    {
+        $token = $request->headers->get("Authorization", null);
+
+        try {
+            $response = $this->milliner->delete(
+                $uuid,
+                $token
+            );
+
+            return new Response(
+                $response->getBody(),
+                $response->getStatusCode()
+            );
+        } catch (\Exception $e) {
+            $this->log->error("", ['Exception' => $e]);
+            return new Response($e->getMessage(), $e->getCode());
+        }
     }
 }

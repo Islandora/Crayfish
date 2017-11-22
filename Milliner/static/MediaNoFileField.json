@@ -1,0 +1,98 @@
+{
+  "mid": [
+    {
+      "value": 6
+    }
+  ],
+  "uuid": [
+    {
+      "value": "ffb15b4f-54db-44ce-ad0b-3588889a3c9b"
+    }
+  ],
+  "vid": [
+    {
+      "value": 6
+    }
+  ],
+  "bundle": [
+    {
+      "target_id": "medium_size",
+      "target_type": "media_bundle",
+      "target_uuid": "33181c8a-69ae-4ae7-bedf-3213030a23b5"
+    }
+  ],
+  "langcode": [
+    {
+      "value": "en"
+    }
+  ],
+  "name": [
+    {
+      "value": "sample.jpeg"
+    }
+  ],
+  "thumbnail": [
+    {
+      "target_id": 9,
+      "alt": "Thumbnail",
+      "title": "",
+      "width": 381,
+      "height": 500,
+      "target_type": "file",
+      "target_uuid": "f0fd71b3-1fab-45e1-a5e9-78d50e0d7174",
+      "url": "http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg"
+    }
+  ],
+  "uid": [
+    {
+      "target_id": 1,
+      "target_type": "user",
+      "target_uuid": "4f46f36e-f417-428c-9da7-8b79ddac9c7e",
+      "url": "/user/1"
+    }
+  ],
+  "status": [
+    {
+      "value": true
+    }
+  ],
+  "created": [
+    {
+      "value": 1500645820
+    }
+  ],
+  "changed": [
+    {
+      "value": 1500645820
+    }
+  ],
+  "revision_timestamp": [
+    {
+      "value": 1500645820
+    }
+  ],
+  "revision_uid": [
+    {
+      "target_id": 1,
+      "target_type": "user",
+      "target_uuid": "4f46f36e-f417-428c-9da7-8b79ddac9c7e",
+      "url": "/user/1"
+    }
+  ],
+  "revision_log": [],
+  "default_langcode": [
+    {
+      "value": true
+    }
+  ],
+  "field_height": [
+    {
+      "value": 500
+    }
+  ],
+  "field_mimetype": [
+    {
+      "value": "image/jpeg"
+    }
+  ]
+}

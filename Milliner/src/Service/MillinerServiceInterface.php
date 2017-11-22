@@ -9,62 +9,62 @@ namespace Islandora\Milliner\Service;
 interface MillinerServiceInterface
 {
     /**
-     * @param $drupal_jsonld
-     * @param $drupal_path
+     * @param $uuid
+     * @param $jsonld_url
      * @param $token
      *
-     * @throws \RuntimeException
+     * @throws \Exception
      *
      * @return \GuzzleHttp\Psr7\Response
      */
-    public function createRdf(
-        $drupal_jsonld,
-        $drupal_path,
-        $token
+    public function saveContent(
+        $uuid,
+        $jsonld_url,
+        $token = null
     );
 
     /**
-     * @param $drupal_binary
-     * @param $mimetype
-     * @param $drupal_path
+     * @param $json_url
+     * @param $jsonld_url
      * @param $token
      *
-     * @throws \RuntimeException
-     *
-     * @return mixed
-     */
-    public function createBinary(
-        $drupal_binary,
-        $mimetype,
-        $drupal_path,
-        $token
-    );
-
-    /**
-     * @param $drupal_jsonld
-     * @param $drupal_path
-     * @param $token
-     *
-     * @throws \RuntimeException
+     * @throws \Exception
      *
      * @return \GuzzleHttp\Psr7\Response
      */
-    public function updateRdf(
-        $drupal_jsonld,
-        $drupal_path,
-        $token
+    public function saveMedia(
+        $json_url,
+        $jsonld_url,
+        $token = null
     );
 
     /**
-     * @param $drupal_path
+     * @param $uuid
+     * @param $file_url
+     * @param $checksum_url
      * @param $token
      *
-     * @throws \RuntimeException
+     * @throws \Exception
      *
      * @return \GuzzleHttp\Psr7\Response
+     */
+    public function saveFile(
+        $uuid,
+        $file_url,
+        $checksum_url,
+        $token = null
+    );
+
+    /**
+     * @param $uuid
+     * @param $token
+     *
+     * @throws \Exception
+     *
+     * @return \GuzzleHttp\Psr7\Response|null
      */
     public function delete(
-        $drupal_path,
-        $token
+        $uuid,
+        $token = null
     );
 }

@@ -2,9 +2,12 @@
 
 namespace Islandora\Gemini\Controller;
 
-use Islandora\Crayfish\Commons\PathMapper\PathMapperInterface;
+use Islandora\Gemini\UrlMapper\UrlMapperInterface;
+use Islandora\Gemini\UrlMinter\UrlMinterInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGenerator;
 
 /**
  * Class GeminiController
@@ -14,126 +17,129 @@ class GeminiController
 {
 
     /**
-     * @var \Islandora\Crayfish\Commons\PathMapper\PathMapperInterface
+     * @var \Islandora\Gemini\UrlMapper\UrlMapperInterface
      */
-    protected $pathMapper;
+    protected $urlMapper;
+
+    /**
+     * @var \Islandora\Gemini\UrlMinter\UrlMinterInterface
+     */
+    protected $urlMinter;
+
+    /**
+     * @var \Symfony\Component\Routing\Generator\UrlGenerator
+     */
+    protected $urlGenerator;
 
     /**
      * GeminiController constructor.
-     * @param \Islandora\Crayfish\Commons\PathMapper\PathMapperInterface
+     * @param \Islandora\Gemini\UrlMapper\UrlMapperInterface
+     * @param \Islandora\Gemini\UrlMinter\UrlMinterInterface
+     * @param \Symfony\Component\Routing\Generator\UrlGenerator
      */
-    public function __construct(PathMapperInterface $pathMapper)
-    {
-        $this->pathMapper = $pathMapper;
+    public function __construct(
+        UrlMapperInterface $urlMapper,
+        UrlMinterInterface $urlMinter,
+        UrlGenerator $urlGenerator
+    ) {
+        $this->urlMapper = $urlMapper;
+        $this->urlMinter = $urlMinter;
+        $this->urlGenerator = $urlGenerator;
     }
 
     /**
-     * @param string $fedora_path
+     * @param string $uuid
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function getDrupalPath($fedora_path)
+    public function get($uuid)
     {
-        try {
-            if (!$result = $this->pathMapper->getDrupalPath($fedora_path)) {
-                return new Response(null, 404);
-            }
-
-            return new Response($result, 200);
-        } catch (\Exception $e) {
-            return new Response($e->getMessage(), 500);
+        $result = $this->urlMapper->getUrls($uuid);
+        if (empty($result)) {
+            return new Response("Could not locate URL pair for $uuid", 404);
         }
-    }
-
-    /**
-     * @param string $drupal_path
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function getFedoraPath($drupal_path)
-    {
-        try {
-            if (!$result = $this->pathMapper->getFedoraPath($drupal_path)) {
-                return new Response(null, 404);
-            }
-
-            return new Response($result, 200);
-        } catch (\Exception $e) {
-            return new Response($e->getMessage(), 500);
-        }
+        return new JsonResponse($result, 200);
     }
 
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function createPair(Request $request)
+    public function post(Request $request)
     {
-        $content_type = $request->headers->get("Content-Type");
-        if (strcmp($content_type, "application/json") != 0) {
-            return new Response("POST only accepts json requests", 400);
-        }
+        // Request contents are a UUID.
+        $uuid = $request->getContent();
 
-        $body = json_decode($request->getContent(), true);
-
-        if (!isset($body['drupal'])) {
-            return new Response("POST body must contain Drupal path", 400);
-        }
-
-        if (!isset($body['fedora'])) {
-            return new Response("POST body must contain Fedora path", 400);
-        }
-
-        try {
-            $this->pathMapper->createPair(
-                $this->sanitize($body['drupal']),
-                $this->sanitize($body['fedora'])
+        if (empty($uuid)) {
+            return new Response(
+                "Requests to mint new URLS must contain a UUID in the request body",
+                400
             );
-             return new Response(null, 201);
-        } catch (\Exception $e) {
-            return new Response($e->getMessage(), 500);
+        }
+
+        try {
+            return new Response(
+                $this->urlMinter->mint($uuid),
+                200
+            );
+        } catch (\InvalidArgumentException $e) {
+            return new Response(
+                $e->getMessage(),
+                $e->getCode()
+            );
         }
     }
 
     /**
-     * @param string $drupal_path
+     * @param string $uuid
+     * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function deleteFromDrupalPath($drupal_path)
+    public function put($uuid, Request $request)
     {
-        try {
-            if (!$result = $this->pathMapper->deleteFromDrupalPath($drupal_path)) {
-                return new Response("Not Found", 404);
-            }
-
-            return new Response(null, 204);
-        } catch (\Exception $e) {
-            return new Response($e->getMessage(), 500);
+        // Reject non json requests.
+        if (0 !== strpos($request->headers->get('Content-Type'), 'application/json')) {
+            return new Response("Invalid Content-Type.  Expecting application/json", 400);
         }
+
+        // Parse request and reject malformed bodies.
+        $urls = json_decode($request->getContent(), true);
+
+        if (!isset($urls['drupal'])) {
+            return new Response("Missing 'drupal' entry in reqeust body.", 400);
+        }
+
+        if (!isset($urls['fedora'])) {
+            return new Response("Missing 'fedora' entry in reqeust body.", 400);
+        }
+
+        // Save URL pair.
+        $is_new = $this->urlMapper->saveUrls(
+            $uuid,
+            $urls['drupal'],
+            $urls['fedora']
+        );
+
+        // Return 201 or 204 depending on if a new record was created.
+        $response = new Response(null, $is_new ? 201 : 204);
+        if ($is_new) {
+            // Add a Location header if a new record was created.
+            $url = $this->urlGenerator->generate(
+                'GET_uuid',
+                ['uuid' => $uuid],
+                UrlGenerator::ABSOLUTE_URL
+            );
+            $response->headers->add(['Location' => $url]);
+        }
+        return $response;
     }
 
     /**
-     * @param string $fedora_path
+     * @param string $uuid
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function deleteFromFedoraPath($fedora_path)
+    public function delete($uuid)
     {
-        try {
-            if (!$result = $this->pathMapper->deleteFromFedoraPath($fedora_path)) {
-                return new Response(null, 404);
-            }
-
-            return new Response(null, 204);
-        } catch (\Exception $e) {
-            return new Response($e->getMessage(), 500);
-        }
-    }
-
-    /**
-     * @param string $path
-     * @return string
-     */
-    public function sanitize($path)
-    {
-        $sanitized = ltrim($path);
-        return ltrim($sanitized, '/');
+        $deleted = $this->urlMapper->deleteUrls($uuid);
+        return new Response(null, $deleted ? 204 : 404);
     }
 }
