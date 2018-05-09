@@ -363,19 +363,24 @@ class MillinerService implements MillinerServiceInterface
             true
         );
 
-        // Extract the file uuid.  It can be under 'field_file' or 'field_image'.
-        if (!isset($media_json['field_image']) && !isset($media_json['field_file'])) {
+        if (isset($media_json['field_media_image'])) {
+            $field_name = 'field_media_image';
+        } elseif (isset($media_json['field_media_file'])) {
+            $field_name = 'field_media_file';
+        } elseif (isset($media_json['field_media_audio_file'])) {
+            $field_name = 'field_media_audio_file';
+        } elseif (isset($media_json['field_media_video_file'])) {
+            $field_name = 'field_media_video_file';
+        } else {
             throw new \RuntimeException(
-                "Cannot parse file UUID from $json_url.  Media must use 'field_file' or 'field_image'.",
+                "Cannot parse file UUID from $json_url.  Media must use 'field_media_file', 'field_media_image', 'field_media_audio_file', or 'field_media_video_file'.",
                 500
             );
         }
 
-        $field_name = isset($media_json['field_image']) ? 'field_image' : 'field_file';
-
         if (empty($media_json[$field_name])) {
             throw new \RuntimeException(
-                "Cannot parse file UUID from $json_url.  'field_file' or 'field_image' is empty.",
+                "Cannot parse file UUID from $json_url.  Media must use 'field_media_file', 'field_media_image', 'field_media_audio_file', or 'field_media_video_file'.",
                 500
             );
         }
