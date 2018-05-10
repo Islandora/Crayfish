@@ -373,14 +373,16 @@ class MillinerService implements MillinerServiceInterface
             $field_name = 'field_media_video_file';
         } else {
             throw new \RuntimeException(
-                "Cannot parse file UUID from $json_url.  Media must use 'field_media_file', 'field_media_image', 'field_media_audio_file', or 'field_media_video_file'.",
+                "Cannot parse file UUID from $json_url.  Media must use 'field_media_file', 'field_media_image', "
+                    . "'field_media_audio_file', or 'field_media_video_file'.",
                 500
             );
         }
 
         if (empty($media_json[$field_name])) {
             throw new \RuntimeException(
-                "Cannot parse file UUID from $json_url.  Media must use 'field_media_file', 'field_media_image', 'field_media_audio_file', or 'field_media_video_file'.",
+                "Cannot parse file UUID from $json_url.  Media must use 'field_media_file', 'field_media_image', "
+                    . "'field_media_audio_file', or 'field_media_video_file'.",
                 500
             );
         }
