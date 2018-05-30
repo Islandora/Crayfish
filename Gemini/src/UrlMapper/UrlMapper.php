@@ -31,7 +31,7 @@ class UrlMapper implements UrlMapperInterface
      */
     public function getUrls($uuid)
     {
-        $sql = 'SELECT drupal, fedora FROM Gemini WHERE uuid = :uuid';
+        $sql = 'SELECT drupal_uri as drupal, fedora_uri as fedora FROM Gemini WHERE uuid = :uuid';
         return $this->connection->fetchAssoc(
             $sql,
             ['uuid' => $uuid]
@@ -43,26 +43,35 @@ class UrlMapper implements UrlMapperInterface
      */
     public function saveUrls(
         $uuid,
-        $drupal,
-        $fedora
+        $drupal_uri,
+        $fedora_uri
     ) {
         $this->connection->beginTransaction();
+        // Hash incomming URIs
+        $fedora_hash = hash('sha512', $fedora_uri);
+        $drupal_hash = hash('sha512', $drupal_uri);
+        $now = time();
+        $db_data = [
+          'uuid' => $uuid,
+          'drupal_uri' => $drupal,
+          'fedora_uri' => $fedora,
+          'drupal_hash' => $drupal_hash,
+          'fedora_hash' => $fedora_hash,
+          'dateCreated' => $now,
+          'dateUpdated' => $now,
+        ];
 
         try {
             // Try to insert first, and if the record already exists, update it.
             try {
-                $this->connection->insert(
-                    'Gemini',
-                    ['uuid' => $uuid, 'drupal' => $drupal, 'fedora' => $fedora]
-                );
+                $this->connection->insert('Gemini', $db_data);
                 $this->connection->commit();
                 return true;
             } catch (UniqueConstraintViolationException $e) {
-                $sql = "UPDATE Gemini SET fedora = :fedora, drupal = :drupal WHERE uuid = :uuid";
-                $this->connection->executeUpdate(
-                    $sql,
-                    ['uuid' => $uuid, 'drupal' => $drupal, 'fedora' => $fedora]
-                );
+                // We want to maintain the creation UNIX Timestamp
+                unset($db_data['dateCreated']);
+                unset($db_data['uuid']);
+                $this->connection->update('Gemini', $db_data, ['uuid' => $uuid]);
                 $this->connection->commit();
                 return false;
             }
