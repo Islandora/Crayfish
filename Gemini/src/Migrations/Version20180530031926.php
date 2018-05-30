@@ -22,7 +22,7 @@ final class Version20180530031926 extends AbstractMigration
             'CREATE TABLE Gemini (fedora_hash VARCHAR(128) NOT NULL, 
             drupal_hash VARCHAR(128) NOT NULL, uuid VARCHAR(36) NOT NULL, 
             drupal_uri LONGTEXT NOT NULL, fedora_uri LONGTEXT NOT NULL, 
-            date_created DATETIME NOT NULL, date_updated DATETIME NOT NULL, 
+            dateCreated DATETIME NOT NULL, dateUpdated DATETIME NOT NULL, 
             UNIQUE KEY(fedora_hash, drupal_hash), PRIMARY KEY(uuid)) 
             DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB'
         );
