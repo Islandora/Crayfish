@@ -53,8 +53,8 @@ class UrlMapper implements UrlMapperInterface
         $now = time();
         $db_data = [
           'uuid' => $uuid,
-          'drupal_uri' => $drupal,
-          'fedora_uri' => $fedora,
+          'drupal_uri' => $drupal_uri,
+          'fedora_uri' => $fedora_uri,
           'drupal_hash' => $drupal_hash,
           'fedora_hash' => $fedora_hash,
           'dateCreated' => $now,
