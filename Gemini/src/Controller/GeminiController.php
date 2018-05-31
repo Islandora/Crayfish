@@ -105,11 +105,11 @@ class GeminiController
         $urls = json_decode($request->getContent(), true);
 
         if (!isset($urls['drupal'])) {
-            return new Response("Missing 'drupal' entry in reqeust body.", 400);
+            return new Response("Missing 'drupal' entry in request body.", 400);
         }
 
         if (!isset($urls['fedora'])) {
-            return new Response("Missing 'fedora' entry in reqeust body.", 400);
+            return new Response("Missing 'fedora' entry in request body.", 400);
         }
 
         // Save URL pair.
