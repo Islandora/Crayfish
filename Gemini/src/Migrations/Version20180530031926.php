@@ -43,6 +43,9 @@ final class Version20180530031926 extends AbstractMigration
           'CREATE UNIQUE INDEX fedora_drupal_hash ON Gemini (fedora_hash, drupal_hash);'
         );
       }
+      else {
+        $this->abortIf(TRUE, "Only MySQL/MariaDB and PostgreSQL are supported.");
+      }
     }
 
     public function down(Schema $schema)
