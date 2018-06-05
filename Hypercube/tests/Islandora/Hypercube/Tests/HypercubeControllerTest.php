@@ -10,7 +10,7 @@ use Psr\Http\Message\StreamInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @coversDefaultClass \Islandora\Crayfish\Hypercube\Controller\HypercubeController
+ * @coversDefaultClass \Islandora\Hypercube\Controller\HypercubeController
  */
 class HypercubeControllerTest extends \PHPUnit_Framework_TestCase
 {
