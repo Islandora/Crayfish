@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Monolog\Logger;
 
 /**
- * @coversDefaultClass \Islandora\Crayfish\Houdini\Controller\HoudiniController
+ * @coversDefaultClass \Islandora\Houdini\Controller\HoudiniController
  */
 class HoudiniControllerTest extends \PHPUnit_Framework_TestCase
 {
