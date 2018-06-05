@@ -50,7 +50,7 @@ class UrlMapper implements UrlMapperInterface
         // Hash incomming URIs
         $fedora_hash = hash('sha512', $fedora_uri);
         $drupal_hash = hash('sha512', $drupal_uri);
-        $now = date("Y-m-d H:i:s",time());
+        $now = date("Y-m-d H:i:s", time());
         $db_data = [
           'uuid' => $uuid,
           'drupal_uri' => $drupal_uri,
