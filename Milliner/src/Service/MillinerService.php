@@ -65,7 +65,7 @@ class MillinerService implements MillinerServiceInterface
     /**
      * {@inheritDoc}
      */
-    public function saveContent(
+    public function saveNode(
         $uuid,
         $jsonld_url,
         $token = null
@@ -73,13 +73,13 @@ class MillinerService implements MillinerServiceInterface
         $urls = $this->gemini->getUrls($uuid, $token);
 
         if (empty($urls)) {
-            return $this->createContent(
+            return $this->createNode(
                 $uuid,
                 $jsonld_url,
                 $token
             );
         } else {
-            return $this->updateContent(
+            return $this->updateNode(
                 $uuid,
                 $jsonld_url,
                 $urls['fedora'],
@@ -100,7 +100,7 @@ class MillinerService implements MillinerServiceInterface
      * @throws \RuntimeException
      * @throws \GuzzleHttp\Exception\RequestException
      */
-    protected function createContent(
+    protected function createNode(
         $uuid,
         $jsonld_url,
         $token = null
@@ -170,7 +170,7 @@ class MillinerService implements MillinerServiceInterface
      * @throws \RuntimeException
      * @throws \GuzzleHttp\Exception\RequestException
      */
-    protected function updateContent(
+    protected function updateNode(
         $uuid,
         $jsonld_url,
         $fedora_url,
@@ -347,8 +347,8 @@ class MillinerService implements MillinerServiceInterface
      * {@inheritDoc}
      */
     public function saveMedia(
+        $source_field,
         $json_url,
-        $jsonld_url,
         $token = null
     ) {
         // First get the media json from Drupal.
@@ -358,40 +358,22 @@ class MillinerService implements MillinerServiceInterface
             ['headers' => $headers]
         );
 
+        $jsonld_url = $this->getLinkHeader($drupal_response, "alternate", "application/ld+json"); 
         $media_json = json_decode(
             $drupal_response->getBody(),
             true
         );
 
-        if (isset($media_json['field_media_image'])) {
-            $field_name = 'field_media_image';
-        } elseif (isset($media_json['field_media_file'])) {
-            $field_name = 'field_media_file';
-        } elseif (isset($media_json['field_media_audio_file'])) {
-            $field_name = 'field_media_audio_file';
-        } elseif (isset($media_json['field_media_video_file'])) {
-            $field_name = 'field_media_video_file';
-        } else {
+        if (!isset($media_json[$source_field])) {
             throw new \RuntimeException(
-                "Cannot parse file UUID from $json_url.  Media must use 'field_media_file', 'field_media_image', "
-                    . "'field_media_audio_file', or 'field_media_video_file'.",
+                "Cannot parse file UUID from $json_url.  Ensure $source_field exists on the media.",
                 500
             );
         }
-
-        if (empty($media_json[$field_name])) {
-            throw new \RuntimeException(
-                "Cannot parse file UUID from $json_url.  Media must use 'field_media_file', 'field_media_image', "
-                    . "'field_media_audio_file', or 'field_media_video_file'.",
-                500
-            );
-        }
-
-        $file_uuid = $media_json[$field_name][0]['target_uuid'];
+        $file_uuid = $media_json[$source_field][0]['target_uuid'];
 
         // Get the file's LDP-NR counterpart in Fedora.
         $urls = $this->gemini->getUrls($file_uuid, $token);
-
         if (empty($urls)) {
             $file_url = $media_json[$field_name][0]['url'];
             throw new \RuntimeException(
@@ -399,7 +381,6 @@ class MillinerService implements MillinerServiceInterface
                 404
             );
         }
-
         $fedora_file_url = $urls['fedora'];
 
         // Now look for the 'describedby' link header on the file in Fedora.
@@ -407,7 +388,6 @@ class MillinerService implements MillinerServiceInterface
             $fedora_file_url,
             $headers
         );
-
         $status = $fedora_response->getStatusCode();
         if ($status != 200) {
             $reason = $fedora_response->getReasonPhrase();
@@ -417,9 +397,7 @@ class MillinerService implements MillinerServiceInterface
                 $status
             );
         }
-
         $fedora_url = $this->getLinkHeader($fedora_response, "describedby");
-
         if (empty($fedora_url)) {
             throw new \RuntimeException(
                 "Cannot parse 'describedby' link header from response to `HEAD $fedora_file_url`",
@@ -434,7 +412,6 @@ class MillinerService implements MillinerServiceInterface
             $fedora_url,
             $headers
         );
-
         $status = $fedora_response->getStatusCode();
         if ($status != 200) {
             $reason = $fedora_response->getReasonPhrase();
@@ -448,7 +425,6 @@ class MillinerService implements MillinerServiceInterface
         // Strip off the W/ prefix to make the ETag strong.
         $etags = $fedora_response->getHeader("ETag");
         $etag = ltrim(reset($etags), "W/");
-
         // Get the modified date from the RDF.
         $fedora_jsonld = json_decode(
             $fedora_response->getBody(),
@@ -471,12 +447,10 @@ class MillinerService implements MillinerServiceInterface
             $jsonld_url,
             ['headers' => $headers]
         );
-
         $drupal_jsonld = json_decode(
             $drupal_response->getBody(),
             true
         );
-
         // Mash it into the shape Fedora accepts.
         // Be sure to give it the URL of the file being described, not that of
         // the RDF itself.
@@ -485,12 +459,10 @@ class MillinerService implements MillinerServiceInterface
             $jsonld_url,
             $fedora_file_url
         );
-
         // Get the modified date from the RDF.
         $drupal_modified = $this->getModifiedTimestamp(
             $drupal_jsonld
         );
-
         // Abort with 412 if the Drupal RDF is stale.
         if ($drupal_modified <= $fedora_modified) {
             throw new \RuntimeException(
@@ -498,7 +470,6 @@ class MillinerService implements MillinerServiceInterface
                 412
             );
         }
-
         // Conditional save it in Fedora.
         $headers['Content-Type'] = 'application/ld+json';
         $headers['Prefer'] = 'return=minimal; handling=lenient';
@@ -508,7 +479,6 @@ class MillinerService implements MillinerServiceInterface
             json_encode($drupal_jsonld),
             $headers
         );
-
         $status = $response->getStatusCode();
         if (!in_array($status, [201, 204])) {
             $reason = $response->getReasonPhrase();
@@ -517,227 +487,6 @@ class MillinerService implements MillinerServiceInterface
                 $status
             );
         }
-
-        // Return the response from Fedora.
-        return $response;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function saveFile(
-        $uuid,
-        $file_url,
-        $checksum_url,
-        $token = null
-    ) {
-        $urls = $this->gemini->getUrls($uuid, $token);
-
-        if (empty($urls)) {
-            return $this->createFile(
-                $uuid,
-                $file_url,
-                $token
-            );
-        } else {
-            return $this->updateFile(
-                $uuid,
-                $file_url,
-                $checksum_url,
-                $urls['fedora'],
-                $token
-            );
-        }
-    }
-
-    /**
-     * Creates a new LDP-NR in Fedora from a Drupal file.
-     *
-     * @param $uuid
-     * @param $file_url
-     * @param $token
-     *
-     * @return \GuzzleHttp\Psr7\Response
-     *
-     * @throws \RuntimeException
-     * @throws \GuzzleHttp\Exception\RequestException
-     */
-    protected function createFile(
-        $uuid,
-        $file_url,
-        $token = null
-    ) {
-        // Mint a new Fedora URL.
-        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token);
-
-        // Get the file from Drupal.
-        $headers = empty($token) ? [] : ['Authorization' => $token];
-        $drupal_response = $this->drupal->get(
-            $file_url,
-            ['headers' => $headers]
-        );
-
-        // Save it in Fedora.
-        $content_types = $drupal_response->getHeader('Content-Type');
-        $headers['Content-Type'] = reset($content_types);
-        $response = $this->fedora->saveResource(
-            $fedora_url,
-            $drupal_response->getBody(),
-            $headers
-        );
-
-        $status = $response->getStatusCode();
-        if (!in_array($status, [201, 204])) {
-            $reason = $response->getReasonPhrase();
-            throw new \RuntimeException(
-                "Client error: `PUT $fedora_url` resulted in a `$status $reason` response: " . $response->getBody(),
-                $status
-            );
-        }
-
-        // Map the URLS.
-        $this->gemini->saveUrls(
-            $uuid,
-            $file_url,
-            $fedora_url,
-            $token
-        );
-
-        // Return the response from Fedora.
-        return $response;
-    }
-
-    /**
-     * Updates an existing LDP-NR in Fedora from a Drupal file.
-     *
-     * @param $uuid
-     * @param $file_url
-     * @param $checksum_url
-     * @param $fedora_url
-     * @param $token
-     *
-     * @return \GuzzleHttp\Psr7\Response
-     *
-     * @throws \RuntimeException
-     * @throws \GuzzleHttp\Exception\RequestException
-     */
-    protected function updateFile(
-        $uuid,
-        $file_url,
-        $checksum_url,
-        $fedora_url,
-        $token = null
-    ) {
-        // Get the headers for the file from Fedora.
-        $headers = empty($token) ? [] : ['Authorization' => $token];
-        $fedora_response = $this->fedora->getResourceHeaders(
-            $fedora_url,
-            $headers
-        );
-
-        $status = $fedora_response->getStatusCode();
-        if ($status != 200) {
-            $reason = $fedora_response->getReasonPhrase();
-            throw new \RuntimeException(
-                "Client error: `HEAD $fedora_url` resulted in a `$status $reason` response: " .
-                    $fedora_response->getBody(),
-                $status
-            );
-        }
-
-        // Get the ETag.
-        $etags = $fedora_response->getHeader("ETag");
-        $etag = reset($etags);
-
-        // Get the 'describedby' link.
-        $described_by = $this->getLinkHeader($fedora_response, "describedby");
-        if (empty($described_by)) {
-            throw new \RuntimeException(
-                "Cannot parse 'describedby' link header from response to `HEAD $fedora_url`",
-                500
-            );
-        }
-
-        // Get the RDF describing the file from Fedora.
-        $headers['Accept'] = 'application/ld+json';
-        $fedora_response = $this->fedora->getResource(
-            $described_by,
-            $headers
-        );
-
-        $status = $fedora_response->getStatusCode();
-        if ($status != 200) {
-            $reason = $fedora_response->getReasonPhrase();
-            throw new \RuntimeException(
-                "Client error: `GET $described_by` resulted in a `$status $reason` response: " .
-                    $fedora_response->getBody(),
-                $status
-            );
-        }
-
-        $fedora_jsonld = json_decode(
-            $fedora_response->getBody(),
-            true
-        );
-
-        // Get the checksum from the RDF.
-        $fedora_checksum = $this->parseChecksum($fedora_jsonld);
-
-        // Get the checksum from Drupal.
-        unset($headers['Accept']);
-        $drupal_response = $this->drupal->get(
-            $checksum_url,
-            ['headers' => $headers]
-        );
-
-        $checksum_json = json_decode(
-            $drupal_response->getBody(),
-            true
-        );
-
-        $drupal_checksum = $checksum_json[0]['sha1'];
-
-        // Abort with 412 if the files haven't changed.
-        if ($fedora_checksum == $drupal_checksum) {
-            throw new \RuntimeException(
-                "Not updating $fedora_url because file at $file_url has not changed",
-                412
-            );
-        }
-
-        // Get the file from Drupal.
-        $drupal_response = $this->drupal->get(
-            $file_url,
-            ['headers' => $headers]
-        );
-
-        // Save it in Fedora.
-        $content_types = $drupal_response->getHeader('Content-Type');
-        $headers['Content-Type'] = reset($content_types);
-        $headers['If-Match'] = $etag;
-        $response = $this->fedora->saveResource(
-            $fedora_url,
-            $drupal_response->getBody(),
-            $headers
-        );
-
-        $status = $response->getStatusCode();
-        if (!in_array($status, [201, 204])) {
-            $reason = $response->getReasonPhrase();
-            throw new \RuntimeException(
-                "Client error: `PUT $fedora_url` resulted in a `$status $reason` response: " . $response->getBody(),
-                $status
-            );
-        }
-
-        // Map the URLS.
-        $this->gemini->saveUrls(
-            $uuid,
-            $file_url,
-            $fedora_url,
-            $token
-        );
-
         // Return the response from Fedora.
         return $response;
     }
@@ -750,11 +499,13 @@ class MillinerService implements MillinerServiceInterface
      *
      * @return null|string
      */
-    protected function getLinkHeader($response, $rel_name)
+    protected function getLinkHeader($response, $rel_name, $type = NULL)
     {
         $parsed = Psr7\parse_header($response->getHeader("Link"));
         foreach ($parsed as $header) {
-            if (isset($header['rel']) && $header['rel'] == $rel_name) {
+            $has_relation = isset($header['rel']) && $header['rel'] == $rel_name;
+            $has_type = $type ? isset($header['type']) && $header['type'] == $type : TRUE;
+            if ($has_type && $has_relation) {
                 return trim($header[0], '<>');
             }
         }
@@ -762,35 +513,9 @@ class MillinerService implements MillinerServiceInterface
     }
 
     /**
-     * Gets a checksum from Fedora jsonld.
-     *
-     * @param array $jsonld
-     *
-     * @return string
-     *
-     * @throws \RuntimeException
-     */
-    protected function parseChecksum(array $jsonld)
-    {
-        $predicate = 'http://www.loc.gov/premis/rdf/v1#hasMessageDigest';
-        $urn = $this->getFirstPredicate($jsonld, $predicate, false);
-
-        if (preg_match("/urn:sha1:(?<checksum>.*)/", $urn, $matches)) {
-            if (isset($matches['checksum'])) {
-                return $matches['checksum'];
-            }
-        }
-
-        throw new \RuntimeException(
-            "Could not parse $predicate from " . json_encode($jsonld),
-            500
-        );
-    }
-
-    /**
      * {@inheritDoc}
      */
-    public function delete(
+    public function deleteNode(
         $uuid,
         $token = null
     ) {
