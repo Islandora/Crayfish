@@ -42,7 +42,7 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::delete
+     * @covers ::deleteNode
      * @expectedException \RuntimeException
      * @expectedExceptionCode 403
      */
@@ -68,11 +68,11 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
             $this->modifiedDatePredicate
         );
 
-        $milliner->delete("abc123", "Bearer islandora");
+        $milliner->deleteNode("abc123", "Bearer islandora");
     }
 
     /**
-     * @covers ::delete
+     * @covers ::deleteNode
      */
     public function testDeleteReturns204OnGeminiSuccess()
     {
@@ -100,14 +100,14 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
             $this->modifiedDatePredicate
         );
 
-        $response = $milliner->delete("first", "Bearer islandora");
+        $response = $milliner->deleteNode("first", "Bearer islandora");
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 204,
             "Milliner must return 204 when Gemini returns success.  Received: $status"
         );
 
-        $response = $milliner->delete("second", "Bearer islandora");
+        $response = $milliner->deleteNode("second", "Bearer islandora");
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 204,
@@ -116,7 +116,7 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::delete
+     * @covers ::deleteNode
      */
     public function testDeleteReturns404IfNotMappedAndGeminiFails()
     {
@@ -139,7 +139,7 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
             $this->modifiedDatePredicate
         );
 
-        $response = $milliner->delete("abc123", "Bearer islandora");
+        $response = $milliner->deleteNode("abc123", "Bearer islandora");
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 404,
@@ -148,7 +148,7 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::delete
+     * @covers ::deleteNode
      */
     public function testDeleteReturnsFedoraErrorIfMappedButGeminiFails()
     {
@@ -174,7 +174,7 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
             $this->modifiedDatePredicate
         );
 
-        $response = $milliner->delete("abc123", "Bearer islandora");
+        $response = $milliner->deleteNode("abc123", "Bearer islandora");
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 410,

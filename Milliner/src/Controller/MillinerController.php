@@ -45,6 +45,10 @@ class MillinerController
         $token = $request->headers->get("Authorization", null);
         $jsonld_url = $request->headers->get("Content-Location");
 
+        if (empty($jsonld_url)) {
+            return new Response("Expected JSONLD url in Content-Location header", 400);
+        }
+
         try {
             $response = $this->milliner->saveNode(
                 $uuid,
@@ -94,9 +98,13 @@ class MillinerController
      */
     public function saveMedia($source_field, Request $request)
     {
-$this->log->debug("YOU GET HERE YET?");
+        $this->log->debug("YOU GET HERE YET?");
         $token = $request->headers->get("Authorization", null);
         $json_url = $request->headers->get("Content-Location");
+
+        if (empty($json_url)) {
+            return new Response("Expected JSON url in Content-Location header", 400);
+        }
 
         try {
             $response = $this->milliner->saveMedia(
@@ -115,5 +123,4 @@ $this->log->debug("YOU GET HERE YET?");
             return new Response($e->getMessage(), $code);
         }
     }
-
 }

@@ -35,7 +35,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::saveContent
+     * @covers ::saveNode
      * @covers ::saveMedia
      * @covers ::saveFile
      * @covers ::delete
@@ -44,29 +44,33 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     {
         // Wire up a controller.
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveContent(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveNode(Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
-        $milliner->saveFile(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveMedia(Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
-        $milliner->saveMedia(Argument::any(), Argument::any(), Argument::any(), Argument::any())
-            ->willThrow(new \Exception("Forbidden", 403));
-        $milliner->delete(Argument::any(), Argument::any())
+        $milliner->deleteNode(Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner = $milliner->reveal();
 
         $controller = new MillinerController($milliner, $this->logger);
 
-        // Content.
+        // Route parameters.
+        $uuid = 'abc123';
+        $source_field = 'field_image';
+
+        // Nodes.
         $request = Request::create(
-            "http://localhost:8000/milliner/content",
+            "http://localhost:8000/milliner/node/$uuid",
             "POST",
+            ['uuid' => $uuid],
             [],
             [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/ContentEvent.jsonld')
+            [
+                'Authorization' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
+            ]
         );
-        $response = $controller->saveContent($request);
+        $response = $controller->saveNode($uuid, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 403,
@@ -75,32 +79,17 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
 
         // Media.
         $request = Request::create(
-            "http://localhost:8000/milliner/media",
+            "http://localhost:8000/milliner/media/$source_field",
             "POST",
+            ['source_field' => $source_field],
             [],
             [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/MediaEvent.jsonld')
+            [
+                'Authorization' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/media/6?_format=json',
+            ]
         );
-        $response = $controller->saveMedia($request);
-        $status = $response->getStatusCode();
-        $this->assertTrue(
-            $status == 403,
-            "Response code must be that of thrown exception.  Expected 403, received $status"
-        );
-
-        // File.
-        $request = Request::create(
-            "http://localhost:8000/milliner/file",
-            "POST",
-            [],
-            [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/FileEvent.jsonld')
-        );
-        $response = $controller->saveFile($request);
+        $response = $controller->saveMedia($source_field, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 403,
@@ -108,16 +97,15 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
         );
 
         // Delete.
-        $uuid = 'abc123';
         $request = Request::create(
-            "http://localhost:8000/milliner/resource/$uuid",
+            "http://localhost:8000/milliner/node/$uuid",
             "POST",
-            ['uuid' => 'abc123'],
+            ['uuid' => $uuid],
             [],
             [],
             ['Authorization' => 'Bearer islandora']
         );
-        $response = $controller->delete($uuid, $request);
+        $response = $controller->deleteNode($uuid, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 403,
@@ -126,268 +114,81 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::saveContent
-     * @covers ::saveMedia
-     * @covers ::saveFile
+     * @covers ::saveNode
      */
-    public function testMethodsReturn400OnBadContentType()
+    public function testSaveNodeReturns400WithoutContentLocation()
     {
         $milliner = $this->prophesize(MillinerServiceInterface::class)->reveal();
         $controller = new MillinerController($milliner, $this->logger);
 
-        // Content.
+        $uuid = "abc123";
         $request = Request::create(
-            "http://localhost:8000/milliner/content",
+            "http://localhost:8000/milliner/node/$uuid",
             "POST",
+            ['uuid' => $uuid],
             [],
             [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/xml'],
-            file_get_contents(__DIR__ . '/../../../../static/ContentEvent.jsonld')
+            ['Authorization' => 'Bearer islandora']
         );
-        $response = $controller->saveContent($request);
+        $response = $controller->saveNode($uuid, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 400,
-            "Response code must be 400 for non application/ld+json Content-Type.  Received $status"
+            "Response code must be 400 when no Content-Location header is present.  Received: $status"
         );
+    }
 
+    /**
+     * @covers ::saveMedia
+     */
+    public function testSaveMediaReturn400WithoutContentLocation()
+    {
+        $milliner = $this->prophesize(MillinerServiceInterface::class)->reveal();
+        $controller = new MillinerController($milliner, $this->logger);
+
+        $source_field = "field_image";
         // Media.
         $request = Request::create(
-            "http://localhost:8000/milliner/media",
+            "http://localhost:8000/milliner/media/$source_field",
             "POST",
+            ['source_field' => $source_field],
             [],
             [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/xml'],
-            file_get_contents(__DIR__ . '/../../../../static/MediaEvent.jsonld')
+            ['Authorization' => 'Bearer islandora']
         );
-        $response = $controller->saveMedia($request);
+        $response = $controller->saveMedia($source_field, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 400,
-            "Response code must be 400 for non application/ld+json Content-Type.  Received $status"
-        );
-
-        // File.
-        $request = Request::create(
-            "http://localhost:8000/milliner/file",
-            "POST",
-            [],
-            [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/xml'],
-            file_get_contents(__DIR__ . '/../../../../static/FileEvent.jsonld')
-        );
-        $response = $controller->saveFile($request);
-        $status = $response->getStatusCode();
-        $this->assertTrue(
-            $status == 400,
-            "Response code must be 400 for non application/ld+json Content-Type.  Received $status"
+            "Response code must be 400 when no Content-Location header is present.  Received: $status"
         );
     }
 
     /**
-     * @covers ::saveContent
+     * @covers ::saveNode
      */
-    public function testSaveContentReturn400OnMalformedEvents()
-    {
-        $milliner = $this->prophesize(MillinerServiceInterface::class)->reveal();
-        $controller = new MillinerController($milliner, $this->logger);
-
-        // No uuid in the event.
-        $request = Request::create(
-            "http://localhost:8000/milliner/content",
-            "POST",
-            [],
-            [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/ContentEventNoUuid.jsonld')
-        );
-        $response = $controller->saveContent($request);
-        $status = $response->getStatusCode();
-        $this->assertTrue(
-            $status == 400,
-            "Response code must be 400 when no uuid is present.  Received: $status"
-        );
-
-        // Malformed uuid in the event.
-        $request = Request::create(
-            "http://localhost:8000/milliner/content",
-            "POST",
-            [],
-            [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/ContentEventBadUuid.jsonld')
-        );
-        $response = $controller->saveContent($request);
-        $status = $response->getStatusCode();
-        $this->assertTrue(
-            $status == 400,
-            "Response code must be 400 when a malformed uuid is present.  Received: $status"
-        );
-
-        // No JSONLD url in the event.
-        $request = Request::create(
-            "http://localhost:8000/milliner/file",
-            "POST",
-            [],
-            [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/ContentEventNoJsonldUrl.jsonld')
-        );
-        $response = $controller->saveContent($request);
-        $status = $response->getStatusCode();
-        $this->assertTrue(
-            $status == 400,
-            "Response code must be 400 when no JSONLD url is present.  Received: $status"
-        );
-    }
-
-    /**
-     * @covers ::saveFile
-     */
-    public function testSaveFileReturn400OnMalformedEvents()
-    {
-        $milliner = $this->prophesize(MillinerServiceInterface::class)->reveal();
-        $controller = new MillinerController($milliner, $this->logger);
-
-        // No uuid in the event.
-        $request = Request::create(
-            "http://localhost:8000/milliner/file",
-            "POST",
-            [],
-            [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/FileEventNoUuid.jsonld')
-        );
-        $response = $controller->saveFile($request);
-        $status = $response->getStatusCode();
-        $this->assertTrue(
-            $status == 400,
-            "Response code must be 400 when no uuid is present.  Received: $status"
-        );
-
-        // Malformed uuid in the event.
-        $request = Request::create(
-            "http://localhost:8000/milliner/file",
-            "POST",
-            [],
-            [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/FileEventBadUuid.jsonld')
-        );
-        $response = $controller->saveFile($request);
-        $status = $response->getStatusCode();
-        $this->assertTrue(
-            $status == 400,
-            "Response code must be 400 when a malformed uuid is present.  Received: $status"
-        );
-
-        // No file url in the event.
-        $request = Request::create(
-            "http://localhost:8000/milliner/file",
-            "POST",
-            [],
-            [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/FileEventNoFileUrl.jsonld')
-        );
-        $response = $controller->saveFile($request);
-        $status = $response->getStatusCode();
-        $this->assertTrue(
-            $status == 400,
-            "Response code must be 400 when no File url is present.  Received: $status"
-        );
-
-        // No checksum url in the event.
-        $request = Request::create(
-            "http://localhost:8000/milliner/media",
-            "POST",
-            [],
-            [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/FileEventNoChecksumUrl.jsonld')
-        );
-        $response = $controller->saveFile($request);
-        $status = $response->getStatusCode();
-        $this->assertTrue(
-            $status == 400,
-            "Response code must be 400 when no checksum url is present.  Received: $status"
-        );
-    }
-
-    /**
-     * @covers ::saveMedia
-     */
-    public function testSaveMediaReturn400OnMalformedEvents()
-    {
-        $milliner = $this->prophesize(MillinerServiceInterface::class)->reveal();
-        $controller = new MillinerController($milliner, $this->logger);
-
-        // No JSONLD url in the event.
-        $request = Request::create(
-            "http://localhost:8000/milliner/media",
-            "POST",
-            [],
-            [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/MediaEventNoJsonldUrl.jsonld')
-        );
-        $response = $controller->saveMedia($request);
-        $status = $response->getStatusCode();
-        $this->assertTrue(
-            $status == 400,
-            "Response code must be 400 when no JSONLD url is present.  Received: $status"
-        );
-
-        // No JSON url in the event.
-        $request = Request::create(
-            "http://localhost:8000/milliner/media",
-            "POST",
-            [],
-            [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/MediaEventNoJsonUrl.jsonld')
-        );
-        $response = $controller->saveMedia($request);
-        $status = $response->getStatusCode();
-        $this->assertTrue(
-            $status == 400,
-            "Response code must be 400 when no JSON url is present.  Received: $status"
-        );
-    }
-
-    /**
-     * @covers ::saveContent
-     */
-    public function testSaveContentReturnsSuccessOnSuccess()
+    public function testSaveNodeReturnsSuccessOnSuccess()
     {
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveContent(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveNode(Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(201));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
 
+        // Nodes.
+        $uuid = "abc123";
         $request = Request::create(
-            "http://localhost:8000/milliner/content",
+            "http://localhost:8000/milliner/node/$uuid",
             "POST",
+            ['uuid' => $uuid],
             [],
             [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/ContentEvent.jsonld')
+            [
+                'Authorization' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
+            ]
         );
-        $response = $controller->saveContent($request);
+        $response = $controller->saveNode($uuid, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 201,
@@ -395,21 +196,23 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
         );
 
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveContent(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveNode(Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(204));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
 
         $request = Request::create(
-            "http://localhost:8000/milliner/content",
+            "http://localhost:8000/milliner/node/$uuid",
             "POST",
+            ['uuid' => $uuid],
             [],
             [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/ContentEvent.jsonld')
+            [
+                'Authorization' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
+            ]
         );
-        $response = $controller->saveContent($request);
+        $response = $controller->saveNode($uuid, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 204,
@@ -428,16 +231,19 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
 
+        $source_field = "field_image";
         $request = Request::create(
-            "http://localhost:8000/milliner/media",
+            "http://localhost:8000/milliner/media/$source_field",
             "POST",
+            ["source_field" => $source_field],
             [],
             [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/MediaEvent.jsonld')
+            [
+                'Authorization' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/media/6?_format=json',
+            ]
         );
-        $response = $controller->saveMedia($request);
+        $response = $controller->saveMedia($source_field, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 201,
@@ -451,64 +257,17 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
         $controller = new MillinerController($milliner, $this->logger);
 
         $request = Request::create(
-            "http://localhost:8000/milliner/media",
+            "http://localhost:8000/milliner/media/$source_field",
             "POST",
+            ["source_field" => $source_field],
             [],
             [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/MediaEvent.jsonld')
+            [
+                'Authorization' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/media/6?_format=json',
+            ]
         );
-        $response = $controller->saveMedia($request);
-        $status = $response->getStatusCode();
-        $this->assertTrue(
-            $status == 204,
-            "Response code must be 204 when milliner returns 204.  Received: $status"
-        );
-    }
-    /**
-     * @covers ::saveFile
-     */
-    public function testSaveFileReturnsSuccessOnSuccess()
-    {
-        $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveFile(Argument::any(), Argument::any(), Argument::any(), Argument::any())
-            ->willReturn(new Response(201));
-        $milliner = $milliner->reveal();
-        $controller = new MillinerController($milliner, $this->logger);
-
-        $request = Request::create(
-            "http://localhost:8000/milliner/file",
-            "POST",
-            [],
-            [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/FileEvent.jsonld')
-        );
-        $response = $controller->saveFile($request);
-        $status = $response->getStatusCode();
-        $this->assertTrue(
-            $status == 201,
-            "Response code must be 201 when milliner returns 201.  Received: $status"
-        );
-
-        $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveFile(Argument::any(), Argument::any(), Argument::any(), Argument::any())
-            ->willReturn(new Response(204));
-        $milliner = $milliner->reveal();
-        $controller = new MillinerController($milliner, $this->logger);
-
-        $request = Request::create(
-            "http://localhost:8000/milliner/file",
-            "POST",
-            [],
-            [],
-            [],
-            ['Authorization' => 'Bearer islandora', 'CONTENT_TYPE' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/FileEvent.jsonld')
-        );
-        $response = $controller->saveFile($request);
+        $response = $controller->saveMedia($source_field, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 204,
@@ -522,21 +281,22 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     public function testDeleteReturnsSuccessOnSuccess()
     {
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->delete(Argument::any(), Argument::any())
+        $milliner->deleteNode(Argument::any(), Argument::any())
             ->willReturn(new Response(204));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
 
+        $uuid = "abc123";
         $request = Request::create(
-            "http://localhost:8000/milliner/resource/abc-123",
+            "http://localhost:8000/milliner/resource/$uuid",
             "DELETE",
-            [],
+            ['uuid' => $uuid],
             [],
             [],
             ['Authorization' => 'Bearer islandora']
         );
 
-        $response = $controller->delete("abc-123", $request);
+        $response = $controller->deleteNode($uuid, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 204,

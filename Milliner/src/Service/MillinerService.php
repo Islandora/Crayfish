@@ -358,15 +358,15 @@ class MillinerService implements MillinerServiceInterface
             ['headers' => $headers]
         );
 
-        $jsonld_url = $this->getLinkHeader($drupal_response, "alternate", "application/ld+json"); 
+        $jsonld_url = $this->getLinkHeader($drupal_response, "alternate", "application/ld+json");
         $media_json = json_decode(
             $drupal_response->getBody(),
             true
         );
 
-        if (!isset($media_json[$source_field])) {
+        if (!isset($media_json[$source_field]) || empty($media_json[$source_field])) {
             throw new \RuntimeException(
-                "Cannot parse file UUID from $json_url.  Ensure $source_field exists on the media.",
+                "Cannot parse file UUID from $json_url.  Ensure $source_field exists on the media and is populated.",
                 500
             );
         }
@@ -375,7 +375,7 @@ class MillinerService implements MillinerServiceInterface
         // Get the file's LDP-NR counterpart in Fedora.
         $urls = $this->gemini->getUrls($file_uuid, $token);
         if (empty($urls)) {
-            $file_url = $media_json[$field_name][0]['url'];
+            $file_url = $media_json[$source_field][0]['url'];
             throw new \RuntimeException(
                 "$file_url has not been mapped in Gemini with uuid $file_uuid",
                 404
@@ -499,12 +499,12 @@ class MillinerService implements MillinerServiceInterface
      *
      * @return null|string
      */
-    protected function getLinkHeader($response, $rel_name, $type = NULL)
+    protected function getLinkHeader($response, $rel_name, $type = null)
     {
         $parsed = Psr7\parse_header($response->getHeader("Link"));
         foreach ($parsed as $header) {
             $has_relation = isset($header['rel']) && $header['rel'] == $rel_name;
-            $has_type = $type ? isset($header['type']) && $header['type'] == $type : TRUE;
+            $has_type = $type ? isset($header['type']) && $header['type'] == $type : true;
             if ($has_type && $has_relation) {
                 return trim($header[0], '<>');
             }

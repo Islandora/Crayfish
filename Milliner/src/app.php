@@ -34,8 +34,6 @@ $app['milliner.controller'] = function () use ($app) {
     );
 };
 
-$uuid_regex = "/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i";
-
 $app->post('/node/{uuid}', "milliner.controller:saveNode");
 $app->delete('/node/{uuid}', "milliner.controller:deleteNode");
 $app->post('/media/{source_field}', "milliner.controller:saveMedia");

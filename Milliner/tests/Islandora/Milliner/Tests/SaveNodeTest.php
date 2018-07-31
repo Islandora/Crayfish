@@ -16,7 +16,7 @@ use Prophecy\Argument;
  * @package Islandora\Milliner\Tests
  * @coversDefaultClass \Islandora\Milliner\Service\MillinerService
  */
-class SaveContentTest extends \PHPUnit_Framework_TestCase
+class SaveNodeTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var LoggerInterface
@@ -42,11 +42,11 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::saveContent
+     * @covers ::saveNode
      * @expectedException \RuntimeException
      * @expectedExceptionCode 403
      */
-    public function testCreateContentThrowsOnFedoraError()
+    public function testCreateNodeThrowsOnFedoraError()
     {
         $url = "http://localhost:8080/fcrepo/rest/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8";
         $gemini = $this->prophesize(GeminiClient::class);
@@ -80,7 +80,7 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
             $this->modifiedDatePredicate
         );
 
-        $milliner->saveContent(
+        $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
             "Bearer islandora"
@@ -88,9 +88,9 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::saveContent
+     * @covers ::saveNode
      */
-    public function testCreateContentReturnsFedora201()
+    public function testCreateNodeReturnsFedora201()
     {
         $url = "http://localhost:8080/fcrepo/rest/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8";
         $gemini = $this->prophesize(GeminiClient::class);
@@ -126,7 +126,7 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
             $this->modifiedDatePredicate
         );
 
-        $response = $milliner->saveContent(
+        $response = $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
             "Bearer islandora"
@@ -140,9 +140,9 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::saveContent
+     * @covers ::saveNode
      */
-    public function testCreateContentReturnsFedora204()
+    public function testCreateNodeReturnsFedora204()
     {
         $url = "http://localhost:8080/fcrepo/rest/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8";
         $gemini = $this->prophesize(GeminiClient::class);
@@ -178,7 +178,7 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
             $this->modifiedDatePredicate
         );
 
-        $response = $milliner->saveContent(
+        $response = $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
             "Bearer islandora"
@@ -192,11 +192,11 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::saveContent
+     * @covers ::saveNode
      * @expectedException \RuntimeException
      * @expectedExceptionCode 403
      */
-    public function testUpdateContentThrowsOnFedoraGetError()
+    public function testUpdateNodeThrowsOnFedoraGetError()
     {
         $mapping = [
             'drupal' => '"http://localhost:8000/node/1?_format=jsonld"',
@@ -223,7 +223,7 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
             $this->modifiedDatePredicate
         );
 
-        $milliner->saveContent(
+        $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
             "Bearer islandora"
@@ -231,11 +231,11 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::saveContent
+     * @covers ::saveNode
      * @expectedException \RuntimeException
      * @expectedExceptionCode 500
      */
-    public function testUpdateContentThrows500OnBadDatePredicate()
+    public function testUpdateNodeThrows500OnBadDatePredicate()
     {
         $mapping = [
             'drupal' => '"http://localhost:8000/node/1?_format=jsonld"',
@@ -274,7 +274,7 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
             "total garbage"
         );
 
-        $milliner->saveContent(
+        $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
             "Bearer islandora"
@@ -282,11 +282,11 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::saveContent
+     * @covers ::saveNode
      * @expectedException \RuntimeException
      * @expectedExceptionCode 412
      */
-    public function testUpdateContentThrows412OnStaleContent()
+    public function testUpdateNodeThrows412OnStaleContent()
     {
         $mapping = [
             'drupal' => '"http://localhost:8000/node/1?_format=jsonld"',
@@ -325,7 +325,7 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
             $this->modifiedDatePredicate
         );
 
-        $milliner->saveContent(
+        $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
             "Bearer islandora"
@@ -333,11 +333,11 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::saveContent
+     * @covers ::saveNode
      * @expectedException \RuntimeException
      * @expectedExceptionCode 403
      */
-    public function testUpdateContentThrowsOnFedoraSaveError()
+    public function testUpdateNodeThrowsOnFedoraSaveError()
     {
         $mapping = [
             'drupal' => '"http://localhost:8000/node/1?_format=jsonld"',
@@ -379,7 +379,7 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
             $this->modifiedDatePredicate
         );
 
-        $milliner->saveContent(
+        $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
             "Bearer islandora"
@@ -387,9 +387,9 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::saveContent
+     * @covers ::saveNode
      */
-    public function testUpdateContentReturnsFedora201()
+    public function testUpdateNodeReturnsFedora201()
     {
         $mapping = [
             'drupal' => '"http://localhost:8000/node/1?_format=jsonld"',
@@ -433,7 +433,7 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
             $this->modifiedDatePredicate
         );
 
-        $response = $milliner->saveContent(
+        $response = $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
             "Bearer islandora"
@@ -447,9 +447,9 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::saveContent
+     * @covers ::saveNode
      */
-    public function testUpdateContentReturnsFedora204()
+    public function testUpdateNodeReturnsFedora204()
     {
         $mapping = [
             'drupal' => '"http://localhost:8000/node/1?_format=jsonld"',
@@ -493,7 +493,7 @@ class SaveContentTest extends \PHPUnit_Framework_TestCase
             $this->modifiedDatePredicate
         );
 
-        $response = $milliner->saveContent(
+        $response = $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
             "Bearer islandora"
