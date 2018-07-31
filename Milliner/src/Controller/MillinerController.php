@@ -98,7 +98,6 @@ class MillinerController
      */
     public function saveMedia($source_field, Request $request)
     {
-        $this->log->debug("YOU GET HERE YET?");
         $token = $request->headers->get("Authorization", null);
         $json_url = $request->headers->get("Content-Location");
 
