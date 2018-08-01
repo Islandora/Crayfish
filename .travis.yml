@@ -1,9 +1,8 @@
 sudo: true
 language: php
 php:
-  - 5.6
-  - 7.0
   - 7.1
+  - 7.2
 
 matrix:
     fast_finish: true
@@ -17,7 +16,6 @@ before_install:
 
 install:
   - git clone https://github.com/Islandora-CLAW/CLAW.git $HOME/CLAW
-  - $SCRIPT_DIR/travis_setup_php.sh
   - for D in */; do (cd $D; composer install) done
 
 script:
