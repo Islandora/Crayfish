@@ -71,8 +71,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         );
 
         $milliner->saveMedia(
+            "field_image",
             "http://localhost:8000/media/6?_format=json",
-            "http://localhost:8000/media/6?_format=jsonld",
             "Bearer islandora"
         );
     }
@@ -107,8 +107,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         );
 
         $milliner->saveMedia(
+            "field_image",
             "http://localhost:8000/media/6?_format=json",
-            "http://localhost:8000/media/6?_format=jsonld",
             "Bearer islandora"
         );
     }
@@ -146,8 +146,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         );
 
         $milliner->saveMedia(
+            "field_image",
             "http://localhost:8000/media/6?_format=json",
-            "http://localhost:8000/media/6?_format=jsonld",
             "Bearer islandora"
         );
     }
@@ -193,8 +193,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         );
 
         $milliner->saveMedia(
+            "field_image",
             "http://localhost:8000/media/6?_format=json",
-            "http://localhost:8000/media/6?_format=jsonld",
             "Bearer islandora"
         );
     }
@@ -240,8 +240,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         );
 
         $milliner->saveMedia(
+            "field_image",
             "http://localhost:8000/media/6?_format=json",
-            "http://localhost:8000/media/6?_format=jsonld",
             "Bearer islandora"
         );
     }
@@ -297,8 +297,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         );
 
         $milliner->saveMedia(
+            "field_image",
             "http://localhost:8000/media/6?_format=json",
-            "http://localhost:8000/media/6?_format=jsonld",
             "Bearer islandora"
         );
     }
@@ -312,7 +312,10 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
     {
         $drupal_json_response = new Response(
             200,
-            ['Content-Type' => 'application/json'],
+            [
+                'Content-Type' => 'application/json',
+                "Link" => '<http://localhost:8000/media/6?_format=jsonld>; rel="alternate"; type="application/ld+json"',
+            ],
             file_get_contents(__DIR__ . '/../../../../static/Media.json')
         );
         $drupal_jsonld_response = new Response(
@@ -363,8 +366,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         );
 
         $milliner->saveMedia(
+            "field_image",
             "http://localhost:8000/media/6?_format=json",
-            "http://localhost:8000/media/6?_format=jsonld",
             "Bearer islandora"
         );
     }
@@ -378,7 +381,10 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
     {
         $drupal_json_response = new Response(
             200,
-            ['Content-Type' => 'application/json'],
+            [
+                'Content-Type' => 'application/json',
+                "Link" => '<http://localhost:8000/media/6?_format=jsonld>; rel="alternate"; type="application/ld+json"',
+            ],
             file_get_contents(__DIR__ . '/../../../../static/Media.json')
         );
         $drupal_jsonld_response = new Response(
@@ -434,8 +440,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         );
 
         $milliner->saveMedia(
+            "field_image",
             "http://localhost:8000/media/6?_format=json",
-            "http://localhost:8000/media/6?_format=jsonld",
             "Bearer islandora"
         );
     }
@@ -447,7 +453,10 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
     {
         $drupal_json_response = new Response(
             200,
-            ['Content-Type' => 'application/json'],
+            [
+                'Content-Type' => 'application/json',
+                "Link" => '<http://localhost:8000/media/6?_format=jsonld>; rel="alternate"; type="application/ld+json"',
+            ],
             file_get_contents(__DIR__ . '/../../../../static/Media.json')
         );
         $drupal_jsonld_response = new Response(
@@ -503,8 +512,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         );
 
         $response = $milliner->saveMedia(
+            "field_image",
             "http://localhost:8000/media/6?_format=json",
-            "http://localhost:8000/media/6?_format=jsonld",
             "Bearer islandora"
         );
 
