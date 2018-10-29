@@ -28,7 +28,7 @@ CREATE TABLE gemini.Gemini (
 
 ## Configuration
 
-Gemini accepts [configuration for Doctrine's DBAL](http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/configuration.html) as the `db.options` array in [its config file](./cfg/config.example.yaml) file.  Reasonable defaults provided are for a MySQL installation.  Do not commit the configuration file with your credentials into Git!
+Gemini accepts [configuration for Doctrine's DBAL](http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/configuration.html) as the `db.options` array in [its config file](./cfg/config.example.yaml) file.  Other settings such as the location of Gemini's log file and the base URL of your Fedora server are also in this configuration file. Reasonable defaults provided.  Do not commit the configuration file with your MySQL credentials into Git!
 
 ## Usage
 
@@ -38,7 +38,7 @@ Gemini associates URL paths between resources in Drupal and Fedora. To link the 
 
 Mints a new Fedora URI:
 
-`curl -v -H "Authorization: Bearer islandora" -H "Content-Type: application/json" -d 'ab70127a-8579-4c17-af07-b3b1eceebb17'  "localhost:8000/gemini/"`
+`curl -v -H "Authorization: Bearer islandora" -H "Content-Type: application/json" -d 'ab70127a-8579-4c17-af07-b3b1eceebb17'  http://localhost:8000/gemini/`
 
 Returns for example:
 
@@ -55,11 +55,11 @@ Returns for example:
 
 `http://localhost:8080/fcrepo/rest/ab/70/12/7a/ab70127a-8579-4c17-af07-b3b1eceebb17`
 
-PUT /gemini/{UUID}
+#### PUT /{UUID}
 
 Updates the entry corresponding to the UUID with the Drupal URL:
 
-`curl -v -H "Authorization: Bearer islandora" -X PUT -H "Content-Type: application/json" -d '{"drupal" : "http://localhost:8000/node/0001", "fedora" : "http://localhost:8080/fcrepo/rest/ab/70/12/7a/ab70127a-8579-4c17-af07-b3b1eceebb17"}' "localhost:8000/gemini/ab70127a-8579-4c17-af07-b3b1eceebb17"`
+`curl -v -H "Authorization: Bearer islandora" -X PUT -H "Content-Type: application/json" -d '{"drupal" : "http://localhost:8000/node/0001", "fedora" : "http://localhost:8080/fcrepo/rest/ab/70/12/7a/ab70127a-8579-4c17-af07-b3b1eceebb17"}' http://localhost:8000/gemini/ab70127a-8579-4c17-af07-b3b1eceebb17`
 
 
 If successful, returns for example:
@@ -90,7 +90,7 @@ dateUpdated: 2018-10-29 14:17:42
 1 row in set (0.00 sec)
 ```
 
-#### GET /gemini/{UUID}
+#### GET /{UUID}
 
 Fetches the Drupal/Fedora URIs corresponding to a UUID:
 
@@ -115,7 +115,7 @@ This request returns, for example:
 }
 ```
 
-#### DELETE /gemini/{UUID}
+#### DELETE /{UUID}
 
 Purges the entry corresponding to the UUID from Gemini's database:
 
