@@ -28,55 +28,109 @@ CREATE TABLE gemini.Gemini (
 
 ## Configuration
 
-Gemini accepts [configuration for Doctrine's DBAL](http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/configuration.html) as the `db.options` array in [its config file](./cfg/config.example.yaml) file.  Reasonable defaults provided are for a MySQL installation.  Do not commit the configuration file with your credentials into Git!
+Gemini accepts [configuration for Doctrine's DBAL](http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/configuration.html) as the `db.options` array in [its config file](./cfg/config.example.yaml) file.  Other settings such as the location of Gemini's log file and the base URL of your Fedora server are also in this configuration file. Reasonable defaults provided.  Do not commit the configuration file with your MySQL credentials into Git!
 
 ## Usage
 
-Gemini's links url paths (excluding base urls) between Drupal and Fedora.  Assuming you have a FedoraResource entity in Drupal at `http://localhost:8000/fedora_resource/1` and an RdfSource in Fedora at `http://localhost:8080/fcrepo/rest/foo/bar`:
+Gemini associates URL paths between resources in Drupal and Fedora. To link the Drupal and Fedora URIs of a resource, a client must mint a new Fedora URI (using a POST) based on the UUID of the node or file in Drupal, and then persist the Gemini record linking the two URIs (using a PUT).
 
 #### POST /
-To link two resources, one must POST a JSON message that conforms to this format:
+
+Mints a new Fedora URI:
+
+`curl -v -H "Authorization: Bearer islandora" -H "Content-Type: application/json" -d 'ab70127a-8579-4c17-af07-b3b1eceebb17'  http://localhost:8000/gemini/`
+
+Returns for example:
+
 ```
+< HTTP/1.1 200 OK
+< Date: Mon, 29 Oct 2018 19:03:36 GMT
+< Server: Apache/2.4.18 (Ubuntu)
+< X-Powered-By: PHP/7.0.32-0ubuntu0.16.04.1
+< Cache-Control: no-cache, private
+< Vary: Accept-Encoding
+< Content-Length: 82
+< Content-Type: text/html; charset=UTF-8
+```
+
+`http://localhost:8080/fcrepo/rest/ab/70/12/7a/ab70127a-8579-4c17-af07-b3b1eceebb17`
+
+#### PUT /{UUID}
+
+Updates the entry corresponding to the UUID with the Drupal URL:
+
+`curl -v -H "Authorization: Bearer islandora" -X PUT -H "Content-Type: application/json" -d '{"drupal" : "http://localhost:8000/node/0001", "fedora" : "http://localhost:8080/fcrepo/rest/ab/70/12/7a/ab70127a-8579-4c17-af07-b3b1eceebb17"}' http://localhost:8000/gemini/ab70127a-8579-4c17-af07-b3b1eceebb17`
+
+
+If successful, returns for example:
+
+```
+HTTP/1.1 201 Created
+< Date: Mon, 29 Oct 2018 19:17:41 GMT
+< Server: Apache/2.4.18 (Ubuntu)
+< X-Powered-By: PHP/7.0.32-0ubuntu0.16.04.1
+< Cache-Control: no-cache, private
+< Location: http://localhost:8000/gemini/ab70127a-8579-4c17-af07-b3b1eceebb17
+< Content-Length: 0
+< Content-Type: text/html; charset=UTF-8
+```
+
+resulting in the creation of a new record in the Gemini database:
+
+```
+mysql> select * from Gemini where uuid = 'ab70127a-8579-4c17-af07-b3b1eceebb17'\G
+*************************** 1. row ***************************
+fedora_hash: 868afb07dbe25dc0539ba91ce4f0d9e5e2cebdc1124935590544abe14b54466ecf925113bcf057c3b1bbb9056e03e918dd60b50ad2047b9ecf44b60db8fb1a91
+drupal_hash: 1cd9033dc7a45e4034bfba5b832f772b2b8a694ece2ac0c16bcc22a3563ee331a90adc843e3657e491ac550776eaff0ec2db521891da2a3a55609d817598b5da
+       uuid: ab70127a-8579-4c17-af07-b3b1eceebb17
+ drupal_uri: http://localhost:8000/node/0001
+ fedora_uri: http://localhost:8080/fcrepo/rest/ab/70/12/7a/ab70127a-8579-4c17-af07-b3b1eceebb17
+dateCreated: 2018-10-29 14:17:42
+dateUpdated: 2018-10-29 14:17:42
+1 row in set (0.00 sec)
+```
+
+#### GET /{UUID}
+
+Fetches the Drupal/Fedora URIs corresponding to a UUID:
+
+`curl -H "Authorization: Bearer islandora" http://localhost:8000/gemini/ab70127a-8579-4c17-af07-b3b1eceebb17`
+
+This request returns, for example:
+
+```
+< HTTP/1.1 200 OK
+< Date: Mon, 29 Oct 2018 20:31:25 GMT
+< Server: Apache/2.4.18 (Ubuntu)
+< X-Powered-By: PHP/7.0.32-0ubuntu0.16.04.1
+< Cache-Control: no-cache, private
+< Content-Length: 163
+< Content-Type: application/json
+```
+
+```javascript
 {
-  "drupal" : "path/in/drupal",
-  "fedora" : "path/in/fedora"
+   "drupal":"http:\/\/localhost:8000\/node\/0001",
+   "fedora":"http:\/\/localhost:8080\/fcrepo\/rest\/ab\/70\/12\/7a\/ab70127a-8579-4c17-af07-b3b1eceebb17"
 }
 ```
-For example, with the resources described above:
-```
-$ curl -X POST -H "Content-Type: application/json" -d '{"drupal" : "fedora_resource/1", "fedora" : "foo/bar"}' "localhost:8888/"
-```
-will return 201 on success.
 
-Once linked, the following operations are available to retrieve and delete information in Gemini.
+#### DELETE /{UUID}
 
-#### GET drupal/path/to/resource 
-For example, with the resources described above:
-```
-curl "http://localhost:8888/drupal/fedora_resource/1"
-```
-returns `foo/bar`.
+Purges the entry corresponding to the UUID from Gemini's database:
 
-#### GET fedora/path/to/resource 
-For example, with the resources described above:
-```
-curl "http://localhost:8888/fedora/foo/bar"
-```
-returns `fedora_resource/1`.
+curl -v -X DELETE -H "Authorization: Bearer islandora" http://localhost:8000/gemini/ab70127a-8579-4c17-af07-b3b1eceebb17
 
-#### DELETE drupal/path/to/resource
-For example, with the resources described above:
-```
-curl -X DELETE "http://localhost:8888/drupal/fedora_resource/1"
-```
-will unlink the two entities.
+If successful, this request returns, for example:
 
-#### DELETE fedora/path/to/resource
-For example, with the resources described above:
 ```
-curl -X DELETE "http://localhost:8888/fedora/foo/bar"
+< HTTP/1.1 204 No Content
+< Date: Mon, 29 Oct 2018 19:51:39 GMT
+< Server: Apache/2.4.18 (Ubuntu)
+< X-Powered-By: PHP/7.0.32-0ubuntu0.16.04.1
+< Cache-Control: no-cache, private
+< Content-Type: text/html; charset=UTF-8
 ```
-will unlink the two entities.
 
 ## Maintainers
 
