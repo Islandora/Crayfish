@@ -1,0 +1,18 @@
+@prefix apix:<http://fedora.info/definitions/v4/api-extension#> .
+@prefix owl:<http://www.w3.org/2002/07/owl#> .
+@prefix ebucore:<http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#> .
+@prefix ldp:<http://www.w3.org/ns/ldp#> .
+@prefix islandora:<http://islandora.ca/CLAW#> .
+@prefix rdfs:<http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a apix:Extension;
+    rdfs:label "Ffmpeg Service";
+    rdfs:comment "ffmpeg as a microservice";
+    apix:exposesService islandora:ConvertService;
+    apix:exposesServiceAt "svc:convert";
+    apix:bindsTo <#class> .
+
+<#class> owl:intersectionOf (
+        ldp:NonRDFSource
+        [ a owl:Restriction; owl:onProperty ebucore:hasMimeType; owl:hasValue "video/mp4", "video/x-msvideo", "video/ogg" ]
+) .
