@@ -24,6 +24,7 @@ $app['homarus.controller'] = function ($app) {
   );
 };
 
+$app->options('/convert', "homarus.controller:convertOptions");
 $app->get('/convert', "homarus.controller:convert");
 
 return $app;

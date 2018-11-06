@@ -129,4 +129,16 @@ class HomarusController {
     return $format_info[1];
   }
 
+  /**
+   * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+   */
+  public function convertOptions()
+  {
+    return new BinaryFileResponse(
+      __DIR__ . "/../../static/convert.ttl",
+      200,
+      ['Content-Type' => 'text/turtle']
+    );
+  }
+
 }
