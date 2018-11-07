@@ -6,9 +6,9 @@
 
 ## Installation
 - Install `ffmpeg`.  On Ubuntu, this can be done with `sudo apt-get install ffmpeg`. 
+- Clone this repository somewhere in your web root (example: `/var/www/html/Crayfish/Homarus`).
 - Copy `/var/www/html/Crayfish/Homarus/cfg/config.default.yml` to `/var/www/html/Crayfish/Homarus/cfg/config.yml`
 - Copy `/var/www/html/Crayfish/Hypercube/syn-settings.xml` to `/var/www/html/Crayfish/Homarus/syn-settings.xml`
-- Clone this repository somewhere in your web root (example: `/var/www/html/Crayfish/Homarus`).
 - Install `composer`.  [Install instructions here.][4]
 - `$ cd /path/to/Homarus` and run `$ composer install`
 - Then either
@@ -37,7 +37,7 @@ This will put the Homarus at the /homarus endpoint on the webserver.
 
 ## Configuration
 
-If your homarus installation is not on your path, then you can configure Homarus to use a specific executable by editing `executable` entry in [config.yaml](./cfg/config.example.yaml).
+If your ffmpeg installation is not on your path, then you can configure homarus to use a specific executable by editing `executable` entry in [config.yaml](./cfg/config.example.yaml).
 
 You also will need to set the `fedora base url` entry to point to your Fedora installation.
 
