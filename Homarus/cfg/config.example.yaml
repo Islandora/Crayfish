@@ -7,7 +7,7 @@ homarus:
       - video/mp4
       - video/x-msvideo
       - video/ogg
-    default: image/jpeg
+    default_video: video/mp4
   mime_to_format:
     valid:
       - video/mp4_mp4
@@ -21,7 +21,7 @@ log:
   # Valid log levels are:
   # DEBUG, INFO, NOTICE, WARNING, ERROR, CRITICAL, ALERT, EMERGENCY, NONE
   # log level none won't open logfile
-  level: /var/log/islandora/homarus.log
+  level: DEBUG
   file: /var/log/islandora/homarus.log
 
 syn:
