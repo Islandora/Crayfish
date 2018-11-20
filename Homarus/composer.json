@@ -1,0 +1,43 @@
+{
+  "name": "islandora/homarus",
+  "description": "FFmpeg as a web service",
+  "type": "project",
+  "require": {
+    "islandora/crayfish-commons": "dev-master"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Islandora Foundation",
+      "email": "community@islandora.ca",
+      "role": "Owner"
+    },
+    {
+      "name": "Natkeeran L.Kanthan",
+      "email": "nat.ledchumykanthan@utoronto.ca",
+      "role": "Maintainer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Islandora\\Homarus\\": "src/"
+    }
+  },
+  "scripts": {
+    "check": [
+      "phpcs --standard=PSR2 src tests",
+      "phpcpd --names *.php src"
+    ],
+    "test": [
+      "@check",
+      "phpunit"
+    ]
+  },
+  "require-dev": {
+    "symfony/browser-kit": "^3.0",
+    "symfony/css-selector": "^3.0",
+    "phpunit/phpunit": "^5.0",
+    "squizlabs/php_codesniffer": "^2.0",
+    "sebastian/phpcpd": "^3.0"
+  }
+}
