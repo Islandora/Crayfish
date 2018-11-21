@@ -20,7 +20,7 @@ install:
 
 script:
   - $SCRIPT_DIR/line_endings.sh $TRAVIS_BUILD_DIR
-  - for D in */; do (cd $D; composer test) done
+  - .travis-script/tester
 
 notifications:
   irc:

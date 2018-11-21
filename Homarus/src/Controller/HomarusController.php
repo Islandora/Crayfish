@@ -74,12 +74,14 @@ class HomarusController
 
         // Find the format
         $content_types = $request->getAcceptableContentTypes();
-        $content_type = $this->get_content_type($content_types);
-        $format = $this->get_ffmpeg_format($content_type);
+        $content_type = $this->getContentType($content_types);
+        $format = $this->getFfmpegFormat($content_type);
 
         $cmd_params = "";
         if ($format == "mp4") {
-            $cmd_params = " -vcodec libx264 -preset medium -acodec aac -strict -2 -ab 128k -ac 2 -async 1 -movflags frag_keyframe+empty_moov ";
+            $cmd_params = " -vcodec libx264 -preset medium -acodec aac " .
+                "-strict -2 -ab 128k -ac 2 -async 1 -movflags " .
+                "frag_keyframe+empty_moov ";
         }
 
         // Arguments to ffmpeg command are sent as a custom header
@@ -103,7 +105,7 @@ class HomarusController
     }
 
 
-    private function get_content_type($content_types)
+    private function getContentType($content_types)
     {
         $content_type = null;
         foreach ($content_types as $type) {
@@ -120,7 +122,7 @@ class HomarusController
         return $content_type;
     }
 
-    private function get_ffmpeg_format($content_type)
+    private function getFfmpegFormat($content_type)
     {
         foreach ($this->mime_to_format as $format) {
             if (strpos($format, $content_type) !== false) {
