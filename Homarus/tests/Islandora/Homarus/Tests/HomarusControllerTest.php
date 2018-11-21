@@ -30,7 +30,7 @@ class HomarusControllerTest extends \PHPUnit_Framework_TestCase
             '',
             'convert',
             $this->prophesize(Logger::class)->reveal(),
-          ''
+            ''
         );
 
         $response = $controller->convertOptions();
@@ -40,5 +40,4 @@ class HomarusControllerTest extends \PHPUnit_Framework_TestCase
             'Convert OPTIONS should return turtle'
         );
     }
-
 }

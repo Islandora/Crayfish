@@ -12,24 +12,22 @@ final class Version20180530031926 extends AbstractMigration
 {
     public function up(Schema $schema)
     {
-      $this->addSql(
-        'DROP TABLE IF EXISTS Gemini;'
-      );
-
-      if  ('mysql' == $this->connection->getDatabasePlatform()->getName())  {
         $this->addSql(
-          'CREATE TABLE Gemini (fedora_hash VARCHAR(128) NOT NULL,
+            'DROP TABLE IF EXISTS Gemini;'
+        );
+
+        if ('mysql' == $this->connection->getDatabasePlatform()->getName()) {
+            $this->addSql(
+                'CREATE TABLE Gemini (fedora_hash VARCHAR(128) NOT NULL,
           drupal_hash VARCHAR(128) NOT NULL, uuid VARCHAR(36) NOT NULL,
           drupal_uri LONGTEXT NOT NULL, fedora_uri LONGTEXT NOT NULL,
           dateCreated DATETIME NOT NULL, dateUpdated DATETIME NOT NULL,
           UNIQUE KEY(fedora_hash, drupal_hash), PRIMARY KEY(uuid))
           DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB'
-        );
-      }
-      elseif
-      ('postgresql' == $this->connection->getDatabasePlatform()->getName())  {
-        $this->addSql(
-          'CREATE TABLE Gemini (
+            );
+        } elseif ('postgresql' == $this->connection->getDatabasePlatform()->getName()) {
+            $this->addSql(
+                'CREATE TABLE Gemini (
              fedora_hash VARCHAR(128) NOT NULL,
              drupal_hash VARCHAR(128) NOT NULL,
              uuid VARCHAR(36) PRIMARY KEY,
@@ -38,14 +36,13 @@ final class Version20180530031926 extends AbstractMigration
              dateCreated TIMESTAMP NOT NULL,
              dateUpdated TIMESTAMP NOT NULL
            );'
-        );
-        $this->addSql(
-          'CREATE UNIQUE INDEX fedora_drupal_hash ON Gemini (fedora_hash, drupal_hash);'
-        );
-      }
-      else {
-        $this->abortIf(TRUE, "Only MySQL/MariaDB and PostgreSQL are supported.");
-      }
+            );
+            $this->addSql(
+                'CREATE UNIQUE INDEX fedora_drupal_hash ON Gemini (fedora_hash, drupal_hash);'
+            );
+        } else {
+            $this->abortIf(true, "Only MySQL/MariaDB and PostgreSQL are supported.");
+        }
     }
 
     public function down(Schema $schema)
