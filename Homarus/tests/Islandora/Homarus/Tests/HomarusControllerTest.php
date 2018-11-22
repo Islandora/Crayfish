@@ -215,8 +215,8 @@ class HomarusControllerTest extends \PHPUnit_Framework_TestCase
     {
         // Mock a stream body for a Fedora response.
         $prophecy = $this->prophesize(StreamInterface::class);
-        $prophecy->isReadable()->willReturn(TRUE);
-        $prophecy->isWritable()->willReturn(FALSE);
+        $prophecy->isReadable()->willReturn(true);
+        $prophecy->isWritable()->willReturn(false);
         $mock_stream = $prophecy->reveal();
 
         // Mock a Fedora response.
