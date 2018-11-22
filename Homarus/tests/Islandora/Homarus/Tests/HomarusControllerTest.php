@@ -5,10 +5,6 @@ namespace Islandora\Homarus\Tests;
 use Islandora\Crayfish\Commons\CmdExecuteService;
 use Islandora\Crayfish\Commons\ApixFedoraResourceRetriever;
 use Islandora\Homarus\Controller\HomarusController;
-use Prophecy\Argument;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Monolog\Logger;
 
 /**
@@ -18,9 +14,7 @@ class HomarusControllerTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * @covers ::convert
-     * @covers ::getContentType
-     * @covers ::getFfmpegFormat
+     * @covers ::convertOptions
      */
     public function testOptions()
     {
