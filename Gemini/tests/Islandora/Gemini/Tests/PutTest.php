@@ -17,6 +17,7 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
 class PutTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @covers ::__construct
      * @covers ::put
      */
     public function testReturns204OnUpdate()
@@ -58,6 +59,7 @@ class PutTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::put
      */
     public function testReturns201OnCreation()
@@ -107,6 +109,7 @@ class PutTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::put
      */
     public function testReturns400OnMalformedRequest()

@@ -9,6 +9,7 @@ use Islandora\Milliner\Gemini\GeminiClient;
 use Islandora\Milliner\Service\MillinerService;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 
 /**
@@ -16,7 +17,7 @@ use Prophecy\Argument;
  * @package Islandora\Milliner\Tests
  * @coversDefaultClass \Islandora\Milliner\Service\MillinerService
  */
-class SaveNodeTest extends \PHPUnit_Framework_TestCase
+class SaveNodeTest extends TestCase
 {
     /**
      * @var LoggerInterface
@@ -42,7 +43,9 @@ class SaveNodeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::saveNode
+     * @covers ::processJsonld
      * @expectedException \RuntimeException
      * @expectedExceptionCode 403
      */
@@ -88,7 +91,66 @@ class SaveNodeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::saveNode
+     * @covers ::createNode
+     * @covers ::processJsonld
+     * @expectedException \RuntimeException
+     * @expectedExceptionCode 403
+     */
+    public function testCreateNodeThrowsOnFedoraSaveError()
+    {
+        $url = "http://localhost:8080/fcrepo/rest/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8";
+        $gemini = $this->prophesize(GeminiClient::class);
+        $gemini->getUrls(Argument::any(), Argument::any())
+            ->willReturn([]);
+        $gemini->mintFedoraUrl(Argument::any(), Argument::any())
+            ->willReturn($url);
+        $gemini = $gemini->reveal();
+
+        $drupal_response = new Response(
+            200,
+            ['Content-Type' => 'application/ld+json'],
+            file_get_contents(__DIR__ . '/../../../../static/Content.jsonld')
+        );
+        $drupal = $this->prophesize(Client::class);
+        $drupal->get(Argument::any(), Argument::any())
+            ->willReturn($drupal_response);
+        $drupal = $drupal->reveal();
+
+        $fedora_get_response = new Response(
+            200,
+            ['Content-Type' => 'application/ld+json'],
+            file_get_contents(__DIR__ . '/../../../../static/ContentLDP-RS.jsonld')
+        );
+        $fedora_save_response = new Response(403, [], null, '1.1', 'UNAUTHORIZED');
+        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora->getResource(Argument::any(), Argument::any(), Argument::any())
+            ->willReturn($fedora_get_response);
+        $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
+            ->willReturn($fedora_save_response);
+        $fedora = $fedora->reveal();
+
+        $milliner = new MillinerService(
+            $fedora,
+            $drupal,
+            $gemini,
+            $this->logger,
+            $this->modifiedDatePredicate
+        );
+
+        $milliner->saveNode(
+            "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
+            "http://localhost:8000/node/1?_format=jsonld",
+            "Bearer islandora"
+        );
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::saveNode
+     * @covers ::updateNode
+     * @covers ::processJsonld
      */
     public function testCreateNodeReturnsFedora201()
     {
@@ -140,7 +202,10 @@ class SaveNodeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::saveNode
+     * @covers ::createNode
+     * @covers ::processJsonld
      */
     public function testCreateNodeReturnsFedora204()
     {
@@ -192,7 +257,12 @@ class SaveNodeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::saveNode
+     * @covers ::updateNode
+     * @covers ::processJsonld
+     * @covers ::getModifiedTimestamp
+     * @covers ::getFirstPredicate
      * @expectedException \RuntimeException
      * @expectedExceptionCode 403
      */
@@ -231,7 +301,12 @@ class SaveNodeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::saveNode
+     * @covers ::updateNode
+     * @covers ::processJsonld
+     * @covers ::getModifiedTimestamp
+     * @covers ::getFirstPredicate
      * @expectedException \RuntimeException
      * @expectedExceptionCode 500
      */
@@ -282,7 +357,12 @@ class SaveNodeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::saveNode
+     * @covers ::updateNode
+     * @covers ::processJsonld
+     * @covers ::getModifiedTimestamp
+     * @covers ::getFirstPredicate
      * @expectedException \RuntimeException
      * @expectedExceptionCode 412
      */
@@ -333,7 +413,12 @@ class SaveNodeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::saveNode
+     * @covers ::updateNode
+     * @covers ::processJsonld
+     * @covers ::getModifiedTimestamp
+     * @covers ::getFirstPredicate
      * @expectedException \RuntimeException
      * @expectedExceptionCode 403
      */
@@ -387,7 +472,12 @@ class SaveNodeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::saveNode
+     * @covers ::updateNode
+     * @covers ::processJsonld
+     * @covers ::getModifiedTimestamp
+     * @covers ::getFirstPredicate
      */
     public function testUpdateNodeReturnsFedora201()
     {
@@ -447,7 +537,12 @@ class SaveNodeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::saveNode
+     * @covers ::updateNode
+     * @covers ::processJsonld
+     * @covers ::getModifiedTimestamp
+     * @covers ::getFirstPredicate
      */
     public function testUpdateNodeReturnsFedora204()
     {

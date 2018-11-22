@@ -10,6 +10,7 @@ use Islandora\Milliner\Service\MillinerService;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;
 use Prophecy\Argument;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class MillinerServiceTest
@@ -42,6 +43,7 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::deleteNode
      * @expectedException \RuntimeException
      * @expectedExceptionCode 403
@@ -72,6 +74,7 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::deleteNode
      */
     public function testDeleteReturns204OnGeminiSuccess()
@@ -116,6 +119,7 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::deleteNode
      */
     public function testDeleteReturns404IfNotMappedAndGeminiFails()
@@ -148,6 +152,7 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::deleteNode
      */
     public function testDeleteReturnsFedoraErrorIfMappedButGeminiFails()

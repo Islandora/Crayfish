@@ -16,6 +16,7 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
 class GetTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @covers ::__construct
      * @covers ::get
      */
     public function testReturns404WhenNotFound()
@@ -44,6 +45,7 @@ class GetTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::get
      */
     public function testReturns200WhenFound()

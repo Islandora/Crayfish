@@ -18,6 +18,7 @@ class HoudiniControllerTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
+     * @covers ::__construct
      * @covers ::identifyOptions
      * @covers ::convertOptions
      */
@@ -48,6 +49,7 @@ class HoudiniControllerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::identify
      * @covers ::convert
      */
@@ -98,10 +100,59 @@ class HoudiniControllerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::identify
      * @covers ::convert
      */
     public function testSuccessReturns200()
+    {
+        // Mock a stream body for a Fedora response.
+        $prophecy = $this->prophesize(StreamInterface::class);
+        $prophecy->isReadable()->willReturn(true);
+        $prophecy->isWritable()->willReturn(false);
+        $mock_stream = $prophecy->reveal();
+
+        // Mock a Fedora response.
+        $prophecy = $this->prophesize(ResponseInterface::class);
+        $prophecy->getStatusCode()->willReturn(200);
+        $prophecy->getBody()->willReturn($mock_stream);
+        $mock_fedora_response = $prophecy->reveal();
+
+        // Mock a CmdExecuteService.
+        $prophecy = $this->prophesize(CmdExecuteService::class);
+        $mock_service = $prophecy->reveal();
+
+        // Create a controller.
+        $controller = new HoudiniController(
+            $mock_service,
+            ['image/jpeg', 'image/png'],
+            'image/jpeg',
+            'convert',
+            $this->prophesize(Logger::class)->reveal()
+        );
+
+        $request = Request::create(
+            "/",
+            "GET"
+        );
+        $request->headers->set('Authorization', 'some_token');
+        $request->headers->set('Apix-Ldp-Resource', 'http://localhost:8080/fcrepo/rest/foo');
+        $request->headers->set('Accept', 'image/png');
+        $request->attributes->set('fedora_resource', $mock_fedora_response);
+
+        $response = $controller->identify($request);
+        $this->assertTrue($response->getStatusCode() == 200, "Response must return 200");
+
+        $response = $controller->convert($request);
+        $this->assertTrue($response->getStatusCode() == 200, "Response must return 200");
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::identify
+     * @covers ::convert
+     */
+    public function testSuccessReturns200Fallback()
     {
         // Mock a stream body for a Fedora response.
         $prophecy = $this->prophesize(StreamInterface::class);

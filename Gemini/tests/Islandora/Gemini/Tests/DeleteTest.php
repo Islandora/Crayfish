@@ -16,6 +16,7 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
 class DeleteTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @covers ::__construct
      * @covers ::delete
      */
     public function testReturns404WhenNotFound()
@@ -44,6 +45,7 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::delete
      */
     public function testReturns204WhenDeleted()

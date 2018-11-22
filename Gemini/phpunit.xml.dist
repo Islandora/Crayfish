@@ -23,6 +23,8 @@
             <exclude>
                 <file>./src/index.php</file>
                 <file>./src/app.php</file>
+                <file>./src/console.php</file>
+                <directory>./src/Migrations</directory>
             </exclude>
             <directory suffix=".php">./src</directory>
         </whitelist>

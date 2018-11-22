@@ -35,6 +35,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::saveNode
      * @covers ::saveMedia
      * @covers ::deleteNode
@@ -113,6 +114,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::saveNode
      */
     public function testSaveNodeReturns400WithoutContentLocation()
@@ -138,6 +140,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::saveMedia
      */
     public function testSaveMediaReturn400WithoutContentLocation()
@@ -164,6 +167,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::saveNode
      */
     public function testSaveNodeReturnsSuccessOnSuccess()
@@ -220,6 +224,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::saveMedia
      */
     public function testSaveMediaReturnsSuccessOnSuccess()
@@ -275,6 +280,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::deleteNode
      */
     public function testDeleteReturnsSuccessOnSuccess()

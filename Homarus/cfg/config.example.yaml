@@ -7,12 +7,13 @@ homarus:
       - video/mp4
       - video/x-msvideo
       - video/ogg
-    default_video: video/mp4
+    default: video/mp4
   mime_to_format:
     valid:
       - video/mp4_mp4
       - video/x-msvideo_avi
       - video/ogg_ogg
+    default: mp4
 
 fedora_resource:
   base_url: http://localhost:8080/fcrepo/rest
