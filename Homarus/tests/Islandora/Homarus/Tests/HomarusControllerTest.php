@@ -12,13 +12,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Monolog\Logger;
 
 /**
- * @coversDefaultClass \Islandora\Houdini\Controller\HomarusControllerTest
+ * @coversDefaultClass \Islandora\Homarus\Controller\HomarusController
  */
 class HomarusControllerTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * @covers ::convertOptions
+     * @covers ::convert
+     * @covers ::getContentType
+     * @covers ::getFfmpegFormat
      */
     public function testOptions()
     {

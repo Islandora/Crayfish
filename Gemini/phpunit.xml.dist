@@ -19,7 +19,7 @@
         <log type="coverage-clover" target="clover.xml"/>
     </logging>
     <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
+        <whitelist processUncoveredFilesFromWhitelist="false">
             <exclude>
                 <file>./src/index.php</file>
                 <file>./src/app.php</file>
