@@ -20,7 +20,7 @@ install:
 
 script:
   - $SCRIPT_DIR/line_endings.sh $TRAVIS_BUILD_DIR
-  - .travis-script/tester
+  - .scripts/tester
 
 notifications:
   irc:

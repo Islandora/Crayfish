@@ -18,7 +18,6 @@ class HomarusControllerTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * @covers ::identifyOptions
      * @covers ::convertOptions
      */
     public function testOptions()

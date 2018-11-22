@@ -37,8 +37,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::saveNode
      * @covers ::saveMedia
-     * @covers ::saveFile
-     * @covers ::delete
+     * @covers ::deleteNode
      */
     public function testMethodsReturnMillinerErrors()
     {
@@ -276,7 +275,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ::delete
+     * @covers ::deleteNode
      */
     public function testDeleteReturnsSuccessOnSuccess()
     {
