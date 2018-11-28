@@ -1,4 +1,5 @@
-# Homarus
+![homarus](https://user-images.githubusercontent.com/2371345/48797524-c8c14300-ecd8-11e8-907d-9628fb6afacc.png) 
+# Homarus                                          
 
 ## Introduction
 
