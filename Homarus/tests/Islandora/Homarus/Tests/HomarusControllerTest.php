@@ -12,14 +12,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Monolog\Logger;
 
 /**
- * @coversDefaultClass \Islandora\Houdini\Controller\HomarusControllerTest
+ * @coversDefaultClass \Islandora\Homarus\Controller\HomarusController
  */
 class HomarusControllerTest extends \PHPUnit_Framework_TestCase
 {
 
     /**
-     * @covers ::identifyOptions
-     * @covers ::convertOptions
+     * @covers ::convert
+     * @covers ::getContentType
+     * @covers ::getFfmpegFormat
      */
     public function testOptions()
     {
@@ -30,7 +31,7 @@ class HomarusControllerTest extends \PHPUnit_Framework_TestCase
             '',
             'convert',
             $this->prophesize(Logger::class)->reveal(),
-          ''
+            ''
         );
 
         $response = $controller->convertOptions();
@@ -40,5 +41,4 @@ class HomarusControllerTest extends \PHPUnit_Framework_TestCase
             'Convert OPTIONS should return turtle'
         );
     }
-
 }

@@ -89,7 +89,7 @@ class UrlMapperTest extends \PHPUnit_Framework_TestCase
         $connection->beginTransaction()->shouldBeCalled();
         $connection->insert(Argument::any(), Argument::any())
             ->willThrow($exception);
-        $connection->executeUpdate(Argument::any(), Argument::any())
+        $connection->update(Argument::any(), Argument::any(), Argument::any())
             ->willReturn(1);
         $connection->commit()->shouldBeCalled();
         $connection->rollBack()->shouldNotBeCalled();

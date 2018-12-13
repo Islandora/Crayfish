@@ -1,0 +1,13 @@
+#!/bin/sh
+
+FAIL=0
+for D in */; do
+  cd $D 
+  echo "Operating on $D"
+  composer test
+  if [ $? -ne 0 ]; then 
+    FAIL=1
+  fi 
+  cd .. 
+done
+exit $FAIL
