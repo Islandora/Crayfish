@@ -16,6 +16,7 @@ use Prophecy\Argument;
 class UrlMapperTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @covers ::__construct
      * @covers ::getUrls
      */
     public function testGetUrlsReturnsUnmodifiedResults()
@@ -56,6 +57,7 @@ class UrlMapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::saveUrls
      */
     public function testSaveUrlsReturnsTrueOnCreation()
@@ -78,6 +80,7 @@ class UrlMapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::saveUrls
      */
     public function testSaveUrlsReturnsFalseOnUpdate()
@@ -104,6 +107,7 @@ class UrlMapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::saveUrls
      * @expectedException \Exception
      */
@@ -121,6 +125,7 @@ class UrlMapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::deleteUrls
      */
     public function testDeleteUrlsReturnsTrueIfFound()
@@ -141,6 +146,7 @@ class UrlMapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::deleteUrls
      */
     public function testDeleteUrlsReturnsFalseIfNotFound()
@@ -161,6 +167,7 @@ class UrlMapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::deleteUrls
      * @expectedException \Exception
      */

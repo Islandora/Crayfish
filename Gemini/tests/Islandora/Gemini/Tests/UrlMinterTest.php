@@ -12,6 +12,7 @@ use Islandora\Gemini\UrlMinter\UrlMinter;
 class UrlMinterTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @covers ::__construct
      * @covers ::mint
      * @expectedException \InvalidArgumentException
      * @expectedExceptionCode 400
@@ -23,6 +24,7 @@ class UrlMinterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::mint
      * @expectedException \InvalidArgumentException
      * @expectedExceptionCode 400
@@ -34,6 +36,7 @@ class UrlMinterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::mint
      */
     public function testHandlesMissingTrailingSlashInBaseUrl()
@@ -51,6 +54,7 @@ class UrlMinterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::mint
      */
     public function testMintsUrlWithPairTrees()

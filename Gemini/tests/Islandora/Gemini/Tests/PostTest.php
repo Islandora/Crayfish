@@ -16,6 +16,7 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
 class PostTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @covers ::__construct
      * @covers ::post
      */
     public function testReturns400OnMalformedRequest()
@@ -68,6 +69,7 @@ class PostTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::post
      */
     public function testReturns200OnSuccess()

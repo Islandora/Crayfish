@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 class HypercubeControllerTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @covers ::__construct
      * @covers ::options
      */
     public function testOptions()
@@ -34,6 +35,7 @@ class HypercubeControllerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::get
      */
     public function testTesseractErrorReturns500()
@@ -71,6 +73,7 @@ class HypercubeControllerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::get
      */
     public function testTesseractSuccessReturns200()

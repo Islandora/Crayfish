@@ -1,0 +1,15 @@
+[
+  {
+    "@id": "http://localhost:8080/fcrepo/rest/24/02/a5/84/2402a584-b353-4062-950d-ef9070d74d1f",
+    "http://www.loc.gov/premis/rdf/v1#hasMessageDigest": [
+      {
+        "@id": "urn:sha1:abc123"
+      }
+    ],
+    "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#hasMimeType": [
+      {
+        "@value": "image/jpeg"
+      }
+    ]
+  }
+]
