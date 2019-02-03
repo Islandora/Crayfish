@@ -197,8 +197,8 @@ class UrlMapperTest extends \PHPUnit_Framework_TestCase
         $mapper = new UrlMapper($connection);
         $results = $mapper->findUrls("abc");
         $this->assertTrue(
-          $results['uri'] == 'foo',
-          "getUrls() modified connection results.  Actual: ${results['uri']}. Expected: foo"
+            $results['uri'] == 'foo',
+            "getUrls() modified connection results.  Actual: ${results['uri']}. Expected: foo"
         );
         // Simulate when no record is found.
         $connection = $this->prophesize(Connection::class);
@@ -208,9 +208,8 @@ class UrlMapperTest extends \PHPUnit_Framework_TestCase
         $mapper = new UrlMapper($connection);
         $results = $mapper->findUrls("abc");
         $this->assertTrue(
-          empty($results),
-          "getUrls() modified connection results.  Expected empty array, received " . json_encode($results)
+            empty($results),
+            "getUrls() modified connection results.  Expected empty array, received " . json_encode($results)
         );
     }
-
 }

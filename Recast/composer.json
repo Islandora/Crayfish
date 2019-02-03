@@ -2,9 +2,15 @@
   "name": "islandora/recast",
   "description": "Microservice rewrites Drupal URIs to Fedora URIs",
   "type": "project",
+  "repositories": [
+      {
+          "type": "vcs",
+          "url": "https://github.com/whikloj/Crayfish-Commons.git"
+      }
+  ],
   "require": {
     "silex/silex": "^2.0",
-    "islandora/crayfish-commons": "dev-master",
+    "islandora/crayfish-commons": "dev-update-composer",
     "easyrdf/easyrdf": "^0.9"
   },
   "license": "MIT",

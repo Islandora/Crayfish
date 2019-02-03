@@ -5,7 +5,7 @@ namespace Islandora\Milliner\Tests;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Islandora\Chullo\IFedoraClient;
-use Islandora\Milliner\Gemini\GeminiClient;
+use Islandora\Crayfish\Commons\Client\GeminiClient;
 use Islandora\Milliner\Service\MillinerService;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;

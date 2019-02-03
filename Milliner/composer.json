@@ -2,9 +2,15 @@
     "name": "islandora/milliner",
     "description": "Microservice that puts Drupal content in Fedora",
     "type": "project",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/whikloj/Crayfish-Commons.git"
+        }
+    ],
     "require": {
         "silex/silex": "^2.0",
-        "islandora/crayfish-commons": "dev-master"
+        "islandora/crayfish-commons": "dev-update-composer"
     },
     "license": "MIT",
     "authors": [

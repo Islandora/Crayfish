@@ -112,9 +112,8 @@ class UrlMapper implements UrlMapperInterface
           'SELECT fedora_uri as uri FROM Gemini WHERE drupal_uri = :uri union
             SELECT drupal_uri as uri FROM Gemini WHERE fedora_uri = :uri';
         return $this->connection->fetchAssoc(
-          $query,
-          ['uri' => $uri]
+            $query,
+            ['uri' => $uri]
         );
     }
-
 }
