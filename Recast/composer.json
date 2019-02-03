@@ -1,0 +1,50 @@
+{
+  "name": "islandora/recast",
+  "description": "Microservice rewrites Drupal URIs to Fedora URIs",
+  "type": "project",
+  "require": {
+    "silex/silex": "^2.0",
+    "islandora/crayfish-commons": "dev-master",
+    "easyrdf/easyrdf": "^0.9"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Islandora Foundation",
+      "email": "community@islandora.ca",
+      "role": "Owner"
+    },
+    {
+      "name": "Jared Whiklo",
+      "email": "jwhiklo@gmail.com",
+      "role": "Author"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Islandora\\Recast\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Islandora\\Recast\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "check": [
+      "phpcs --standard=PSR2 src tests",
+      "phpcpd --names *.php src"
+    ],
+    "test": [
+      "@check",
+      "phpunit"
+    ]
+  },
+  "require-dev": {
+    "symfony/browser-kit": "^3.0",
+    "symfony/css-selector": "^3.0",
+    "squizlabs/php_codesniffer": "^2.0",
+    "sebastian/phpcpd": "^3.0",
+    "phpunit/phpunit": "^6.0"
+  }
+}
