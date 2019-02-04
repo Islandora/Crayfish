@@ -54,11 +54,12 @@ class RecastControllerTest extends TestCase
 
   /**
    * @covers ::recast
+   * @covers ::findPredicateForObject
    */
     public function testImageAdd()
     {
         $resource_id = 'http://localhost:8080/fcrepo/rest/object1';
-        $input_resource = realpath(__DIR__ . '/resources/drupal_image.json');
+
         $output_add = realpath(__DIR__ . '/resources/drupal_image_add.json');
         $output_replace = realpath(__DIR__ . '/resources/drupal_image_replace.json');
 
@@ -72,18 +73,7 @@ class RecastControllerTest extends TestCase
         $mock_silex_app = new Application();
         $mock_silex_app['crayfish.drupal_base_url'] = 'http://localhost:8000';
 
-        $prophecy = $this->prophesize(StreamInterface::class);
-        $prophecy->isReadable()->willReturn(true);
-        $prophecy->isWritable()->willReturn(false);
-        $prophecy->__toString()->willReturn(file_get_contents($input_resource));
-        $mock_stream = $prophecy->reveal();
-
-        // Mock a Fedora response.
-        $prophecy = $this->prophesize(ResponseInterface::class);
-        $prophecy->getStatusCode()->willReturn(200);
-        $prophecy->getBody()->willReturn($mock_stream);
-        $prophecy->getHeader('Content-type')->willReturn('application/ld+json');
-        $mock_fedora_response = $prophecy->reveal();
+        $mock_fedora_response = $this->getMockFedoraStream();
 
         $controller = new RecastController(
             $this->gemini_prophecy->reveal(),
@@ -114,5 +104,60 @@ class RecastControllerTest extends TestCase
 
         $expected = json_decode(file_get_contents($output_replace), true);
         $this->assertEquals($expected, $json, "Response does not match expected additions.");
+    }
+
+  /**
+   * @covers ::recast
+   */
+    public function testInvalidType()
+    {
+        $resource_id = 'http://localhost:8080/fcrepo/rest/object1';
+        $mock_silex_app = new Application();
+        $mock_silex_app['crayfish.drupal_base_url'] = 'http://localhost:8000';
+
+        $controller = new RecastController(
+            $this->gemini_prophecy->reveal(),
+            $this->logger_prophecy->reveal()
+        );
+
+        $mock_fedora_response = $this->getMockFedoraStream();
+
+        $request = Request::create(
+            "/oops",
+            "GET"
+        );
+        $request->headers->set('Authorization', 'some_token');
+        $request->headers->set('Apix-Ldp-Resource', $resource_id);
+        $request->headers->set('Accept', 'application/ld+json');
+        $request->attributes->set('fedora_resource', $mock_fedora_response);
+
+        // Do with add
+        $response = $controller->recast($request, $mock_silex_app, 'oops');
+        $this->assertEquals(400, $response->getStatusCode(), "Invalid status code");
+    }
+
+  /**
+   * Generate a mock response containing mock Fedora body stream.
+   *
+   * @return object
+   *   The returned stream object.
+   */
+    protected function getMockFedoraStream()
+    {
+        $input_resource = realpath(__DIR__ . '/resources/drupal_image.json');
+
+        $prophecy = $this->prophesize(StreamInterface::class);
+        $prophecy->isReadable()->willReturn(true);
+        $prophecy->isWritable()->willReturn(false);
+        $prophecy->__toString()->willReturn(file_get_contents($input_resource));
+        $mock_stream = $prophecy->reveal();
+
+        // Mock a Fedora response.
+        $prophecy = $this->prophesize(ResponseInterface::class);
+        $prophecy->getStatusCode()->willReturn(200);
+        $prophecy->getBody()->willReturn($mock_stream);
+        $prophecy->getHeader('Content-type')->willReturn('application/ld+json');
+        $mock_fedora_response = $prophecy->reveal();
+        return $mock_fedora_response;
     }
 }
