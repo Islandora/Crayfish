@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "32149bc5ce1ca4d858f036d065c58eb6",
+    "content-hash": "9097638216bc96de6a716c946bff2aa7",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -779,16 +779,16 @@
         },
         {
             "name": "islandora/crayfish-commons",
-            "version": "dev-update-composer",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/whikloj/Crayfish-Commons.git",
-                "reference": "3ca8ac135a0a770c72bf9b3ced1bc996d88a1e48"
+                "url": "https://github.com/Islandora-CLAW/Crayfish-Commons.git",
+                "reference": "6e361bd180e9b62ef343ead5344677d9f0d1c897"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/whikloj/Crayfish-Commons/zipball/3ca8ac135a0a770c72bf9b3ced1bc996d88a1e48",
-                "reference": "3ca8ac135a0a770c72bf9b3ced1bc996d88a1e48",
+                "url": "https://api.github.com/repos/Islandora-CLAW/Crayfish-Commons/zipball/6e361bd180e9b62ef343ead5344677d9f0d1c897",
+                "reference": "6e361bd180e9b62ef343ead5344677d9f0d1c897",
                 "shasum": ""
             },
             "require": {
@@ -815,16 +815,7 @@
                     "Islandora\\Crayfish\\Commons\\": "src/"
                 }
             },
-            "scripts": {
-                "check": [
-                    "phpcs --standard=PSR2 src tests",
-                    "phpcpd --names *.php src tests"
-                ],
-                "test": [
-                    "@check",
-                    "phpunit"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -841,10 +832,7 @@
                 }
             ],
             "description": "Shared code amongst Islandora Crayfish microservices",
-            "support": {
-                "source": "https://github.com/whikloj/Crayfish-Commons/tree/update-composer"
-            },
-            "time": "2019-02-03T20:27:21+00:00"
+            "time": "2019-02-04T14:57:25+00:00"
         },
         {
             "name": "ml/iri",
