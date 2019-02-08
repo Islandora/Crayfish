@@ -125,7 +125,7 @@ class HomarusController
         $args = $request->headers->get('X-Islandora-Args');
         $this->log->debug("X-Islandora-Args:", ['args' => $args]);
 
-        $cmd_string = "$this->executable -i $source $cmd_params -f $format -";
+        $cmd_string = "$this->executable -i $source $args $cmd_params -f $format -";
         $this->log->debug('Ffempg Command:', ['cmd' => $cmd_string]);
 
         // Return response.

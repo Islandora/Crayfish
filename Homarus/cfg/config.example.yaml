@@ -7,12 +7,18 @@ homarus:
       - video/mp4
       - video/x-msvideo
       - video/ogg
+      - audio/x-wav
+      - audio/mpeg
+      - audio/aac
     default: video/mp4
   mime_to_format:
     valid:
       - video/mp4_mp4
       - video/x-msvideo_avi
       - video/ogg_ogg
+      - audio/x-wav_wav
+      - audio/mpeg_mp3
+      - audio/aac_m4a
     default: mp4
 
 fedora_resource:
