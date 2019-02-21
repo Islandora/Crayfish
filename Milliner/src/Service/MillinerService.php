@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\Response;
 use Islandora\Chullo\IFedoraApi;
-use Islandora\Milliner\Gemini\GeminiClient;
+use Islandora\Crayfish\Commons\Client\GeminiClient;
 use Psr\Log\LoggerInterface;
 
 /**

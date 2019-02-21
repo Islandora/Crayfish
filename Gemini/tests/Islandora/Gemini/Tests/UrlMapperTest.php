@@ -183,4 +183,33 @@ class UrlMapperTest extends \PHPUnit_Framework_TestCase
         $mapper = new UrlMapper($connection);
         $mapper->deleteUrls("foo");
     }
+
+    /**
+     * @covers ::findUrls
+     */
+    public function testFindUrls()
+    {
+        // Simulate a record being returned.
+        $connection = $this->prophesize(Connection::class);
+        $connection->fetchAssoc(Argument::any(), Argument::any())
+          ->willReturn(['uri' => 'foo']);
+        $connection = $connection->reveal();
+        $mapper = new UrlMapper($connection);
+        $results = $mapper->findUrls("abc");
+        $this->assertTrue(
+            $results['uri'] == 'foo',
+            "getUrls() modified connection results.  Actual: ${results['uri']}. Expected: foo"
+        );
+        // Simulate when no record is found.
+        $connection = $this->prophesize(Connection::class);
+        $connection->fetchAssoc(Argument::any(), Argument::any())
+          ->willReturn([]);
+        $connection = $connection->reveal();
+        $mapper = new UrlMapper($connection);
+        $results = $mapper->findUrls("abc");
+        $this->assertTrue(
+            empty($results),
+            "getUrls() modified connection results.  Expected empty array, received " . json_encode($results)
+        );
+    }
 }

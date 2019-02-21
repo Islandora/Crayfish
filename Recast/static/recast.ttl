@@ -1,0 +1,11 @@
+@prefix apix: <http://fedora.info/definitions/v4/api-extension#> .
+@prefix ldp: <http://www.w3.org/ns/ldp#> .
+@prefix islandora: <http://islandora.ca/CLAW#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<> a apix:Extension;
+rdfs:label "URI conversion service";
+rdfs:comment "Microservice to recast Drupal URIs as Fedora URIs";
+apix:exposesService islandora:RecastService;
+apix:exposesServiceAt "svc:recast";
+apix:bindsTo ldp:RDFSource .

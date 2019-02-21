@@ -1,0 +1,80 @@
+[
+  {
+    "@id": "http://localhost:8080/fcrepo/rest/object1",
+    "@type": [
+      "http://fedora.info/definitions/v4/repository#Container",
+      "http://www.w3.org/ns/ldp#RDFSource",
+      "http://schema.org/ImageObject",
+      "http://pcdm.org/models#Object",
+      "http://fedora.info/definitions/v4/repository#Resource",
+      "http://www.w3.org/ns/ldp#Container"
+    ],
+    "http://schema.org/author": [
+      {
+        "@id": "http://localhost:8000/user/1?_format=jsonld"
+      }
+    ],
+    "http://fedora.info/definitions/v4/repository#writable": [
+      {
+        "@value": true
+      }
+    ],
+    "http://fedora.info/definitions/v4/repository#createdBy": [
+      {
+        "@value": "bypassAdmin"
+      }
+    ],
+    "http://fedora.info/definitions/v4/repository#hasParent": [
+      {
+        "@id": "http://localhost:8080/fcrepo/rest/"
+      }
+    ],
+    "http://pcdm.org/models#hasFile": [
+      {
+        "@id": "http://localhost:8000/media/1?_format=jsonld"
+      }
+    ],
+    "http://fedora.info/definitions/v4/repository#lastModified": [
+      {
+        "@value": "2018-03-12T15:52:59.994Z",
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+      }
+    ],
+    "http://schema.org/dateCreated": [
+      {
+        "@value": "2018-03-12T15:52:24+00:00",
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+      }
+    ],
+    "http://purl.org/dc/terms/title": [
+      {
+        "@value": "This is an image"
+      }
+    ],
+    "http://schema.org/dateModified": [
+      {
+        "@value": "2018-03-12T15:52:57+00:00",
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+      }
+    ],
+    "http://fedora.info/definitions/v4/repository#created": [
+      {
+        "@value": "2018-03-12T15:52:59.994Z",
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+      }
+    ],
+    "http://fedora.info/definitions/v4/repository#lastModifiedBy": [
+      {
+        "@value": "bypassAdmin"
+      }
+    ],
+    "http://pcdm.org/models#memberOf": [
+      {
+        "@id": "http://localhost:8000/node/1?_format=jsonld"
+      },
+      {
+        "@id": "http://localhost:8080/fcrepo/rest/collection1"
+      }
+    ]
+  }
+]
