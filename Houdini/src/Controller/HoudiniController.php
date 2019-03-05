@@ -85,12 +85,28 @@ class HoudiniController
     {
         $this->log->info('Convert request.');
 
-        $fedora_resource = $request->attributes->get('fedora_resource');
+        // Short circuit if there's no Apix-Ldp-Resource header.
+        if (!$request->headers->has("Apix-Ldp-Resource")) {
+            $this->log->debug("Malformed request, no Apix-Ldp-Resource header present");
+            return new Response(
+                "Malformed request, no Apix-Ldp-Resource header present",
+                400
+            );
+        }
+        $url = $request->headers->get("Apix-Ldp-Resource");
+        $this->log->debug("Apix-Ldp-Resource:", ['url' => $url]);
 
-        // Get image as a resource.
-        $body = StreamWrapper::getResource($fedora_resource->getBody());
+        // Get optional Auth header.
+        if ($request->headers->has("Authorization")) {
+            $auth = $request->headers->get("Authorization");
+            $this->log->debug("Authorization:", ['auth' => $auth]);
+        }
 
-        // Arguments to image convert command are sent as a custom header
+        // Get optonal arguments header.
+        if ($request->headers->has("Authorization")) {
+            $auth = $request->headers->get("Authorization");
+            $this->log->debug("Authorization:", ['auth' => $auth]);
+        }
         $args = $request->headers->get('X-Islandora-Args');
         $this->log->debug("X-Islandora-Args:", ['args' => $args]);
 
@@ -113,15 +129,41 @@ class HoudiniController
         // Build arguments
         $exploded = explode('/', $content_type, 2);
         $format = count($exploded) == 2 ? $exploded[1] : $exploded[0];
-        $cmd_string = "$this->executable - $args $format:-";
+
+        // Build up the command string and escape it.
+        if (isset($auth)) {
+          $cmd_string = "curl -H \"Authorization: $auth\" \"$url\" | $this->executable - $args $format:- 2>&1";
+        }
+        else {
+          $cmd_string = "curl \"$url\" | $this->executable - $args $format:- 2>&1";
+        }
+
+        //$cmd_string = escapeshellcmd($cmd_string);
         $this->log->info('Imagemagick Command:', ['cmd' => $cmd_string]);
+
+        $stdout = popen($cmd_string, 'r');
+
+        // Write to a temp stream.
+        $temp = fopen("php://temp", 'w+');
+        stream_copy_to_stream($stdout, $temp);
+
+        // Close the process and get the return code.
+        $return_code = pclose($stdout);
 
         // Return response.
         try {
             return new StreamedResponse(
-                $this->cmd->execute($cmd_string, $body),
-                200,
-                ['Content-Type' => $content_type]
+                function () use ($temp) {
+                    rewind($temp);
+                    while (!feof($temp)) {
+                      echo fread($temp, 1024);
+                      ob_flush();
+                      flush();
+                    }
+                    fclose($temp);
+                },
+                $return_code === 0 ? 200 : 500,
+                ['Content-Type' => $return_code === 0 ? $content_type : 'text/plain']
             );
         } catch (\RuntimeException $e) {
             $this->log->error("RuntimeException:", ['exception' => $e]);

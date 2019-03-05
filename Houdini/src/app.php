@@ -24,10 +24,12 @@ $app['houdini.controller'] = function ($app) {
 };
 
 $app->options('/convert', "houdini.controller:convertOptions");
-$app->get('/convert', "houdini.controller:convert")
+$app->get('/convert', "houdini.controller:convert");
+/*
     ->before(function (Request $request, Application $app) {
         return $app['crayfish.apix_middleware']->before($request);
     });
+*/
 
 $app->options('/identify', "houdini.controller:identifyOptions");
 $app->get('/identify', "houdini.controller:identify")
