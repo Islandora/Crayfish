@@ -6,4 +6,4 @@ coverage.xml
 *.key
 *.log
 syn-settings.xml
-cfg/config.yaml
+*/cfg/config.yaml

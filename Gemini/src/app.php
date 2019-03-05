@@ -28,6 +28,8 @@ $app['gemini.controller'] = function ($app) {
     );
 };
 
+$app->get('/by_uri', "gemini.controller:getByUri");
+
 $app->get('/{uuid}', "gemini.controller:get");
 
 $app->post('/', "gemini.controller:post");

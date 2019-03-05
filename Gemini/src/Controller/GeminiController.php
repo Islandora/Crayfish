@@ -142,4 +142,31 @@ class GeminiController
         $deleted = $this->urlMapper->deleteUrls($uuid);
         return new Response(null, $deleted ? 204 : 404);
     }
+
+    /**
+     * Find the opposite URI for the on provided in X-Islandora-URI.
+     *
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *   The incoming request.
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     *   A response 200 with Location or 404.
+     */
+    public function getByUri(Request $request)
+    {
+        if (!$request->headers->has('X-Islandora-URI')) {
+            return new Response('Require the X-Islandora-URI header', 400);
+        }
+        $uri = $request->headers->get('X-Islandora-URI');
+        if (is_array($uri)) {
+            // Can only return one Location header.
+            $uri = reset($uri);
+        }
+        $uri = $this->urlMapper->findUrls($uri);
+        $headers = [];
+        if ($uri) {
+            $headers['Location'] = $uri;
+        }
+        return new Response(null, ($uri ? 200 : 404), $headers);
+    }
 }
