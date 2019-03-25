@@ -1,0 +1,22 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix fedora:  <http://fedora.info/definitions/v4/repository#> .
+@prefix ldp:  <http://www.w3.org/ns/ldp#> .
+@prefix dcterms:  <http://purl.org/dc/terms/> .
+
+<http://localhost:8080/fcrepo/rest/object34>
+    rdf:type fedora:Container ;
+    rdf:type fedora:Resource ;
+    rdf:type <http://pcdm.org/models#Object> ;
+    fedora:lastModifiedBy "bypassAdmin" ;
+    <http://schema.org/dateModified> "2019-03-22T19:23:29+00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+    <http://schema.org/author> <http://localhost:8000/user/1?_format=jsonld> ;
+    <http://schema.org/sameAs> "http://localhost:8000/node/2?_format=jsonld" ;
+    <http://schema.org/dateCreated> "2019-03-22T19:23:11+00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+    dcterms:extent "1 item" ;
+    fedora:createdBy "bypassAdmin" ;
+    fedora:lastModified "2019-03-22T19:23:30.273Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+    fedora:created "2019-03-22T19:23:30.273Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+    <http://pcdm.org/models#memberOf> <http://localhost:8000/node/1?_format=jsonld> ;
+    dcterms:title "A basic image"@en ;
+    rdf:type ldp:RDFSource ;
+    rdf:type ldp:Container .

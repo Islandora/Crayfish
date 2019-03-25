@@ -25,6 +25,14 @@ class RecastControllerTest extends TestCase
 
     private $logger_prophecy;
 
+    private $namespaces = array(
+        array(
+            "fedora" => "http://fedora.info/definitions/v4/repository#",
+            #"ldp" => "http://www.w3.org/ns/ldp#",
+            "pcdm" => "http://pcdm.org/models#",
+        ),
+    );
+
   /**
    * {@inheritdoc}
    */
@@ -136,15 +144,68 @@ class RecastControllerTest extends TestCase
         $this->assertEquals(400, $response->getStatusCode(), "Invalid status code");
     }
 
+    /**
+     * @covers ::recast
+     */
+    public function testPrefixes()
+    {
+        $resource_id = 'http://localhost:8080/fcrepo/rest/object1';
+
+       // $output_add = realpath(__DIR__ . '/resources/drupal_imageremapped.ttl');
+
+        $this->gemini_prophecy->findByUri('http://localhost:8000/user/1?_format=jsonld', Argument::any())
+            ->willReturn(null);
+        $this->gemini_prophecy->findByUri('http://localhost:8000/node/1?_format=jsonld', Argument::any())
+            ->willReturn('http://localhost:8080/fcrepo/rest/collection99');
+
+        $mock_silex_app = new Application();
+        $mock_silex_app['crayfish.drupal_base_url'] = 'http://localhost:8000';
+        $mock_silex_app['crayfish.namespaces'] = $this->namespaces;
+
+        $mock_fedora_response = $this->getMockFedoraStream(
+            realpath(__DIR__ . '/resources/drupal_image.ttl'),
+            'text/turtle'
+        );
+
+        $controller = new RecastController(
+            $this->gemini_prophecy->reveal(),
+            $this->logger_prophecy->reveal()
+        );
+
+        $request = Request::create(
+            "/add",
+            "GET"
+        );
+        $request->headers->set('Authorization', 'some_token');
+        $request->headers->set('Apix-Ldp-Resource', $resource_id);
+        $request->headers->set('Accept', 'text/turtle');
+        $request->attributes->set('fedora_resource', $mock_fedora_response);
+
+        $response = $controller->recast($request, $mock_silex_app, 'add');
+        $body = $response->getContent();
+        $this->assertContains('fedora:', $body, "Did not find fedora: prefix");
+        $this->assertNotContains('ldp:', $body, "Found ldp: prefix");
+        $this->assertContains('pcdm:', $body, "Did not find pcdm: prefix");
+        $this->assertContains('<http://www.w3.org/ns/ldp#RDFSource>', $body, "Did not find full LDP uri");
+    }
+
   /**
    * Generate a mock response containing mock Fedora body stream.
+   *
+   * @param string $input_resource
+   *    The path to the file containing the stream contents.
+   * @param string $content_type
+   *    The content type of the input_resource.
    *
    * @return object
    *   The returned stream object.
    */
-    protected function getMockFedoraStream()
+    protected function getMockFedoraStream($input_resource = null, $content_type = 'application/ld+json')
     {
-        $input_resource = realpath(__DIR__ . '/resources/drupal_image.json');
+        if (is_null($input_resource)) {
+            // Provide a default.
+            $input_resource = realpath(__DIR__ . '/resources/drupal_image.json');
+        }
 
         $prophecy = $this->prophesize(StreamInterface::class);
         $prophecy->isReadable()->willReturn(true);
@@ -156,7 +217,7 @@ class RecastControllerTest extends TestCase
         $prophecy = $this->prophesize(ResponseInterface::class);
         $prophecy->getStatusCode()->willReturn(200);
         $prophecy->getBody()->willReturn($mock_stream);
-        $prophecy->getHeader('Content-type')->willReturn('application/ld+json');
+        $prophecy->getHeader('Content-type')->willReturn($content_type);
         $mock_fedora_response = $prophecy->reveal();
         return $mock_fedora_response;
     }
