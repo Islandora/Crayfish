@@ -126,23 +126,26 @@ class RecastController
                     if (is_array($reverse_uri)) {
                         $reverse_uri = reset($reverse_uri);
                     }
+                    // Don't rewrite the current URI (in-case of sameAs)
+                    if ($reverse_uri !== $fedora_uri) {
                         $predicate = $this->findPredicateForObject($graph, $uri);
                         $this->log->debug('Found a reverse URI', [
-                          'original_uri' => $uri,
-                          'reverse_uri' => $reverse_uri,
+                            'original_uri' => $uri,
+                            'reverse_uri' => $reverse_uri,
                         ]);
-                    if (!is_null($predicate)) {
-                                      $graph->addResource(
-                                          $fedora_uri,
-                                          $predicate,
-                                          $reverse_uri
-                                      );
-                        if (strtolower($operation) == 'replace') {
-                                                          $graph->deleteResource(
-                                                              $fedora_uri,
-                                                              $predicate,
-                                                              $uri
-                                                          );
+                        if (!is_null($predicate)) {
+                            $graph->addResource(
+                                $fedora_uri,
+                                $predicate,
+                                $reverse_uri
+                            );
+                            if (strtolower($operation) == 'replace') {
+                                $graph->deleteResource(
+                                    $fedora_uri,
+                                    $predicate,
+                                    $uri
+                                );
+                            }
                         }
                     }
                 }
@@ -168,6 +171,20 @@ class RecastController
         } else {
             $format = 'turtle';
             $output_type = 'text/turtle';
+        }
+
+        // Add in user configured prefixes/uris for rdf mapping.
+        if (isset($app['crayfish.namespaces'])) {
+            // To get the prefixes we nest the associative array inside an array
+            $namespaces = $app['crayfish.namespaces'][0];
+            if (is_array($namespaces) && count($namespaces) > 0) {
+                foreach ($namespaces as $prefix => $uri) {
+                    if (\EasyRdf_Namespace::prefixOfUri($uri) == '') {
+                        $this->log->debug("Adding $prefix -> $uri");
+                        \EasyRdf_Namespace::set($prefix, $uri);
+                    }
+                }
+            }
         }
 
         $new_body = $graph->serialise($format);
