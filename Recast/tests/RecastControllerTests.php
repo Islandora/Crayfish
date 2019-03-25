@@ -28,7 +28,6 @@ class RecastControllerTest extends TestCase
     private $namespaces = array(
         array(
             "fedora" => "http://fedora.info/definitions/v4/repository#",
-            #"ldp" => "http://www.w3.org/ns/ldp#",
             "pcdm" => "http://pcdm.org/models#",
         ),
     );
@@ -150,8 +149,6 @@ class RecastControllerTest extends TestCase
     public function testPrefixes()
     {
         $resource_id = 'http://localhost:8080/fcrepo/rest/object1';
-
-       // $output_add = realpath(__DIR__ . '/resources/drupal_imageremapped.ttl');
 
         $this->gemini_prophecy->findByUri('http://localhost:8000/user/1?_format=jsonld', Argument::any())
             ->willReturn(null);
