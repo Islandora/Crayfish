@@ -4,7 +4,7 @@ namespace Islandora\Milliner\Tests;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
-use Islandora\Chullo\IFedoraClient;
+use Islandora\Chullo\IFedoraApi;
 use Islandora\Crayfish\Commons\Client\GeminiClient;
 use Islandora\Milliner\Service\MillinerService;
 use Monolog\Handler\NullHandler;
@@ -70,7 +70,7 @@ class SaveNodeTest extends TestCase
         $drupal = $drupal->reveal();
 
         $fedora_response = new Response(403, [], null, '1.1', 'UNAUTHORIZED');
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($fedora_response);
         $fedora = $fedora->reveal();
@@ -124,7 +124,7 @@ class SaveNodeTest extends TestCase
             file_get_contents(__DIR__ . '/../../../../static/ContentLDP-RS.jsonld')
         );
         $fedora_save_response = new Response(403, [], null, '1.1', 'UNAUTHORIZED');
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->getResource(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($fedora_get_response);
         $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
@@ -175,7 +175,7 @@ class SaveNodeTest extends TestCase
         $drupal = $drupal->reveal();
 
         $fedora_response = new Response(201);
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($fedora_response);
         $fedora = $fedora->reveal();
@@ -230,7 +230,7 @@ class SaveNodeTest extends TestCase
         $drupal = $drupal->reveal();
 
         $fedora_response = new Response(204);
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($fedora_response);
         $fedora = $fedora->reveal();
@@ -280,7 +280,7 @@ class SaveNodeTest extends TestCase
         $drupal = $this->prophesize(Client::class)->reveal();
 
         $fedora_response = new Response(403, [], null, '1.1', 'UNAUTHORIZED');
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->getResource(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($fedora_response);
         $fedora = $fedora->reveal();
@@ -336,7 +336,7 @@ class SaveNodeTest extends TestCase
             ['Content-Type' => 'application/ld+json'],
             file_get_contents(__DIR__ . '/../../../../static/ContentLDP-RS.jsonld')
         );
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->getResource(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($fedora_get_response);
         $fedora = $fedora->reveal();
@@ -392,7 +392,7 @@ class SaveNodeTest extends TestCase
             ['Content-Type' => 'application/ld+json'],
             file_get_contents(__DIR__ . '/../../../../static/ContentLDP-RS.jsonld')
         );
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->getResource(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($fedora_get_response);
         $fedora = $fedora->reveal();
@@ -449,7 +449,7 @@ class SaveNodeTest extends TestCase
             file_get_contents(__DIR__ . '/../../../../static/ContentLDP-RS.jsonld')
         );
         $fedora_save_response = new Response(403, [], null, '1.1', 'UNAUTHORIZED');
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->getResource(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($fedora_get_response);
         $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
@@ -508,7 +508,7 @@ class SaveNodeTest extends TestCase
             file_get_contents(__DIR__ . '/../../../../static/ContentLDP-RS.jsonld')
         );
         $fedora_save_response = new Response(201);
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->getResource(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($fedora_get_response);
         $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
@@ -573,7 +573,7 @@ class SaveNodeTest extends TestCase
             file_get_contents(__DIR__ . '/../../../../static/ContentLDP-RS.jsonld')
         );
         $fedora_save_response = new Response(204);
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->getResource(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($fedora_get_response);
         $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())

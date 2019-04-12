@@ -4,7 +4,7 @@ namespace Islandora\Milliner\Tests;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
-use Islandora\Chullo\IFedoraClient;
+use Islandora\Chullo\IFedoraApi;
 use Islandora\Crayfish\Commons\Client\GeminiClient;
 use Islandora\Milliner\Service\MillinerService;
 use Monolog\Handler\NullHandler;
@@ -63,7 +63,7 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             ->willReturn($drupal_response);
         $drupal = $drupal->reveal();
 
-        $fedora = $this->prophesize(IFedoraClient::class)->reveal();
+        $fedora = $this->prophesize(IFedoraApi::class)->reveal();
 
         $gemini = $this->prophesize(GeminiClient::class)->reveal();
 
@@ -104,7 +104,7 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             ->willReturn($drupal_response);
         $drupal = $drupal->reveal();
 
-        $fedora = $this->prophesize(IFedoraClient::class)->reveal();
+        $fedora = $this->prophesize(IFedoraApi::class)->reveal();
 
         $gemini = $this->prophesize(GeminiClient::class)->reveal();
 
@@ -145,7 +145,7 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             ->willReturn($drupal_response);
         $drupal = $drupal->reveal();
 
-        $fedora = $this->prophesize(IFedoraClient::class)->reveal();
+        $fedora = $this->prophesize(IFedoraApi::class)->reveal();
 
         $gemini = $this->prophesize(GeminiClient::class);
         $gemini->getUrls(Argument::any(), Argument::any())
@@ -190,7 +190,7 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         $drupal = $drupal->reveal();
 
         $fedora_response = new Response(404);
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->getResourceHeaders(Argument::any(), Argument::any())
             ->willReturn($fedora_response);
         $fedora = $fedora->reveal();
@@ -242,7 +242,7 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         $drupal = $drupal->reveal();
 
         $fedora_response = new Response(200);
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->getResourceHeaders(Argument::any(), Argument::any())
             ->willReturn($fedora_response);
         $fedora = $fedora->reveal();
@@ -302,7 +302,7 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         $fedora_get_response = new Response(
             404
         );
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->getResourceHeaders(Argument::any(), Argument::any())
             ->willReturn($fedora_head_response);
         $fedora->getResource(Argument::any(), Argument::any())
@@ -376,7 +376,7 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             ['Content-Type' => 'application/ld+json', 'ETag' => 'W\abc123'],
             file_get_contents(__DIR__ . '/../../../../static/MediaLDP-RS.jsonld')
         );
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->getResourceHeaders(Argument::any(), Argument::any())
             ->willReturn($fedora_head_response);
         $fedora->getResource(Argument::any(), Argument::any())
@@ -453,7 +453,7 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         $fedora_put_response = new Response(
             403
         );
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->getResourceHeaders(Argument::any(), Argument::any())
             ->willReturn($fedora_head_response);
         $fedora->getResource(Argument::any(), Argument::any())
@@ -530,7 +530,7 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         $fedora_put_response = new Response(
             204
         );
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->getResourceHeaders(Argument::any(), Argument::any())
             ->willReturn($fedora_head_response);
         $fedora->getResource(Argument::any(), Argument::any())
@@ -613,7 +613,7 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         $fedora_put_response = new Response(
             204
         );
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->getResourceHeaders(Argument::any(), Argument::any())
             ->willReturn($fedora_head_response);
         $fedora->getResource(Argument::any(), Argument::any())
