@@ -457,7 +457,7 @@ class MillinerService implements MillinerServiceInterface
         $drupal_jsonld = $this->processJsonld(
             $drupal_jsonld,
             $jsonld_url,
-            $fedora_file_url
+            $fedora_url
         );
         // Get the modified date from the RDF.
         $drupal_modified = $this->getModifiedTimestamp(
