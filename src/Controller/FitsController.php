@@ -50,7 +50,7 @@ class FitsController {
         ]);
         $fits_xml = $response->getBody()->getContents();
         $response = new StreamedResponse();
-        $response->headers->set('Content-Type', 'text/html');
+        $response->headers->set('Content-Type', 'application/xml');
         $response->setCallback(function () use($fits_xml){
             echo($fits_xml);
         });
