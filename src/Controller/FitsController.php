@@ -11,7 +11,6 @@ use GuzzleHttp\Client;
 class FitsController {
 
     protected $fitsGenerator;
-    protected $api;
     protected $client;
 
 
@@ -21,19 +20,19 @@ class FitsController {
      * @param FitsGenerator $fitsGenerator
      */
 
-    public function __construct(IFedoraApi $api, FitsGenerator $fitsGenerator) {
+    public function __construct(FitsGenerator $fitsGenerator) {
         $this->fitsGenerator = $fitsGenerator;
-        $this->api = $api;
-        $this->client = new Client($_ENV['FITS_WEBSERVICE_URI']);
+        $options = ['base_uri' => $_ENV['FITS_WEBSERVICE_URI']];
+        $this->client = new Client($options);
     }
 
 
     /**
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\StreamedResponse
+     * @param Request $request
+     * @return \Psr\Http\Message\ResponseInterface|StreamedResponse
      */
     public function generate_fits(Request $request) {
-        $file_uri = $request->attributes->get('Apix-Ldp-Resource');
+        $file_uri = $request->headers->get('Apix-Ldp-Resource');
         // Pass along auth headers if present.
         $headers = [];
         if ($request->headers->has("Authorization")) {
