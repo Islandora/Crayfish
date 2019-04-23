@@ -4,7 +4,7 @@ namespace Islandora\Milliner\Tests;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
-use Islandora\Chullo\IFedoraClient;
+use Islandora\Chullo\IFedoraApi;
 use Islandora\Crayfish\Commons\Client\GeminiClient;
 use Islandora\Milliner\Service\MillinerService;
 use Monolog\Handler\NullHandler;
@@ -55,7 +55,7 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
             ->willReturn(['drupal' => 'foo', 'fedora' => 'bar']);
         $gemini = $gemini->reveal();
 
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->deleteResource(Argument::any(), Argument::any())
             ->willReturn(new Response(403));
         $fedora = $fedora->reveal();
@@ -88,7 +88,7 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
             ->willReturn(true);
         $gemini = $gemini->reveal();
 
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->deleteResource(Argument::any(), Argument::any())
             ->willReturn(new Response(404));
         $fedora = $fedora->reveal();
@@ -131,7 +131,7 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
             ->willReturn(false);
         $gemini = $gemini->reveal();
 
-        $fedora = $this->prophesize(IFedoraClient::class)->reveal();
+        $fedora = $this->prophesize(IFedoraApi::class)->reveal();
 
         $drupal = $this->prophesize(Client::class)->reveal();
 
@@ -164,7 +164,7 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
             ->willReturn(false);
         $gemini = $gemini->reveal();
 
-        $fedora = $this->prophesize(IFedoraClient::class);
+        $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->deleteResource(Argument::any(), Argument::any())
             ->willReturn(new Response(410));
         $fedora = $fedora->reveal();
