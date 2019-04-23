@@ -481,9 +481,9 @@ class MillinerService implements MillinerServiceInterface
      * {@inheritDoc}
      */
     public function saveExternal(
-      $uuid,
-      $external_url,
-      $token = null
+        $uuid,
+        $external_url,
+        $token = null
     ) {
         // Mint a new Fedora URL.
         $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token);
