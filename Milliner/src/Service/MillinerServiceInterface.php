@@ -50,4 +50,19 @@ interface MillinerServiceInterface
         $uuid,
         $token = null
     );
+
+    /**
+     * @param $uuid
+     * @param $external_url
+     * @param $token
+     *
+     * @throws \Exception
+     *
+     * @return \GuzzleHttp\Psr7\Response|null
+     */
+    public function saveExternal(
+      $uuid,
+      $external_url,
+      $token = null
+    );
 }

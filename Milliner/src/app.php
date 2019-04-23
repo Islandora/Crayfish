@@ -37,5 +37,6 @@ $app['milliner.controller'] = function () use ($app) {
 $app->post('/node/{uuid}', "milliner.controller:saveNode");
 $app->delete('/node/{uuid}', "milliner.controller:deleteNode");
 $app->post('/media/{source_field}', "milliner.controller:saveMedia");
+$app->post('/external/{uuid}', "milliner.controller:saveExternal");
 
 return $app;
