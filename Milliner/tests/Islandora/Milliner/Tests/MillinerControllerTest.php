@@ -50,6 +50,8 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner->deleteNode(Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
+        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any())
+            ->willThrow(new \Exception("Forbidden", 403));
         $milliner = $milliner->reveal();
 
         $controller = new MillinerController($milliner, $this->logger);
@@ -66,7 +68,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [],
             [
-                'Authorization' => 'Bearer islandora',
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
             ]
         );
@@ -85,7 +87,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [],
             [
-                'Authorization' => 'Bearer islandora',
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/media/6?_format=json',
             ]
         );
@@ -103,9 +105,28 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             ['uuid' => $uuid],
             [],
             [],
-            ['Authorization' => 'Bearer islandora']
+            ['HTTP_AUTHORIZATION' => 'Bearer islandora']
         );
         $response = $controller->deleteNode($uuid, $request);
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 403,
+            "Response code must be that of thrown exception.  Expected 403, received $status"
+        );
+
+        // External.
+        $request = Request::create(
+            "http://localhost:8000/milliner/external/$uuid",
+            "POST",
+            ['uuid' => $uuid],
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/sites/default/files/1.jpg',
+            ]
+        );
+        $response = $controller->saveExternal($uuid, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 403,
@@ -129,7 +150,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             ['uuid' => $uuid],
             [],
             [],
-            ['Authorization' => 'Bearer islandora']
+            ['HTTP_AUTHORIZATION' => 'Bearer islandora']
         );
         $response = $controller->saveNode($uuid, $request);
         $status = $response->getStatusCode();
@@ -156,9 +177,35 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             ['source_field' => $source_field],
             [],
             [],
-            ['Authorization' => 'Bearer islandora']
+            ['HTTP_AUTHORIZATION' => 'Bearer islandora']
         );
         $response = $controller->saveMedia($source_field, $request);
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 400,
+            "Response code must be 400 when no Content-Location header is present.  Received: $status"
+        );
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::saveExternal
+     */
+    public function testSaveExternalReturns400WithoutContentLocation()
+    {
+        $milliner = $this->prophesize(MillinerServiceInterface::class)->reveal();
+        $controller = new MillinerController($milliner, $this->logger);
+
+        $uuid = "abc123";
+        $request = Request::create(
+            "http://localhost:8000/milliner/external/$uuid",
+            "POST",
+            ['uuid' => $uuid],
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer islandora']
+        );
+        $response = $controller->saveExternal($uuid, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 400,
@@ -187,7 +234,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [],
             [
-                'Authorization' => 'Bearer islandora',
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
             ]
         );
@@ -211,7 +258,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [],
             [
-                'Authorization' => 'Bearer islandora',
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
             ]
         );
@@ -243,7 +290,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [],
             [
-                'Authorization' => 'Bearer islandora',
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/media/6?_format=json',
             ]
         );
@@ -267,11 +314,68 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [],
             [
-                'Authorization' => 'Bearer islandora',
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/media/6?_format=json',
             ]
         );
         $response = $controller->saveMedia($source_field, $request);
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 204,
+            "Response code must be 204 when milliner returns 204.  Received: $status"
+        );
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::saveExternal
+     */
+    public function testSaveExternalReturnsSuccessOnSuccess()
+    {
+        $milliner = $this->prophesize(MillinerServiceInterface::class);
+        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any())
+            ->willReturn(new Response(201));
+        $milliner = $milliner->reveal();
+        $controller = new MillinerController($milliner, $this->logger);
+
+        // Nodes.
+        $uuid = "abc123";
+        $request = Request::create(
+            "http://localhost:8000/milliner/external/$uuid",
+            "POST",
+            ['uuid' => $uuid],
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/sites/default/files/1.jpeg',
+            ]
+        );
+        $response = $controller->saveExternal($uuid, $request);
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 201,
+            "Response code must be 201 when milliner returns 201.  Received: $status"
+        );
+
+        $milliner = $this->prophesize(MillinerServiceInterface::class);
+        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any())
+            ->willReturn(new Response(204));
+        $milliner = $milliner->reveal();
+        $controller = new MillinerController($milliner, $this->logger);
+
+        $request = Request::create(
+            "http://localhost:8000/milliner/external/$uuid",
+            "POST",
+            ['uuid' => $uuid],
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/sites/default/files/1.jpeg',
+            ]
+        );
+        $response = $controller->saveExternal($uuid, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 204,
@@ -298,7 +402,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             ['uuid' => $uuid],
             [],
             [],
-            ['Authorization' => 'Bearer islandora']
+            ['HTTP_AUTHORIZATION' => 'Bearer islandora']
         );
 
         $response = $controller->deleteNode($uuid, $request);
