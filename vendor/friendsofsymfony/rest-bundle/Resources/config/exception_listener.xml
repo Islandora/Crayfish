@@ -1,0 +1,45 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="fos_rest.exception_listener" class="FOS\RestBundle\EventListener\ExceptionListener">
+            <tag name="kernel.event_subscriber" />
+            <tag name="monolog.logger" channel="request" />
+            <argument />
+            <argument type="service" id="logger" on-invalid="null" />
+        </service>
+
+        <service id="fos_rest.exception.controller" class="FOS\RestBundle\Controller\ExceptionController" public="true">
+            <argument type="service" id="fos_rest.view_handler" />
+            <argument type="service" id="fos_rest.exception.codes_map" />  <!-- exception codes -->
+            <argument /><!-- show exception -->
+        </service>
+
+        <service id="fos_rest.exception.twig_controller" class="FOS\RestBundle\Controller\TwigExceptionController" parent="fos_rest.exception.controller">
+            <argument type="service" id="templating.engine.twig" />
+        </service>
+
+        <service id="fos_rest.exception.codes_map" class="FOS\RestBundle\Util\ExceptionValueMap" public="false">
+            <argument type="collection"/> <!-- exception codes -->
+        </service>
+
+        <service id="fos_rest.exception.messages_map" class="FOS\RestBundle\Util\ExceptionValueMap" public="false">
+            <argument type="collection"/> <!-- exception messages -->
+        </service>
+
+        <service id="fos_rest.serializer.exception_normalizer.jms" class="FOS\RestBundle\Serializer\Normalizer\ExceptionHandler">
+            <argument type="service" id="fos_rest.exception.messages_map" /> <!-- exception messages -->
+            <argument /><!-- show exception message -->
+            <tag name="jms_serializer.subscribing_handler" />
+        </service>
+
+        <service id="fos_rest.serializer.exception_normalizer.symfony" class="FOS\RestBundle\Serializer\Normalizer\ExceptionNormalizer" public="false">
+            <argument type="service" id="fos_rest.exception.messages_map" /> <!-- exception messages -->
+            <argument /><!-- show exception message -->
+            <tag name="serializer.normalizer" priority="-10" />
+        </service>
+    </services>
+</container>

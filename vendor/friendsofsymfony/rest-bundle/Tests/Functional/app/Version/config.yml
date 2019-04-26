@@ -1,0 +1,39 @@
+imports:
+    - { resource: ../config/default.yml }
+    - { resource: ../config/sensio_framework_extra.yml }
+
+framework:
+    serializer:
+        enabled: true
+    templating:
+        engines: ['twig']
+
+fos_rest:
+    format_listener:
+        rules:
+            - { path: '^/', priorities: ['json', 'html'], fallback_format: json }
+
+    view:
+        view_response_listener: true
+        mime_types:
+            json:
+                - application/json
+                - application/vnd.foo.api+json;myversion=2.3
+                - application/vnd.foo.api+json # Fix for https://github.com/FriendsOfSymfony/FOSRestBundle/issues/1399
+    versioning:
+        enabled: true
+        default_version: 3.4.2
+        resolvers:
+            query:
+                parameter_name: query_version
+            custom_header:
+                header_name: Version-Header
+            media_type:
+                regex: '/(myversion)=(?P<version>[0-9\.]+)/'
+        guessing_order:
+            - custom_header
+            - media_type
+            - query
+
+twig:
+    strict_variables: '%kernel.debug%'

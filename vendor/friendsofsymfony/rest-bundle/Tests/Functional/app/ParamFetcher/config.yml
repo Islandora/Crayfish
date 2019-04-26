@@ -1,0 +1,15 @@
+imports:
+    - { resource: ../config/default.yml }
+    - { resource: ../config/sensio_framework_extra.yml }
+
+parameters:
+    bar: bar
+    foo: foo
+    invalid2: invalid2
+
+framework:
+    serializer:
+        enabled: true
+
+fos_rest:
+    param_fetcher_listener: true

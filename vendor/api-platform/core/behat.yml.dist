@@ -1,0 +1,109 @@
+default:
+  suites:
+    default:
+      contexts:
+        - 'DoctrineContext':
+            doctrine: '@doctrine'
+        - 'HttpHeaderContext'
+        - 'GraphqlContext'
+        - 'JsonContext'
+        - 'HydraContext'
+        - 'SwaggerContext'
+        - 'HttpCacheContext'
+        - 'JsonApiContext':
+            doctrine: '@doctrine'
+            jsonApiSchemaFile: '%paths.base%/tests/Fixtures/JsonSchema/jsonapi.json'
+        - 'JsonHalContext':
+            schemaFile: '%paths.base%/tests/Fixtures/JsonHal/jsonhal.json'
+        - 'Behat\MinkExtension\Context\MinkContext'
+        - 'Behatch\Context\RestContext'
+      filters:
+        tags: '~@postgres&&~@mongodb&&~@elasticsearch'
+    postgres:
+      contexts:
+        - 'DoctrineContext':
+            doctrine: '@doctrine'
+        - 'HttpHeaderContext'
+        - 'GraphqlContext'
+        - 'JsonContext'
+        - 'HydraContext'
+        - 'SwaggerContext'
+        - 'HttpCacheContext'
+        - 'JsonApiContext':
+            doctrine: '@doctrine'
+            jsonApiSchemaFile: '%paths.base%/tests/Fixtures/JsonSchema/jsonapi.json'
+        - 'JsonHalContext':
+            schemaFile: '%paths.base%/tests/Fixtures/JsonHal/jsonhal.json'
+        - 'Behat\MinkExtension\Context\MinkContext'
+        - 'Behatch\Context\RestContext'
+      filters:
+        tags: '~@sqlite&&~@mongodb&&~@elasticsearch'
+    mongodb:
+      contexts:
+        - 'DoctrineContext':
+            doctrine: '@doctrine_mongodb'
+        - 'HttpHeaderContext'
+        - 'GraphqlContext'
+        - 'JsonContext'
+        - 'HydraContext'
+        - 'SwaggerContext'
+        - 'HttpCacheContext'
+        - 'JsonApiContext':
+            doctrine: '@doctrine_mongodb'
+            jsonApiSchemaFile: '%paths.base%/tests/Fixtures/JsonSchema/jsonapi.json'
+        - 'JsonHalContext':
+            schemaFile: '%paths.base%/tests/Fixtures/JsonHal/jsonhal.json'
+        - 'Behat\MinkExtension\Context\MinkContext'
+        - 'Behatch\Context\RestContext'
+      filters:
+        tags: '~@sqlite&&~@elasticsearch&&~@!mongodb'
+    elasticsearch:
+      paths:
+        - '%paths.base%/features/elasticsearch'
+      contexts:
+        - 'ElasticsearchContext':
+            client: '@test.api_platform.elasticsearch.client'
+            elasticsearchMappingsPath: '%paths.base%/tests/Fixtures/Elasticsearch/Mappings/'
+            elasticsearchFixturesPath: '%paths.base%/tests/Fixtures/Elasticsearch/Fixtures/'
+        - 'HttpHeaderContext'
+        - 'JsonContext'
+        - 'Behatch\Context\RestContext'
+        - 'Behat\MinkExtension\Context\MinkContext'
+      filters:
+        tags: '@elasticsearch'
+  extensions:
+    'Behat\Symfony2Extension':
+      kernel:
+        env: 'test'
+        debug: 'true'
+        path: 'tests/Fixtures/app/AppKernel.php'
+        bootstrap: 'tests/Fixtures/app/bootstrap.php'
+    'Behat\MinkExtension':
+      base_url: 'http://example.com/'
+      sessions:
+        default:
+          symfony2: ~
+    'Behatch\Extension': ~
+
+coverage:
+  suites:
+    default:
+      contexts:
+        - 'DoctrineContext':
+            doctrine: '@doctrine'
+        - 'HttpHeaderContext'
+        - 'GraphqlContext'
+        - 'JsonContext'
+        - 'HydraContext'
+        - 'SwaggerContext'
+        - 'HttpCacheContext'
+        - 'JsonApiContext':
+            doctrine: '@doctrine'
+            jsonApiSchemaFile: '%paths.base%/tests/Fixtures/JsonSchema/jsonapi.json'
+        - 'JsonHalContext':
+            schemaFile: '%paths.base%/tests/Fixtures/JsonHal/jsonhal.json'
+        - 'CoverageContext'
+        - 'Behat\MinkExtension\Context\MinkContext'
+        - 'Behatch\Context\RestContext'
+      filters:
+        tags: '~@postgres&&~@mongodb&&~@elasticsearch'

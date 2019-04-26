@@ -1,0 +1,10 @@
+imports:
+    - { resource: ../config/default.yml }
+    - { resource: ../config/sensio_framework_extra.yml }
+
+framework:
+    serializer:
+        enabled: true
+
+fos_rest:
+    allowed_methods_listener: true

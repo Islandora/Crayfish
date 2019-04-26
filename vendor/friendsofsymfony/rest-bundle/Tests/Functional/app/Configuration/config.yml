@@ -1,0 +1,34 @@
+imports:
+    - { resource: ../config/default.yml }
+    - { resource: ../config/sensio_framework_extra.yml }
+    - { resource: security.php }
+
+framework:
+    serializer:
+        enabled: true
+    router: { resource: "%kernel.root_dir%/Configuration/routing.yml" }
+    profiler: { only_exceptions: false }
+
+fos_rest:
+    view:
+        mime_types: true
+        view_response_listener: true
+    param_fetcher_listener: true
+    disable_csrf_role: foo
+    allowed_methods_listener: true
+    body_converter:
+        enabled: true
+        validate: true
+    exception: true
+    body_listener: true
+    format_listener:
+        enabled: true
+        rules:
+            - { path: '^/', priorities: ['xml'], fallback_format: ~ }
+    versioning: true
+
+web_profiler:
+    toolbar: true
+
+twig:
+    strict_variables: '%kernel.debug%'

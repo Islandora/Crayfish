@@ -1,0 +1,34 @@
+sudo: true
+language: php
+php:
+  - 7.1
+  - 7.2
+
+matrix:
+    fast_finish: true
+
+branches:
+  only:
+    - /master/
+
+before_install:
+  - export SCRIPT_DIR=$HOME/CLAW/.scripts
+
+install:
+  - git clone https://github.com/Islandora-CLAW/CLAW.git $HOME/CLAW
+  - composer install
+
+script:
+  - $SCRIPT_DIR/line_endings.sh $TRAVIS_BUILD_DIR
+  - composer test
+
+notifications:
+  irc:
+    channels:
+      - "irc.freenode.org#islandora"
+    on_success: change
+    on_failure: always
+    skip_join: true
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
