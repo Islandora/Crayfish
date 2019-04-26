@@ -1,10 +1,5 @@
 # config/routes.yaml
 
-# the "app_lucky_number" route name is not important yet
 app_fits_exec:
   path: /fits/process
   controller: App\Controller\FitsController::generate_fits
-
-app_fits_guzzled:
-  path: /fits/newprocess
-  controller: App\Controller\FitsController::guzzle_get
