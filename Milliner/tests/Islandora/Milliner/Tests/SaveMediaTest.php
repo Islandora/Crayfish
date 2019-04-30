@@ -187,16 +187,17 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         $drupal = $this->prophesize(Client::class);
         $drupal->get(Argument::any(), Argument::any())
             ->willReturn($drupal_response);
+
+        $head_response = new Response(404);
+        $drupal->head(Argument::any(), Argument::any())
+            ->willReturn($head_response);
         $drupal = $drupal->reveal();
 
-        $fedora_response = new Response(404);
         $fedora = $this->prophesize(IFedoraApi::class);
-        $fedora->getResourceHeaders(Argument::any(), Argument::any())
-            ->willReturn($fedora_response);
         $fedora = $fedora->reveal();
 
         $mapping = [
-            'drupal' => 'http://localhost:8000/media/6?_format=jsonld',
+            'drupal' => 'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
             'fedora' => 'http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b',
         ];
         $gemini = $this->prophesize(GeminiClient::class);
@@ -239,16 +240,17 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         $drupal = $this->prophesize(Client::class);
         $drupal->get(Argument::any(), Argument::any())
             ->willReturn($drupal_response);
+
+        $head_response = new Response(200);
+        $drupal->head(Argument::any(), Argument::any())
+            ->willReturn($head_response);
         $drupal = $drupal->reveal();
 
-        $fedora_response = new Response(200);
         $fedora = $this->prophesize(IFedoraApi::class);
-        $fedora->getResourceHeaders(Argument::any(), Argument::any())
-            ->willReturn($fedora_response);
         $fedora = $fedora->reveal();
 
         $mapping = [
-            'drupal' => 'http://localhost:8000/media/6?_format=jsonld',
+            'drupal' => 'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
             'fedora' => 'http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b',
         ];
         $gemini = $this->prophesize(GeminiClient::class);
@@ -291,26 +293,27 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         $drupal = $this->prophesize(Client::class);
         $drupal->get(Argument::any(), Argument::any())
             ->willReturn($drupal_response);
-        $drupal = $drupal->reveal();
 
         $link = '<http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b/fcr:metadata>';
         $link .= ';rel="describedby"';
-        $fedora_head_response = new Response(
+        $head_response = new Response(
             200,
             ['Link' =>  $link]
         );
+        $drupal->head(Argument::any(), Argument::any())
+            ->willReturn($head_response);
+        $drupal = $drupal->reveal();
+
         $fedora_get_response = new Response(
             404
         );
         $fedora = $this->prophesize(IFedoraApi::class);
-        $fedora->getResourceHeaders(Argument::any(), Argument::any())
-            ->willReturn($fedora_head_response);
         $fedora->getResource(Argument::any(), Argument::any())
             ->willReturn($fedora_get_response);
         $fedora = $fedora->reveal();
 
         $mapping = [
-            'drupal' => 'http://localhost:8000/media/6?_format=jsonld',
+            'drupal' => 'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
             'fedora' => 'http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b',
         ];
         $gemini = $this->prophesize(GeminiClient::class);
@@ -363,28 +366,29 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             ->willReturn($drupal_json_response);
         $drupal->get('http://localhost:8000/media/6?_format=jsonld', Argument::any())
             ->willReturn($drupal_jsonld_response);
-        $drupal = $drupal->reveal();
 
         $link = '<http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b/fcr:metadata>';
         $link .= '; rel="describedby"';
-        $fedora_head_response = new Response(
+        $head_response = new Response(
             200,
             ['Link' => $link]
         );
+        $drupal->head(Argument::any(), Argument::any())
+            ->willReturn($head_response);
+        $drupal = $drupal->reveal();
+
         $fedora_get_response = new Response(
             200,
             ['Content-Type' => 'application/ld+json', 'ETag' => 'W\abc123'],
             file_get_contents(__DIR__ . '/../../../../static/MediaLDP-RS.jsonld')
         );
         $fedora = $this->prophesize(IFedoraApi::class);
-        $fedora->getResourceHeaders(Argument::any(), Argument::any())
-            ->willReturn($fedora_head_response);
         $fedora->getResource(Argument::any(), Argument::any())
             ->willReturn($fedora_get_response);
         $fedora = $fedora->reveal();
 
         $mapping = [
-            'drupal' => 'http://localhost:8000/media/6?_format=jsonld',
+            'drupal' => 'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
             'fedora' => 'http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b',
         ];
         $gemini = $this->prophesize(GeminiClient::class);
@@ -437,14 +441,17 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             ->willReturn($drupal_json_response);
         $drupal->get('http://localhost:8000/media/6?_format=jsonld', Argument::any())
             ->willReturn($drupal_jsonld_response);
-        $drupal = $drupal->reveal();
 
         $link = '<http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b/fcr:metadata>';
         $link .= '; rel="describedby"';
-        $fedora_head_response = new Response(
+        $head_response = new Response(
             200,
             ['Link' => $link]
         );
+        $drupal->head(Argument::any(), Argument::any())
+            ->willReturn($head_response);
+        $drupal = $drupal->reveal();
+
         $fedora_get_response = new Response(
             200,
             ['Content-Type' => 'application/ld+json', 'ETag' => 'W\abc123'],
@@ -454,8 +461,6 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             403
         );
         $fedora = $this->prophesize(IFedoraApi::class);
-        $fedora->getResourceHeaders(Argument::any(), Argument::any())
-            ->willReturn($fedora_head_response);
         $fedora->getResource(Argument::any(), Argument::any())
             ->willReturn($fedora_get_response);
         $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
@@ -463,7 +468,7 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         $fedora = $fedora->reveal();
 
         $mapping = [
-            'drupal' => 'http://localhost:8000/media/6?_format=jsonld',
+            'drupal' => 'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
             'fedora' => 'http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b',
         ];
         $gemini = $this->prophesize(GeminiClient::class);
@@ -514,14 +519,17 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             ->willReturn($drupal_json_response);
         $drupal->get('http://localhost:8000/media/6?_format=jsonld', Argument::any())
             ->willReturn($drupal_jsonld_response);
-        $drupal = $drupal->reveal();
 
         $link = '<http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b/fcr:metadata>';
         $link .= '; rel="describedby"';
-        $fedora_head_response = new Response(
+        $head_response = new Response(
             200,
             ['Link' => $link]
         );
+        $drupal->head(Argument::any(), Argument::any())
+            ->willReturn($head_response);
+        $drupal = $drupal->reveal();
+
         $fedora_get_response = new Response(
             200,
             ['Content-Type' => 'application/ld+json', 'ETag' => 'W\abc123'],
@@ -531,8 +539,6 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             204
         );
         $fedora = $this->prophesize(IFedoraApi::class);
-        $fedora->getResourceHeaders(Argument::any(), Argument::any())
-            ->willReturn($fedora_head_response);
         $fedora->getResource(Argument::any(), Argument::any())
             ->willReturn($fedora_get_response);
         $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
@@ -540,7 +546,7 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         $fedora = $fedora->reveal();
 
         $mapping = [
-            'drupal' => 'http://localhost:8000/media/6?_format=jsonld',
+            'drupal' => 'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
             'fedora' => 'http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b',
         ];
         $gemini = $this->prophesize(GeminiClient::class);
@@ -597,14 +603,18 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             ->willReturn($drupal_json_response);
         $drupal->get('http://localhost:8000/media/6?_format=jsonld', Argument::any())
             ->willReturn($drupal_jsonld_response);
-        $drupal = $drupal->reveal();
 
         $link = '<http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b/fcr:metadata>';
         $link .= '; rel="describedby"';
-        $fedora_head_response = new Response(
+        $head_response = new Response(
             200,
             ['Link' => $link]
         );
+        $drupal->head(Argument::any(), Argument::any())
+            ->willReturn($head_response);
+
+        $drupal = $drupal->reveal();
+
         $fedora_get_response = new Response(
             200,
             ['Content-Type' => 'application/ld+json', 'ETag' => 'W\abc123'],
@@ -614,8 +624,6 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             204
         );
         $fedora = $this->prophesize(IFedoraApi::class);
-        $fedora->getResourceHeaders(Argument::any(), Argument::any())
-            ->willReturn($fedora_head_response);
         $fedora->getResource(Argument::any(), Argument::any())
             ->willReturn($fedora_get_response);
         $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
@@ -623,7 +631,7 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
         $fedora = $fedora->reveal();
 
         $mapping = [
-            'drupal' => 'http://localhost:8000/media/6?_format=jsonld',
+            'drupal' => 'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
             'fedora' => 'http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b',
         ];
         $gemini = $this->prophesize(GeminiClient::class);

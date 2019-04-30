@@ -62,7 +62,8 @@ class MillinerController
             );
         } catch (\Exception $e) {
             $this->log->error("", ['Exception' => $e]);
-            return new Response($e->getMessage(), $e->getCode());
+            $code = $e->getCode() == 0 ? 500 : $e->getCode();
+            return new Response($e->getMessage(), $code);
         }
     }
 
@@ -87,7 +88,8 @@ class MillinerController
             );
         } catch (\Exception $e) {
             $this->log->error("", ['Exception' => $e]);
-            return new Response($e->getMessage(), $e->getCode());
+            $code = $e->getCode() == 0 ? 500 : $e->getCode();
+            return new Response($e->getMessage(), $code);
         }
     }
 
@@ -109,6 +111,38 @@ class MillinerController
             $response = $this->milliner->saveMedia(
                 $source_field,
                 $json_url,
+                $token
+            );
+
+            return new Response(
+                $response->getBody(),
+                $response->getStatusCode()
+            );
+        } catch (\Exception $e) {
+            $this->log->error("", ['Exception' => $e]);
+            $code = $e->getCode() == 0 ? 500 : $e->getCode();
+            return new Response($e->getMessage(), $code);
+        }
+    }
+
+    /**
+     * @param string $uuid
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function saveExternal($uuid, Request $request)
+    {
+        $token = $request->headers->get("Authorization", null);
+        $external_url = $request->headers->get("Content-Location");
+
+        if (empty($external_url)) {
+            return new Response("Expected external url in Content-Location header", 400);
+        }
+
+        try {
+            $response = $this->milliner->saveExternal(
+                $uuid,
+                $external_url,
                 $token
             );
 

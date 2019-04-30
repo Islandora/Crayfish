@@ -4,6 +4,8 @@ namespace Islandora\Milliner\Tests;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Exception\RequestException;
 use Islandora\Chullo\IFedoraApi;
 use Islandora\Crayfish\Commons\Client\GeminiClient;
 use Islandora\Milliner\Service\MillinerService;
@@ -40,6 +42,48 @@ class SaveNodeTest extends TestCase
         $this->logger->pushHandler(new NullHandler());
 
         $this->modifiedDatePredicate = "http://schema.org/dateModified";
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::saveNode
+     * @expectedException \GuzzleHttp\Exception\RequestException
+     * @expectedExceptionCode 403
+     */
+    public function testCreateNodeThrowsOnMintError()
+    {
+        $gemini = $this->prophesize(GeminiClient::class);
+        $gemini->getUrls(Argument::any(), Argument::any())
+            ->willReturn([]);
+        $gemini->mintFedoraUrl(Argument::any(), Argument::any())
+            ->willThrow(
+                new RequestException(
+                    "Unauthorized",
+                    new Request('POST', 'http://localhost:8000/gemini'),
+                    new Response(403, [], "Unauthorized")
+                )
+            );
+        $gemini = $gemini->reveal();
+
+        $drupal = $this->prophesize(Client::class);
+        $drupal = $drupal->reveal();
+
+        $fedora = $this->prophesize(IFedoraApi::class);
+        $fedora = $fedora->reveal();
+
+        $milliner = new MillinerService(
+            $fedora,
+            $drupal,
+            $gemini,
+            $this->logger,
+            $this->modifiedDatePredicate
+        );
+
+        $milliner->saveNode(
+            "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
+            "http://localhost:8000/node/1?_format=jsonld",
+            "Bearer islandora"
+        );
     }
 
     /**
