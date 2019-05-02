@@ -7,6 +7,7 @@ use App\Service\FitsGenerator;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpFoundation\Request;
 use GuzzleHttp\Client;
+use Psr\Log\LoggerInterface;
 
 class FitsController {
 
@@ -31,13 +32,15 @@ class FitsController {
      * @param Request $request
      * @return \Psr\Http\Message\ResponseInterface|StreamedResponse
      */
-    public function generate_fits(Request $request) {
+    public function generate_fits(Request $request, LoggerInterface $logger) {
         $file_uri = $request->headers->get('Apix-Ldp-Resource');
         // Pass along auth headers if present.
         $headers = [];
         if ($request->headers->has("Authorization")) {
             $headers['Authorization'] = $request->headers->get("Authorization");
         }
+        $logger->info("File URI is $file_uri");
+
         $response = $this->client->post('examine', [
             'headers' => $headers,
             'multipart' => [
