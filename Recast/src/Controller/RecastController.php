@@ -90,10 +90,11 @@ class RecastController
         $fedora_resource = $request->attributes->get('fedora_resource');
 
         // Look for a describes Link header.
-        $describe_uri = $fedora_resource->hasHeader('Link') ? self::describeUri($fedora_resource->getheader('Link')) : FALSE;
-        if ($describe_uri !== FALSE) {
-          // We found a describes URI so use that for the subject of the graph.
-          $fedora_uri = $describe_uri;
+        $describe_uri = $fedora_resource->hasHeader('Link') ? self::describeUri($fedora_resource->getheader('Link'))
+          : false;
+        if ($describe_uri !== false) {
+            // We found a describes URI so use that for the subject of the graph.
+            $fedora_uri = $describe_uri;
         }
 
         $body = (string) $fedora_resource->getBody();
@@ -243,13 +244,14 @@ class RecastController
    * @return false|string
    *   The URI described or false if not found.
    */
-    private static function describeUri(array $link_header) {
-      array_walk($link_header, ['self', 'parseLinkHeaders']);
-      $match = array_search('describes', array_column($link_header, 'rel'));
-      if (is_int($match)) {
-        $match = $link_header[$match]['uri'];
-      }
-      return $match;
+    private static function describeUri(array $link_header)
+    {
+        array_walk($link_header, ['self', 'parseLinkHeaders']);
+        $match = array_search('describes', array_column($link_header, 'rel'));
+        if (is_int($match)) {
+            $match = $link_header[$match]['uri'];
+        }
+        return $match;
     }
 
   /**
@@ -263,13 +265,14 @@ class RecastController
    * @param $o
    *   The input array of link headers.
    */
-    private static function parseLinkHeaders(&$o) {
-      $part = trim($o);
-      if (preg_match("/<([^>]+)>;\s*rel=\"?(\w+)\"?/", $part, $match)) {
-        $o = [
-          'uri' => $match[1],
-          'rel' => $match[2],
-        ];
-      }
+    private static function parseLinkHeaders(&$o)
+    {
+        $part = trim($o);
+        if (preg_match("/<([^>]+)>;\s*rel=\"?(\w+)\"?/", $part, $match)) {
+            $o = [
+                'uri' => $match[1],
+                'rel' => $match[2],
+            ];
+        }
     }
 }
