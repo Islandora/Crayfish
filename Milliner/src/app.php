@@ -9,6 +9,7 @@ use Islandora\Crayfish\Commons\Provider\YamlConfigServiceProvider;
 use Islandora\Crayfish\Commons\Client\GeminiClient;
 use Islandora\Milliner\Controller\MillinerController;
 use Islandora\Milliner\Service\MillinerService;
+use Pimple\Exception\UnknownIdentifierException;
 use Silex\Application;
 
 $app = new Application();
@@ -19,6 +20,15 @@ $app->register(new YamlConfigServiceProvider(__DIR__ . '/../cfg/config.yaml'));
 $app['debug'] = $app['crayfish.debug'];
 
 $app['milliner.controller'] = function () use ($app) {
+    try {
+        $strip_underscore_format_jsonld = filter_var(
+            $app['crayfish.strip_underscore_format_jsonld'],
+            FILTER_VALIDATE_BOOLEAN
+        );
+    } catch (UnknownIdentifierException $e) {
+        $strip_underscore_format_jsonld = false;
+    }
+
     return new MillinerController(
         new MillinerService(
             FedoraApi::create($app['crayfish.fedora_base_url']),
@@ -28,7 +38,8 @@ $app['milliner.controller'] = function () use ($app) {
                 $app['monolog']
             ),
             $app['monolog'],
-            $app['crayfish.modified_date_predicate']
+            $app['crayfish.modified_date_predicate'],
+            $strip_underscore_format_jsonld
         ),
         $app['monolog']
     );

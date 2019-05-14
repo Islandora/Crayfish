@@ -67,7 +67,8 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $milliner->deleteNode("abc123", "Bearer islandora");
@@ -100,7 +101,8 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $response = $milliner->deleteNode("first", "Bearer islandora");
@@ -140,7 +142,8 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $response = $milliner->deleteNode("abc123", "Bearer islandora");
@@ -176,7 +179,8 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $response = $milliner->deleteNode("abc123", "Bearer islandora");

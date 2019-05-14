@@ -74,7 +74,8 @@ class SaveExternalTest extends TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $milliner->saveExternal(
@@ -117,7 +118,8 @@ class SaveExternalTest extends TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $milliner->saveExternal(
@@ -156,7 +158,8 @@ class SaveExternalTest extends TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $milliner->saveExternal(
@@ -203,7 +206,8 @@ class SaveExternalTest extends TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $milliner->saveExternal(
