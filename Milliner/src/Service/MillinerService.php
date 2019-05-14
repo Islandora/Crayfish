@@ -42,7 +42,7 @@ class MillinerService implements MillinerServiceInterface
     /**
      * @var string
      */
-    protected $stripUnderscoreJsonld;
+    protected $stripFormatJsonld;
 
     /**
      * MillinerService constructor.
@@ -52,7 +52,7 @@ class MillinerService implements MillinerServiceInterface
      * @param \Islandora\Crayfish\Commons\Client\GeminiClient
      * @param \Psr\Log\LoggerInterface $log
      * @param string $modifiedDatePredicate
-     * @param string $stripUnderscoreJsonld
+     * @param string $stripFormatJsonld
      */
     public function __construct(
         IFedoraApi $fedora,
@@ -60,14 +60,14 @@ class MillinerService implements MillinerServiceInterface
         GeminiClient $gemini,
         LoggerInterface $log,
         $modifiedDatePredicate,
-        $stripUnderscoreJsonld
+        $stripFormatJsonld
     ) {
         $this->fedora = $fedora;
         $this->drupal = $drupal;
         $this->gemini = $gemini;
         $this->log = $log;
         $this->modifiedDatePredicate = $modifiedDatePredicate;
-        $this->stripUnderscoreJsonld = $stripUnderscoreJsonld;
+        $this->stripFormatJsonld = $stripFormatJsonld;
     }
 
     /**
@@ -131,7 +131,7 @@ class MillinerService implements MillinerServiceInterface
             true
         );
 
-        $subject_url = $this->stripUnderscoreJsonld ? $entity_url : $jsonld_url;
+        $subject_url = $this->stripFormatJsonld ? $entity_url : $jsonld_url;
 
         // Mash it into the shape Fedora accepts.
         $jsonld = $this->processJsonld(
@@ -240,7 +240,7 @@ class MillinerService implements MillinerServiceInterface
         );
 
         // Mash it into the shape Fedora accepts.
-        $subject_url = $this->stripUnderscoreJsonld ? $entity_url : $jsonld_url;
+        $subject_url = $this->stripFormatJsonld ? $entity_url : $jsonld_url;
         $drupal_jsonld = $this->processJsonld(
             $drupal_jsonld,
             $subject_url,

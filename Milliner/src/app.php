@@ -21,12 +21,12 @@ $app['debug'] = $app['crayfish.debug'];
 
 $app['milliner.controller'] = function () use ($app) {
     try {
-        $strip_underscore_format_jsonld = filter_var(
-            $app['crayfish.strip_underscore_format_jsonld'],
+        $strip_format_jsonld = filter_var(
+            $app['crayfish.strip_format_jsonld'],
             FILTER_VALIDATE_BOOLEAN
         );
     } catch (UnknownIdentifierException $e) {
-        $strip_underscore_format_jsonld = false;
+        $strip_format_jsonld = false;
     }
 
     return new MillinerController(
@@ -39,7 +39,7 @@ $app['milliner.controller'] = function () use ($app) {
             ),
             $app['monolog'],
             $app['crayfish.modified_date_predicate'],
-            $strip_underscore_format_jsonld
+            $strip_format_jsonld
         ),
         $app['monolog']
     );
