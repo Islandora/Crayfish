@@ -125,7 +125,7 @@ class MillinerService implements MillinerServiceInterface
             $jsonld_url,
             ['headers' => $headers]
         );
-        $this->log->debug("BEFORE:", ['jsonld' => $drupal_response->getBody()]);
+
         $jsonld = json_decode(
             $drupal_response->getBody(),
             true
@@ -140,7 +140,6 @@ class MillinerService implements MillinerServiceInterface
             $fedora_url
         );
 
-        $this->log->debug("AFTER:", ['jsonld' => json_encode($jsonld)]);
         // Save it in Fedora.
         $headers['Content-Type'] = 'application/ld+json';
         $headers['Prefer'] = 'return=minimal; handling=lenient';
