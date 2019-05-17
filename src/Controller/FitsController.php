@@ -27,9 +27,9 @@ class FitsController {
         $this->client = new Client($options);
     }
 
-
     /**
      * @param Request $request
+     * @param LoggerInterface $logger
      * @return \Psr\Http\Message\ResponseInterface|StreamedResponse
      */
     public function generate_fits(Request $request, LoggerInterface $logger) {
@@ -38,9 +38,7 @@ class FitsController {
         $headers = [];
         if ($request->headers->has("Authorization")) {
             $headers['Authorization'] = $request->headers->get("Authorization");
-        }
-        $logger->info("File URI is $file_uri");
-
+        }        $logger->info("File URI is $file_uri");
         $response = $this->client->post('examine', [
             'headers' => $headers,
             'multipart' => [
@@ -51,7 +49,12 @@ class FitsController {
                 ],
             ]
         ]);
+
         $fits_xml = $response->getBody()->getContents();
+        $encoding = mb_detect_encoding($fits_xml,'UTF-8', true);
+        if ($encoding != 'UTF-8') {
+            $fits_xml = utf8_encode($fits_xml);
+        }
         $response = new StreamedResponse();
         $response->headers->set('Content-Type', 'application/xml');
         $response->setCallback(function () use($fits_xml){
