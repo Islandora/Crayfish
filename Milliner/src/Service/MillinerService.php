@@ -40,26 +40,34 @@ class MillinerService implements MillinerServiceInterface
     protected $modifiedDatePredicate;
 
     /**
+     * @var string
+     */
+    protected $stripFormatJsonld;
+
+    /**
      * MillinerService constructor.
      *
      * @param \Islandora\Chullo\IFedoraApi $fedora
      * @param \GuzzleHttp\Client
      * @param \Islandora\Crayfish\Commons\Client\GeminiClient
-     * @param string $modifiedDatePredicate
      * @param \Psr\Log\LoggerInterface $log
+     * @param string $modifiedDatePredicate
+     * @param string $stripFormatJsonld
      */
     public function __construct(
         IFedoraApi $fedora,
         Client $drupal,
         GeminiClient $gemini,
         LoggerInterface $log,
-        $modifiedDatePredicate
+        $modifiedDatePredicate,
+        $stripFormatJsonld
     ) {
         $this->fedora = $fedora;
         $this->drupal = $drupal;
         $this->gemini = $gemini;
         $this->log = $log;
         $this->modifiedDatePredicate = $modifiedDatePredicate;
+        $this->stripFormatJsonld = $stripFormatJsonld;
     }
 
     /**
@@ -75,11 +83,13 @@ class MillinerService implements MillinerServiceInterface
         if (empty($urls)) {
             return $this->createNode(
                 $uuid,
+                rtrim($jsonld_url, '?_format=jsonld'),
                 $jsonld_url,
                 $token
             );
         } else {
             return $this->updateNode(
+                $urls['drupal'],
                 $jsonld_url,
                 $urls['fedora'],
                 $token
@@ -91,6 +101,7 @@ class MillinerService implements MillinerServiceInterface
      * Creates a new LDP-RS in Fedora from a Node.
      *
      * @param string $uuid
+     * @param string $entity_url
      * @param string $jsonld_url
      * @param string $token
      *
@@ -101,6 +112,7 @@ class MillinerService implements MillinerServiceInterface
      */
     protected function createNode(
         $uuid,
+        $entity_url,
         $jsonld_url,
         $token = null
     ) {
@@ -119,10 +131,12 @@ class MillinerService implements MillinerServiceInterface
             true
         );
 
+        $subject_url = $this->stripFormatJsonld ? $entity_url : $jsonld_url;
+
         // Mash it into the shape Fedora accepts.
         $jsonld = $this->processJsonld(
             $jsonld,
-            $jsonld_url,
+            $subject_url,
             $fedora_url
         );
 
@@ -147,7 +161,7 @@ class MillinerService implements MillinerServiceInterface
         // Map the URLS.
         $this->gemini->saveUrls(
             $uuid,
-            $jsonld_url,
+            $subject_url,
             $fedora_url,
             $token
         );
@@ -159,7 +173,7 @@ class MillinerService implements MillinerServiceInterface
     /**
      * Updates an existing LDP-RS in Fedora from a Node.
      *
-     * @param string $uuid
+     * @param string $entity_url
      * @param string $jsonld_url
      * @param string $fedora_url
      * @param string $token
@@ -170,6 +184,7 @@ class MillinerService implements MillinerServiceInterface
      * @throws \GuzzleHttp\Exception\RequestException
      */
     protected function updateNode(
+        $entity_url,
         $jsonld_url,
         $fedora_url,
         $token = null
@@ -224,9 +239,10 @@ class MillinerService implements MillinerServiceInterface
         );
 
         // Mash it into the shape Fedora accepts.
+        $subject_url = $this->stripFormatJsonld ? $entity_url : $jsonld_url;
         $drupal_jsonld = $this->processJsonld(
             $drupal_jsonld,
-            $jsonld_url,
+            $subject_url,
             $fedora_url
         );
 
@@ -362,6 +378,7 @@ class MillinerService implements MillinerServiceInterface
         );
 
         $jsonld_url = $this->getLinkHeader($drupal_response, "alternate", "application/ld+json");
+
         $media_json = json_decode(
             $drupal_response->getBody(),
             true
@@ -413,6 +430,7 @@ class MillinerService implements MillinerServiceInterface
         }
 
         return $this->updateNode(
+            rtrim($jsonld_url, '?_format=jsonld'),
             $jsonld_url,
             $fedora_url,
             $token

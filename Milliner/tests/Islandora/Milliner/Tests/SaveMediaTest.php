@@ -72,7 +72,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $milliner->saveMedia(
@@ -113,7 +114,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $milliner->saveMedia(
@@ -157,7 +159,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $milliner->saveMedia(
@@ -210,7 +213,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $milliner->saveMedia(
@@ -263,7 +267,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $milliner->saveMedia(
@@ -326,7 +331,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $milliner->saveMedia(
@@ -401,7 +407,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $milliner->saveMedia(
@@ -481,7 +488,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $milliner->saveMedia(
@@ -559,7 +567,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $response = $milliner->saveMedia(
@@ -644,7 +653,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             $drupal,
             $gemini,
             $this->logger,
-            $this->modifiedDatePredicate
+            $this->modifiedDatePredicate,
+            false
         );
 
         $response = $milliner->saveMedia(
