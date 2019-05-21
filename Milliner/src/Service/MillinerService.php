@@ -88,6 +88,13 @@ class MillinerService implements MillinerServiceInterface
                 $token
             );
         } else {
+            $this->log->debug("are we getting anywhere");
+            $version = $this->createVersion(
+                $urls['fedora'],
+                $token
+            );
+            $this->log->debug("this is a message");
+            $this->log->debug($version);
             return $this->updateNode(
                 $urls['drupal'],
                 $jsonld_url,
@@ -542,4 +549,51 @@ class MillinerService implements MillinerServiceInterface
         // Return the response from Fedora.
         return $response;
     }
+
+    /**
+     * Creates a new LDP-RS in Fedora from a Node.
+     *
+     * @param string $fedora_url
+     * @param string $token
+     *
+     * @return \GuzzleHttp\Psr7\Response
+     *
+     * @throws \RuntimeException
+     * @throws \GuzzleHttp\Exception\RequestException
+     */
+    protected function createVersion(
+        $fedora_url,
+        $token = null
+    ) {
+        $this->log->debug($fedora_url);
+
+        $headers = empty($token) ? [] : ['Authorization' => $token];
+        // update the url
+        $fedora_url = $fedora_url . "/fcr:versions";
+        $this->log->debug($fedora_url);
+
+
+        // create version in Fedora.
+        $response = $this->fedora->createVersion(
+            $fedora_url,
+            $headers
+        );
+        $this->log->debug("after the response");
+        $this->log->debug(print_r( $response, true ));
+        
+
+
+        $status = $response->getStatusCode();
+        if (!in_array($status, [201])) {
+            $reason = $response->getReasonPhrase();
+            throw new \RuntimeException(
+                "Client error: `POST $fedora_url` resulted in a `$status $reason` response: " . $response->getBody(),
+                $status
+            );
+        }
+
+        // Return the response from Fedora.
+        return $response;
+    }
+
 }
