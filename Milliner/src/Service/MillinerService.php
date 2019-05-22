@@ -93,8 +93,8 @@ class MillinerService implements MillinerServiceInterface
                 $urls['fedora'],
                 $token
             );
-            $this->log->debug("this is a message");
-            $this->log->debug($version);
+            $this->log->debug("this is a message after the version");
+            // $this->log->debug($version);
             return $this->updateNode(
                 $urls['drupal'],
                 $jsonld_url,
@@ -591,6 +591,7 @@ class MillinerService implements MillinerServiceInterface
                 $status
             );
         }
+        $this->log->debug("end of create version method");
 
         // Return the response from Fedora.
         return $response;
