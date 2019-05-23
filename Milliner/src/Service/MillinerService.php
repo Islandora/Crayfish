@@ -437,7 +437,7 @@ class MillinerService implements MillinerServiceInterface
         }
 
         return $this->updateNode(
-            rtrim($jsonld_url, '?_format=jsonld'),
+            $urls['drupal'],
             $jsonld_url,
             $fedora_url,
             $token
