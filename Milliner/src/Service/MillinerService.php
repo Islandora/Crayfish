@@ -568,10 +568,10 @@ class MillinerService implements MillinerServiceInterface
         $this->log->debug($fedora_url);
 
         $headers = empty($token) ? [] : ['Authorization' => $token];
-        // update the url
-        $fedora_url = $fedora_url . "/fcr:versions";
         $this->log->debug($fedora_url);
 
+        $header_response = $this->fedora->getResourceHeaders($fedora_uri, $headers);
+        $this->log->debug(print_r($header_response, true));
 
         // create version in Fedora.
         $response = $this->fedora->createVersion(
@@ -580,7 +580,7 @@ class MillinerService implements MillinerServiceInterface
         );
         $this->log->debug("after the response");
         $this->log->debug(print_r( $response, true ));
-        
+
 
 
         $status = $response->getStatusCode();
