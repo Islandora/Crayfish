@@ -78,7 +78,9 @@ class MillinerService implements MillinerServiceInterface
         $jsonld_url,
         $token = null
     ) {
+        $this->log->debug("in milliner save node");
         $urls = $this->gemini->getUrls($uuid, $token);
+        $this->log->debug(print_r($urls, true));
 
         if (empty($urls)) {
             return $this->createNode(
@@ -88,13 +90,18 @@ class MillinerService implements MillinerServiceInterface
                 $token
             );
         } else {
-            $this->log->debug("are we getting anywhere");
-            $version = $this->createVersion(
-                $urls['fedora'],
-                $token
-            );
-            $this->log->debug("this is a message after the version");
-            // $this->log->debug($version);
+            $this->log->debug("in milliner save node");
+            try {
+                $version = $this->createVersion(
+                    $urls['fedora'],
+                    $token
+                );
+                $this->log->debug("version should be successfully created");
+                // $this->log->debug($version);
+            } catch (Exception $e) {
+                $this->log->error('Caught exception: ',  $e->getMessage(), "\n");
+            }
+
             return $this->updateNode(
                 $urls['drupal'],
                 $jsonld_url,
@@ -565,17 +572,27 @@ class MillinerService implements MillinerServiceInterface
         $fedora_url,
         $token = null
     ) {
-        $this->log->debug($fedora_url);
+        $this->log->debug("in milliner create version");
 
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $this->log->debug($fedora_url);
 
-        $header_response = $this->fedora->getResourceHeaders($fedora_uri, $headers);
-        $this->log->debug(print_r($header_response, true));
+        $header_response = $this->fedora->getResourceHeaders($fedora_url, $headers);
+        $parsed_link_headers = Psr7\parse_header($header_response->getHeader('Link'));
+        $timemap_uri = NULL;
+        foreach($parsed_link_headers as $link_header){
+            if (isset($link_header['rel']) && $link_header['rel'] == "timemap") {
+                $timemap_uri = $link_header[0];
+                $timemap_uri = str_replace("<","",$timemap_uri);
+                $timemap_uri = str_replace(">","",$timemap_uri);
+            }
+        }
+        $this->log->debug($timemap_uri);
 
         // create version in Fedora.
         $response = $this->fedora->createVersion(
             $fedora_url,
+            "",
             $headers
         );
         $this->log->debug("after the response");
