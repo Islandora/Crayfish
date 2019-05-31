@@ -3,7 +3,7 @@
     "description": "Imagemagick as a web service",
     "type": "project",
     "require": {
-        "islandora/crayfish-commons": "dev-master"
+        "islandora/crayfish-commons": "1.0.0"
     },
     "license": "MIT",
     "authors": [
