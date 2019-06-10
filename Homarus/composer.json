@@ -3,7 +3,7 @@
   "description": "FFmpeg as a web service",
   "type": "project",
   "require": {
-    "islandora/crayfish-commons": "^1.0"
+    "islandora/crayfish-commons": "dev-dev"
   },
   "license": "MIT",
   "authors": [
