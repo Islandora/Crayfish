@@ -593,12 +593,9 @@ class MillinerService implements MillinerServiceInterface
         $response = $this->fedora->createVersion(
             $fedora_url,
             "",
+            null,
             $headers
         );
-        $this->log->debug("after the response");
-        $this->log->debug(print_r( $response, true ));
-
-
 
         $status = $response->getStatusCode();
         if (!in_array($status, [201])) {
