@@ -115,6 +115,55 @@ This request returns, for example:
 }
 ```
 
+#### GET /by_uri
+
+Fetches the alternate URI from Gemini for the one provided in a `X-Islandora-URI` header and returns:
+* 200 OK and the URI in a Location header, if it exists in Gemini.
+* 404 Not Found, if it doesn't exist in Gemini.
+
+`curl -i -H"Authorization: Bearer islandora" -H"X-Islandora-URI: http://localhost:8000/node/2" http://localhost:8000/gemini/by_uri`
+
+This request returns:
+```
+HTTP/1.1 200 OK
+Date: Thu, 23 May 2019 19:23:15 GMT
+Server: Apache/2.4.18 (Ubuntu)
+X-Powered-By: PHP/7.2.18-1+ubuntu16.04.1+deb.sury.org+1
+Location: http://localhost:8080/fcrepo/rest/cf/5d/46/74/cf5d4674-282b-499c-9ebc-4c4815d4f9ac
+Cache-Control: no-cache, private
+Content-Length: 0
+Content-Type: text/html; charset=UTF-8
+```
+
+Requesting with the URI from this `Location:` header should return the original URI.
+
+`curl -i -H"Authorization: Bearer islandora" -H"X-Islandora-URI: http://localhost:8080/fcrepo/rest/cf/5d/46/74/cf5d4674-282b-499c-9ebc-4c4815d4f9ac" http://localhost:8000/gemini/by_uri`
+
+```
+HTTP/1.1 200 OK
+Date: Thu, 23 May 2019 19:25:27 GMT
+Server: Apache/2.4.18 (Ubuntu)
+X-Powered-By: PHP/7.2.18-1+ubuntu16.04.1+deb.sury.org+1
+Location: http://localhost:8000/node/2
+Cache-Control: no-cache, private
+Content-Length: 0
+Content-Type: text/html; charset=UTF-8
+```
+
+If a mapping cannot be found then a 404 response is returned.
+
+`curl -i -H"Authorization: Bearer islandora" -H"X-Islandora-URI: http://localhost:8000/node/99" http://localhost:8000/gemini/by_uri`
+
+```
+HTTP/1.1 404 Not Found
+Date: Thu, 23 May 2019 19:26:36 GMT
+Server: Apache/2.4.18 (Ubuntu)
+X-Powered-By: PHP/7.2.18-1+ubuntu16.04.1+deb.sury.org+1
+Cache-Control: no-cache, private
+Content-Length: 0
+Content-Type: text/html; charset=UTF-8
+```
+
 #### DELETE /{UUID}
 
 Purges the entry corresponding to the UUID from Gemini's database:
