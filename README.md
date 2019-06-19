@@ -6,7 +6,7 @@
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
 [![codecov](https://codecov.io/gh/Islandora-CLAW/Crayfish/branch/master/graph/badge.svg)](https://codecov.io/gh/Islandora-CLAW/Crayfish)
 
-A collection of Islandora CLAW microservices, lovingly known as Crayfish.  Some of the microservices are built specifically for use with a Fedora Repository and API-X, while others are just for general use within CLAW.
+A collection of Islandora 8 microservices, lovingly known as Crayfish.  Some of the microservices are built specifically for use with a Fedora Repository and API-X, while others are just for general use within Islandora 8.
 
 ## Requirements
 
@@ -29,7 +29,7 @@ See the individual services for more information on their endpoints.
 
 ## Security
 
-Crayfish microservices use JWTs to handle authentication like the rest of the Islandora CLAW.
+Crayfish microservices use JWTs to handle authentication like the rest of the Islandora 8.
 It is disabled by default. To enable, set `security enabled` to `true` in `cfg/cfg.php` for any microservice.
 You can also set the path to an xml configuration file for security a la [Syn][9] with the `security config` parameter.
 
