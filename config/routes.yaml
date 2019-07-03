@@ -3,3 +3,7 @@
 app_fits_exec:
   path: /fits/process
   controller: App\Controller\FitsController::generate_fits
+
+app_fits_exec2:
+  path: /
+  controller: App\Controller\FitsController::generate_fits
