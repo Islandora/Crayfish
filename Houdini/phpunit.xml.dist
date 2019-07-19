@@ -31,6 +31,9 @@
     </logging>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
+            <exclude>
+              <file>./src/Kernel.php</file>
+            </exclude>
             <directory suffix=".php">./src</directory>
         </whitelist>
     </filter>
