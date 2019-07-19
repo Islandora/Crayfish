@@ -1,0 +1,9 @@
+monolog:
+
+  handlers:
+
+    houdini:
+      type: rotating_file
+      path: /tmp/Houdini.log
+      level: DEBUG
+      max_files: 1
