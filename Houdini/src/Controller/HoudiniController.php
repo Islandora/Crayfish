@@ -1,11 +1,10 @@
 <?php
 
-namespace Islandora\Houdini\Controller;
+namespace App\Islandora\Houdini\Controller;
 
 use GuzzleHttp\Psr7\StreamWrapper;
 use Islandora\Crayfish\Commons\CmdExecuteService;
-use Islandora\Crayfish\Commons\ApixFedoraResourceRetriever;
-use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,13 +12,13 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Class HoudiniController
- * @package Islandora\Houdini\Controller
+ * @package App\Islandora\Houdini\Controller
  */
 class HoudiniController
 {
 
     /**
-     * @var \Islandora\Crayfish\Commons\CmdExecuteService
+     * @var App\Islandora\Crayfish\Commons\CmdExecuteService
      */
     protected $cmd;
 
@@ -39,7 +38,7 @@ class HoudiniController
     protected $executable;
 
     /**
-     * @var \Monolog\Logger
+     * @var LoggerInterface
      */
     protected $log;
 
@@ -49,14 +48,14 @@ class HoudiniController
      * @param array $formats
      * @param string $default_format
      * @param string $executable
-     * @param $log
+     * @param \Psr\Log\LoggerInterface $log
      */
     public function __construct(
         CmdExecuteService $cmd,
         $formats,
         $default_format,
         $executable,
-        $log
+        LoggerInterface $log
     ) {
         $this->cmd = $cmd;
         $this->formats = $formats;
@@ -71,7 +70,7 @@ class HoudiniController
     public function convertOptions()
     {
         return new BinaryFileResponse(
-            __DIR__ . "/../../static/convert.ttl",
+            __DIR__ . "/../../public/static/convert.ttl",
             200,
             ['Content-Type' => 'text/turtle']
         );
@@ -135,7 +134,7 @@ class HoudiniController
     public function identifyOptions()
     {
         return new BinaryFileResponse(
-            __DIR__ . "/../../static/identify.ttl",
+            __DIR__ . "/../../public/static/identify.ttl",
             200,
             ['Content-Type' => 'text/turtle']
         );

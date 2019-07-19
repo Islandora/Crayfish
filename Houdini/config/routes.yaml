@@ -1,0 +1,16 @@
+convert_opt:
+    path: /convert
+    methods: OPTIONS
+    controller: App\Islandora\Houdini\Controller\HoudiniController::convertOptions
+convert_get:
+  path: /convert
+  methods: GET
+  controller: App\Islandora\Houdini\Controller\HoudiniController::convert
+identify_opt:
+  path: /identify
+  methods: OPTIONS
+  controller: App\Islandora\Houdini\Controller\HoudiniController::identifyOptions
+identify_get:
+  path: /identify
+  methods: GET
+  controller: App\Islandora\Houdini\Controller\HoudiniController::identify
