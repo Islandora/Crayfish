@@ -89,14 +89,14 @@ class MillinerService implements MillinerServiceInterface
                 $jsonld_url,
                 $token
             );
-        } else if ($event_type == "Version"){
+        } elseif ($event_type == "Version") {
             try {
                 $this->createVersion(
                     $urls['fedora'],
                     $token
                 );
             } catch (Exception $e) {
-                $this->log->error('Caught exception: ',  $e->getMessage(), "\n");
+                $this->log->error('Caught exception: ', $e->getMessage(), "\n");
             }
         } else {
             return $this->updateNode(
@@ -585,16 +585,14 @@ class MillinerService implements MillinerServiceInterface
             if (!in_array($status, [201])) {
                 $reason = $response->getReasonPhrase();
                 throw new \RuntimeException(
-                    "Client error: `POST $fedora_url` resulted in a `$status $reason` response: " . $response->getBody(),
+                    "Client error: `POST $fedora_url` resulted in `$status $reason` response: " . $response->getBody(),
                     $status
                 );
             }
             // Return the response from Fedora.
             return $response;
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             $this->log->debug($e);
         }
-
     }
-
 }

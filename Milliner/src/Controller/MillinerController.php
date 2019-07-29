@@ -45,7 +45,7 @@ class MillinerController
         $token = $request->headers->get("Authorization", null);
         $jsonld_url = $request->headers->get("Content-Location");
         $event_type = $request->headers->get("Event");
-        if (empty($event_type)){
+        if (empty($event_type)) {
             $event_type = null;
         }
 
