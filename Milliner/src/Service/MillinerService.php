@@ -8,6 +8,7 @@ use GuzzleHttp\Psr7\Response;
 use Islandora\Chullo\IFedoraApi;
 use Islandora\Crayfish\Commons\Client\GeminiClient;
 use Psr\Log\LoggerInterface;
+use \DateTime;
 
 /**
  * Class MillinerService
@@ -88,12 +89,16 @@ class MillinerService implements MillinerServiceInterface
                 $jsonld_url,
                 $token
             );
+        } else if ($event_type == "Version"){
+            try {
+                $this->createVersion(
+                    $urls['fedora'],
+                    $token
+                );
+            } catch (Exception $e) {
+                $this->log->error('Caught exception: ',  $e->getMessage(), "\n");
+            }
         } else {
-            $this->createVersion(
-                $urls['fedora'],
-                $token
-            );
-
             return $this->updateNode(
                 $urls['drupal'],
                 $jsonld_url,
@@ -565,26 +570,31 @@ class MillinerService implements MillinerServiceInterface
         $token = null
     ) {
         $headers = empty($token) ? [] : ['Authorization' => $token];
-
+        $date = new DateTime();
+        $timestamp = $date->format("D, d M Y H:i:s O");
         // create version in Fedora.
-        $response = $this->fedora->createVersion(
-            $fedora_url,
-            "",
-            null,
-            $headers
-        );
-
-        $status = $response->getStatusCode();
-        if (!in_array($status, [201])) {
-            $reason = $response->getReasonPhrase();
-            throw new \RuntimeException(
-                "Client error: `POST $fedora_url` resulted in a `$status $reason` response: " . $response->getBody(),
-                $status
+        try {
+            $response = $this->fedora->createVersion(
+                $fedora_url,
+                $timestamp,
+                null,
+                $headers
             );
+            $status = $response->getStatusCode();
+
+            if (!in_array($status, [201])) {
+                $reason = $response->getReasonPhrase();
+                throw new \RuntimeException(
+                    "Client error: `POST $fedora_url` resulted in a `$status $reason` response: " . $response->getBody(),
+                    $status
+                );
+            }
+            // Return the response from Fedora.
+            return $response;
+        } catch(Exception $e) {
+            $this->log->debug($e);
         }
 
-        // Return the response from Fedora.
-        return $response;
     }
 
 }
