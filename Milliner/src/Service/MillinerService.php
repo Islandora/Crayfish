@@ -76,6 +76,7 @@ class MillinerService implements MillinerServiceInterface
     public function saveNode(
         $uuid,
         $jsonld_url,
+        $event_type = null,
         $token = null
     ) {
         $urls = $this->gemini->getUrls($uuid, $token);

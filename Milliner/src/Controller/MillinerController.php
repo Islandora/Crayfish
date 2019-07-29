@@ -44,6 +44,10 @@ class MillinerController
     {
         $token = $request->headers->get("Authorization", null);
         $jsonld_url = $request->headers->get("Content-Location");
+        $event_type = $request->headers->get("Event");
+        if (empty($event_type)){
+            $event_type = null;
+        }
 
         if (empty($jsonld_url)) {
             return new Response("Expected JSONLD url in Content-Location header", 400);
@@ -53,6 +57,7 @@ class MillinerController
             $response = $this->milliner->saveNode(
                 $uuid,
                 $jsonld_url,
+                $event_type,
                 $token
             );
 

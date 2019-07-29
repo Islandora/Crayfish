@@ -20,6 +20,7 @@ interface MillinerServiceInterface
     public function saveNode(
         $uuid,
         $jsonld_url,
+        $event_type = null,
         $token = null
     );
 
