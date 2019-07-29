@@ -10,6 +10,7 @@ matrix:
 branches:
   only:
     - /master/
+    - /^dev/
 
 before_install:
   - export SCRIPT_DIR=$HOME/CLAW/.scripts
