@@ -91,7 +91,7 @@ class MillinerService implements MillinerServiceInterface
             );
         } elseif ($event_type == "Version") {
             try {
-                $this->createVersion(
+                return $this->createVersion(
                     $urls['fedora'],
                     $token
                 );
