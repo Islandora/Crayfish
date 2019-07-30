@@ -57,7 +57,7 @@ class MillinerController
             $response = $this->milliner->saveNode(
                 $uuid,
                 $jsonld_url,
-                $event_type,
+                $event_type ?: $event_type,
                 $token
             );
 
