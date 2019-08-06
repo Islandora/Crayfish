@@ -77,7 +77,6 @@ class MillinerService implements MillinerServiceInterface
     public function saveNode(
         $uuid,
         $jsonld_url,
-        $event_type = null,
         $token = null
     ) {
         $urls = $this->gemini->getUrls($uuid, $token);
@@ -89,15 +88,6 @@ class MillinerService implements MillinerServiceInterface
                 $jsonld_url,
                 $token
             );
-        } elseif ($event_type == "Version") {
-            try {
-                return $this->createVersion(
-                    $urls['fedora'],
-                    $token
-                );
-            } catch (Exception $e) {
-                $this->log->error('Caught exception: ', $e->getMessage(), "\n");
-            }
         } else {
             return $this->updateNode(
                 $urls['drupal'],
@@ -556,19 +546,14 @@ class MillinerService implements MillinerServiceInterface
 
     /**
      * Creates a new LDP-RS in Fedora from a Node.
-     *
-     * @param string $fedora_url
-     * @param string $token
-     *
-     * @return \GuzzleHttp\Psr7\Response
-     *
-     * @throws \RuntimeException
-     * @throws \GuzzleHttp\Exception\RequestException
+     * {@inheritDoc}
      */
-    protected function createVersion(
-        $fedora_url,
+    public function createVersion(
+        $uuid,
         $token = null
     ) {
+        $urls = $this->gemini->getUrls($uuid, $token);
+        $fedora_url = $urls['fedora'];
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $date = new DateTime();
         $timestamp = $date->format("D, d M Y H:i:s O");
@@ -581,7 +566,6 @@ class MillinerService implements MillinerServiceInterface
                 $headers
             );
             $status = $response->getStatusCode();
-
             if (!in_array($status, [201])) {
                 $reason = $response->getReasonPhrase();
                 throw new \RuntimeException(
@@ -592,7 +576,7 @@ class MillinerService implements MillinerServiceInterface
             // Return the response from Fedora.
             return $response;
         } catch (Exception $e) {
-            $this->log->debug($e);
+            $this->log->error('Caught exception when creating version: ', $e->getMessage(), "\n");
         }
     }
 }

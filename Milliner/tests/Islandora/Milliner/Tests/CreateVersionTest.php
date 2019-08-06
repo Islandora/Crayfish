@@ -47,7 +47,6 @@ class CreateVersionTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::saveNode
      * @covers ::createVersion
      */
     public function testCreateVersionReturnsFedora201()
@@ -88,10 +87,8 @@ class CreateVersionTest extends TestCase
             false
         );
 
-        $response = $milliner->saveNode(
+        $response = $milliner->createVersion(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
-            "http://localhost:8000/node/1?_format=jsonld",
-            "Version",
             "Bearer islandora"
         );
 
@@ -104,7 +101,6 @@ class CreateVersionTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::saveNode
      * @covers ::createVersion
      * @expectedException \RuntimeException
      * @expectedExceptionCode 404
@@ -148,10 +144,8 @@ class CreateVersionTest extends TestCase
             false
         );
 
-        $response = $milliner->saveNode(
+        $response = $milliner->createVersion(
             "9541c0c1-5bee-4973-a9d0-9998",
-            "http://localhost:8000/node/1?_format=jsonld",
-            "Version",
             "Bearer islandora"
         );
 
@@ -165,7 +159,6 @@ class CreateVersionTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::saveNode
      * @covers ::createVersion
      * @expectedException \RuntimeException
      * @expectedExceptionCode 403
@@ -212,10 +205,8 @@ class CreateVersionTest extends TestCase
             false
         );
 
-        $response = $milliner->saveNode(
+        $response = $milliner->createVersion(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
-            "http://localhost:8000/node/1?_format=jsonld",
-            "Version",
             "Bearer islandora"
         );
 

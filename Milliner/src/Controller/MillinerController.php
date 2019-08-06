@@ -44,10 +44,6 @@ class MillinerController
     {
         $token = $request->headers->get("Authorization", null);
         $jsonld_url = $request->headers->get("Content-Location");
-        $event_type = $request->headers->get("Event");
-        if (empty($event_type)) {
-            $event_type = null;
-        }
 
         if (empty($jsonld_url)) {
             return new Response("Expected JSONLD url in Content-Location header", 400);
@@ -57,7 +53,6 @@ class MillinerController
             $response = $this->milliner->saveNode(
                 $uuid,
                 $jsonld_url,
-                $event_type ?: $event_type,
                 $token
             );
 
@@ -151,6 +146,30 @@ class MillinerController
                 $token
             );
 
+            return new Response(
+                $response->getBody(),
+                $response->getStatusCode()
+            );
+        } catch (\Exception $e) {
+            $this->log->error("", ['Exception' => $e]);
+            $code = $e->getCode() == 0 ? 500 : $e->getCode();
+            return new Response($e->getMessage(), $code);
+        }
+    }
+
+    /**
+     * @param string $uuid
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function createVersion($uuid, Request $request)
+    {
+        $token = $request->headers->get("Authorization", null);
+        try {
+            $response = $this->milliner->createVersion(
+                $uuid,
+                $token
+            );
             return new Response(
                 $response->getBody(),
                 $response->getStatusCode()
