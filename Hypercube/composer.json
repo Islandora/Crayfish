@@ -6,6 +6,8 @@
         "silex/silex": "^2.0",
         "islandora/crayfish-commons": "dev-dev"
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "license": "MIT",
     "authors": [
         {
@@ -33,6 +35,12 @@
             "@check",
             "phpunit"
         ]
+    },
+    "config": {
+        "sort-packages": true,
+        "platform": {
+            "php": "7.2"
+        }
     },
     "require-dev": {
         "symfony/browser-kit": "^3.0",
