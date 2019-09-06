@@ -72,19 +72,18 @@ class HypercubeController
         // Arguments to command line are sent as a custom header
         $args = $request->headers->get('X-Islandora-Args');
 
-	// Check content type and use the appropriate command line tool.
-	$content_type = $fedora_resource->getHeader('Content-Type')[0];
-	
-	$this->log->debug("Got Content-Type:", ['type' => $content_type]);
+        // Check content type and use the appropriate command line tool.
+        $content_type = $fedora_resource->getHeader('Content-Type')[0];
+    
+        $this->log->debug("Got Content-Type:", ['type' => $content_type]);
 
-	if ($content_type == 'application/pdf') {
+        if ($content_type == 'application/pdf') {
             $cmd_string = $this->pdftotext_executable . " $args - -";
-        }
-        else {
+        } else {
             $cmd_string = $this->tesseract_executable . " stdin stdout $args";
         }
 
-	$this->log->debug("Executing command:", ['cmd' => $cmd_string]);
+        $this->log->debug("Executing command:", ['cmd' => $cmd_string]);
 
         // Return response.
         try {
