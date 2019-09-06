@@ -4,6 +4,7 @@ namespace Islandora\Hypercube\Controller;
 
 use GuzzleHttp\Psr7\StreamWrapper;
 use Islandora\Crayfish\Commons\CmdExecuteService;
+use Monolog\Logger;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,17 +26,35 @@ class HypercubeController
     /**
      * @var string
      */
-    protected $executable;
+    protected $tesseract_executable;
+
+    /**
+     * @var string
+     */
+    protected $pdftotext_executable;
+
+    /**
+     * @var \Monolog\Logger
+     */
+    protected $log;
 
     /**
      * HypercubeController constructor.
      * @param \Islandora\Crayfish\Commons\CmdExecuteService $cmd
-     * @param string $executable
+     * @param string $tesseract_executable
+     * @param string $pdftotext_executable
+     * @param $log
      */
-    public function __construct(CmdExecuteService $cmd, $executable)
-    {
+    public function __construct(
+        CmdExecuteService $cmd,
+        $tesseract_executable,
+        $pdftotext_executable,
+        Logger $log
+    ) {
         $this->cmd = $cmd;
-        $this->executable = $executable;
+        $this->tesseract_executable = $tesseract_executable;
+        $this->pdftotext_executable = $pdftotext_executable;
+        $this->log = $log;
     }
 
     /**
@@ -50,10 +69,22 @@ class HypercubeController
         // Get tiff as a resource.
         $body = StreamWrapper::getResource($fedora_resource->getBody());
 
-        // Arguments to OCR command are sent as a custom header
+        // Arguments to command line are sent as a custom header
         $args = $request->headers->get('X-Islandora-Args');
 
-        $cmd_string = $this->executable . ' stdin stdout ' . $args;
+	// Check content type and use the appropriate command line tool.
+	$content_type = $fedora_resource->getHeader('Content-Type')[0];
+	
+	$this->log->debug("Got Content-Type:", ['type' => $content_type]);
+
+	if ($content_type == 'application/pdf') {
+            $cmd_string = $this->pdftotext_executable . " $args - -";
+        }
+        else {
+            $cmd_string = $this->tesseract_executable . " stdin stdout $args";
+        }
+
+	$this->log->debug("Executing command:", ['cmd' => $cmd_string]);
 
         // Return response.
         try {
