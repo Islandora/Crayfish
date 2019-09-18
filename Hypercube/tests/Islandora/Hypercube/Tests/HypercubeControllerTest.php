@@ -4,6 +4,7 @@ namespace Islandora\Hypercube\Tests;
 
 use Islandora\Crayfish\Commons\CmdExecuteService;
 use Islandora\Hypercube\Controller\HypercubeController;
+use Monolog\Logger;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -21,9 +22,12 @@ class HypercubeControllerTest extends \PHPUnit_Framework_TestCase
     public function testOptions()
     {
         $mock_service = $this->prophesize(CmdExecuteService::class)->reveal();
+        $mock_logger = $this->prophesize(Logger::class)->reveal();
         $controller = new HypercubeController(
             $mock_service,
-            ''
+            'tesseract',
+            'pdftotext',
+            $mock_logger
         );
 
         $response = $controller->options();
@@ -40,11 +44,26 @@ class HypercubeControllerTest extends \PHPUnit_Framework_TestCase
      */
     public function testTesseractErrorReturns500()
     {
+        $this->errorReturns500('image/tiff');
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::get
+     */
+    public function testPdfToTextErrorReturns500()
+    {
+        $this->errorReturns500('application/pdf');
+    }
+
+    protected function errorReturns500($mimetype)
+    {
         // Mock a TesseractService to create a controller.
         $prophecy = $this->prophesize(CmdExecuteService::class);
         $prophecy->execute(Argument::any(), Argument::any())->willThrow(new \RuntimeException("ERROR", 500));
         $mock_service = $prophecy->reveal();
-        $controller = new HypercubeController($mock_service, '');
+        $mock_logger = $this->prophesize(Logger::class)->reveal();
+        $controller = new HypercubeController($mock_service, 'tesseract', 'pdftotext', $mock_logger);
 
         // Mock a stream body for a Fedora response.
         $prophecy = $this->prophesize(StreamInterface::class);
@@ -54,6 +73,7 @@ class HypercubeControllerTest extends \PHPUnit_Framework_TestCase
 
         // Mock a Fedora response.
         $prophecy = $this->prophesize(ResponseInterface::class);
+        $prophecy->getHeader('Content-Type')->willReturn(['image/tiff']);
         $prophecy->getStatusCode()->willReturn(200);
         $prophecy->getBody()->willReturn($mock_stream);
         $mock_fedora_response = $prophecy->reveal();
@@ -78,10 +98,25 @@ class HypercubeControllerTest extends \PHPUnit_Framework_TestCase
      */
     public function testTesseractSuccessReturns200()
     {
-        // Mock a TesseractService to create a controller.
+        $this->successReturns200('image/tiff');
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::get
+     */
+    public function testPdfToTextSuccessReturns200()
+    {
+        $this->successReturns200('application/pdf');
+    }
+
+    protected function successReturns200($mimetype)
+    {
+        // Mock a controller.
         $prophecy = $this->prophesize(CmdExecuteService::class);
         $mock_service = $prophecy->reveal();
-        $controller = new HypercubeController($mock_service, '');
+        $mock_logger = $this->prophesize(Logger::class)->reveal();
+        $controller = new HypercubeController($mock_service, 'tesseract', 'pdftotext', $mock_logger);
 
         // Mock a stream body for a Fedora response.
         $prophecy = $this->prophesize(StreamInterface::class);
@@ -91,6 +126,7 @@ class HypercubeControllerTest extends \PHPUnit_Framework_TestCase
 
         // Mock a Fedora response.
         $prophecy = $this->prophesize(ResponseInterface::class);
+        $prophecy->getHeader('Content-Type')->willReturn([$mimetype]);
         $prophecy->getStatusCode()->willReturn(200);
         $prophecy->getBody()->willReturn($mock_stream);
         $mock_fedora_response = $prophecy->reveal();
@@ -104,6 +140,7 @@ class HypercubeControllerTest extends \PHPUnit_Framework_TestCase
         $request->headers->set('ApixLdpResource', 'http://localhost:8080/fcrepo/rest/foo');
         $request->attributes->set('fedora_resource', $mock_fedora_response);
 
+        // Check success.
         $response = $controller->get($request);
         $this->assertTrue($response->getStatusCode() == 200, "Response must return 200");
     }

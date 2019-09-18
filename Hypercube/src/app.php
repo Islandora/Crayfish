@@ -15,7 +15,9 @@ $app->register(new YamlConfigServiceProvider(__DIR__ . '/../cfg/config.yaml'));
 $app['hypercube.controller'] = function ($app) {
     return new HypercubeController(
         $app['crayfish.cmd_execute_service'],
-        $app['crayfish.hypercube.executable']
+        $app['crayfish.hypercube.tesseract_executable'],
+        $app['crayfish.hypercube.pdftotext_executable'],
+        $app['monolog']
     );
 };
 
