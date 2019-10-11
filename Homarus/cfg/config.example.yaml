@@ -11,6 +11,7 @@ homarus:
       - audio/mpeg
       - audio/aac
       - image/jpeg
+      - image/png
     default: video/mp4
   mime_to_format:
     valid:
@@ -21,6 +22,7 @@ homarus:
       - audio/mpeg_mp3
       - audio/aac_m4a
       - image/jpeg_image2pipe
+      - image/png_image2pipe
     default: mp4
 
 fedora_resource:
