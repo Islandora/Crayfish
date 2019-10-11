@@ -15,7 +15,7 @@ You will also need an SQL database as needed for [Gemini](../Gemini)
 - `$ cd /path/to/Milliner` and run `$ composer install`
 - Then either
   - For production, configure your web server appropriately (e.g. add a VirtualHost for Milliner in Apache) OR
-  - For development, run the PHP built-in webserver `$ php -S localhost:8888 -t src` from Milliner root.
+  - For development, run the PHP built-in web server `$ php -S localhost:8888 -t src` from Milliner root.
 
 ## Configuration
 
@@ -40,7 +40,7 @@ For example, suppose you create an entity at `http://localhost:8000/fedora_resou
 ```
 $ curl -X "POST" "localhost:8888/metadata/fedora_resource/1"
 ```
-will return the uri to the created Fedora resource if successfully created.
+will return the URI to the created Fedora resource if successfully created.
 
 ### PUT
 

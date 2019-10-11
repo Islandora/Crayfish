@@ -16,7 +16,7 @@ You will also need a working [Gemini](../Gemini) system to use for looking up th
 - `$ cd /path/to/Recast` and run `$ composer install`
 - Then either
   - For production, configure your web server appropriately (e.g. add a VirtualHost for Recast in Apache) OR
-  - For development, run the PHP built-in webserver `$ php -S localhost:8888 -t src` from Recast root.
+  - For development, run the PHP built-in web server `$ php -S localhost:8888 -t src` from Recast root.
 
 ## Configuration
 

@@ -14,7 +14,7 @@ A path mapping service for Islandora 8.  Gemini is what links content created in
 - `$ cd /path/to/Gemini` and run `$ composer install`
 - Then either
   - For production, configure your web server appropriately (e.g. add a VirtualHost for Gemini in Apache) OR
-  - For development, run the PHP built-in webserver `$ php -S localhost:8888 -t src` from Gemini root.
+  - For development, run the PHP built-in web server `$ php -S localhost:8888 -t src` from Gemini root.
 
 Gemini runs on its own database, and requires one table.  You'll need to set that up manually.  For example, using MySQL:
 ```mysql

@@ -12,7 +12,7 @@
 - `$ cd /path/to/Houdini` and run `$ composer install`
 - Then either
   - For production, configure your web server appropriately (e.g. add a VirtualHost for Houdini in Apache) OR
-  - For development, run the PHP built-in webserver `$ php -S localhost:8888 -t src` from Houdini root.
+  - For development, run the PHP built-in web server `$ php -S localhost:8888 -t src` from Houdini root.
 
 ## Configuration
 
@@ -22,7 +22,7 @@ You also will need to set the `fedora base url` entry to point to your Fedora in
 
 In order to work on larger images, be sure `post_max_size` is sufficiently large and `max_execution_time` is set to 0 in your PHP installation's ini file.  You can determine which ini file is getting used by running the command `$ php --ini`.
 
-The location specified in the Houdini configuration file for the log must be writable by the webserver.
+The location specified in the Houdini configuration file for the log must be writable by the web server.
 
 ## Usage
 
@@ -35,7 +35,7 @@ service for API-X.  The `GET` requests are used to execute the services, and mus
 
 ### Identify
 
-This runs the imagemagick identify command on the specified resource and returns the results as JSON with the mimetype application/json.
+This runs the imagemagick identify command on the specified resource and returns the results as JSON with the MIME type application/json.
 
 For example, suppose if you have a TIFF in Fedora at `http://localhost:8080/fcrepo/rest/foo/bar`.  If running the PHP built-in server command described in the Installation section:
 ```
