@@ -2,7 +2,8 @@
 
 hypercube:
   # path to the convert executable
-  executable: tesseract
+  tesseract_executable: tesseract
+  pdftotext_executable: pdftotext
 
 fedora_resource:
   base_url: http://localhost:8080/fcrepo/rest
