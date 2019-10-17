@@ -2,10 +2,9 @@
     "name": "islandora/crayfish",
     "description": "Collection of Islandora CLAW microservices, lovingly known as Crayfish.",
     "type": "project",
-    "homepage": "httpss://github.com/Islandora/Crayfish",
+    "homepage": "https://github.com/Islandora/Crayfish",
     "support": {
-        "issues": "https://github.com/Islandora/documentation/issues",
-        "irc": "irc://irc.freenode.net/islandora"
+        "issues": "https://github.com/Islandora/documentation/issues"
     },
     "license": "MIT",
     "authors": [
