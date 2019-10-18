@@ -14,7 +14,8 @@ interface UrlMinterInterface
      * Mints a new uri from an arbitrary input.
      *
      * @param $context
+     * @param $container_name
      * @return string
      */
-    public function mint($context);
+    public function mint($context, $container_name);
 }

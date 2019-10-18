@@ -22,7 +22,7 @@ class UrlMinter implements UrlMinterInterface
     /**
      * {@inheritdoc}
      */
-    public function mint($context)
+    public function mint($context, $container_name)
     {
         if (strlen($context) < 8) {
             throw new \InvalidArgumentException(
@@ -35,6 +35,12 @@ class UrlMinter implements UrlMinterInterface
 
         $path = implode("/", $segments) . "/$context";
 
-        return $this->base_url . $path;
+        if (!empty($container_name)) {
+            $minted_url = $this->base_url . $container_name . '/' . $path;
+        } else {
+            $minted_url = $this->base_url . $path;
+        }
+
+        return $minted_url;
     }
 }

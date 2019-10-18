@@ -76,9 +76,11 @@ class GeminiController
             );
         }
 
+        $container_name = $request->headers->get('container-name', '');
+
         try {
             return new Response(
-                $this->urlMinter->mint($uuid),
+                $this->urlMinter->mint($uuid, $container_name),
                 200
             );
         } catch (\InvalidArgumentException $e) {
