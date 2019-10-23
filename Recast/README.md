@@ -1,3 +1,4 @@
+# ![Recast Mascot](https://user-images.githubusercontent.com/2371345/67399869-3ded6600-f583-11e9-8fec-8e82d57a6d4d.png) 
 # Recast
 [![Contribution Guidelines][2]](./CONTRIBUTING.md)
 [![LICENSE][3]](./LICENSE)
