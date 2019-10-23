@@ -1,10 +1,12 @@
 # ![Crayfish](https://cloud.githubusercontent.com/assets/2371345/15409657/2dfb463a-1dec-11e6-9089-06df94ef3f37.png) Crayfish
 
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg?style=flat-square)](https://php.net/)
-[![Build Status](https://travis-ci.com/Islandora-CLAW/Crayfish.svg?branch=master)](https://travis-ci.com/Islandora-CLAW/Crayfish)
+[![Build Status](https://travis-ci.com/Islandora/Crayfish.svg?branch=master)](https://travis-ci.com/Islandora/Crayfish)
 [![Contribution Guidelines](http://img.shields.io/badge/CONTRIBUTING-Guidelines-blue.svg)](./CONTRIBUTING.md)
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
-[![codecov](https://codecov.io/gh/Islandora-CLAW/Crayfish/branch/master/graph/badge.svg)](https://codecov.io/gh/Islandora-CLAW/Crayfish)
+[![codecov](https://codecov.io/gh/Islandora/Crayfish/branch/master/graph/badge.svg)](https://codecov.io/gh/Islandora/Crayfish)
+
+## Introduction
 
 A collection of Islandora 8 microservices, lovingly known as Crayfish.  Some of the microservices are built specifically for use with a Fedora Repository and API-X, while others are just for general use within Islandora 8.
 
@@ -43,32 +45,35 @@ an Islandora Foundation [Contributor License Agreement][6] or
 [Corporate Contributor License Agreement][7]. Please see the 
 [Contributors][8] pages on Islandora.ca for more information.
 
-## Sponsors
+We recommend using the [islandora-playbook][10] to get started. If you want to pull down the submodules for development, don't forget to run `git submodule update --init --recursive` after cloning.
 
-* UPEI
-* discoverygarden inc.
-* LYRASIS
-* McMaster University
-* University of Limerick
-* York University
-* University of Manitoba
-* Simon Fraser University
-* PALS
-* American Philosophical Society
-* common media inc.
 
 ## Maintainers
 
-* [Jared Whiklo](https://github.com/whikloj)
-* [Diego Pino](https://github.com/diegopino)
-* [Nick Ruest](https://github.com/ruebot)
+* [Jonathan Green](https://github.com/jonathangreen)
+
+This project has been sponsored by:
+
+* American Philosophical Society
+* Born-Digital
+* discoverygarden inc.
+* LYRASIS
+* McMaster University
+* PALS
+* University of Limerick
+* University of Manitoba
+* UPEI
+* Simon Fraser University
+* York University
+
 
 ## License
 
 [MIT](https://opensource.org/licenses/MIT)
 
-[5]: https://github.com/Islandora-CLAW/CLAW/wiki
+[5]: https://github.com/Islandora/documentation/wiki
 [6]: http://islandora.ca/sites/default/files/islandora_cla.pdf
 [7]: http://islandora.ca/sites/default/files/islandora_ccla.pdf
 [8]: http://islandora.ca/resources/contributors
-[9]: https://github.com/Islandora-CLAW/Syn/blob/master/conf/syn-settings.example.xml
+[9]: https://github.com/Islandora/Syn/blob/master/conf/syn-settings.example.xml
+[10]: https://github.com/Islandora-Devops/islandora-playbook
