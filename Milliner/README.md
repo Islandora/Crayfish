@@ -62,6 +62,12 @@ $ curl -X "DELETE" "localhost:8888/metadata/fedora_resource/1"
 ```
 will return `204 No Content` if the resource is successfully updated.
 
+## Maintainers
+
+Current maintainers:
+
+* [Daniel Lamb](https://github.com/dannylamb)
+
 ## Development
 
 If you would like to contribute, please get involved by attending our weekly [Tech Call](https://github.com/Islandora-CLAW/CLAW/wiki). We love to hear from you!
@@ -69,12 +75,6 @@ If you would like to contribute, please get involved by attending our weekly [Te
 If you would like to contribute code to the project, you need to be covered by an Islandora Foundation [Contributor License Agreement](http://islandora.ca/sites/default/files/islandora_cla.pdf) or [Corporate Contributor License Agreement](http://islandora.ca/sites/default/files/islandora_ccla.pdf). Please see the [Contributors](http://islandora.ca/resources/contributors) pages on Islandora.ca for more information.
 
 We recommend using the [islandora-playbook](https://github.com/Islandora-Devops/islandora-playbook) to get started. 
-
-## Maintainers
-
-Current maintainers:
-
-* [Daniel Lamb](https://github.com/dannylamb)
 
 ## License
 
