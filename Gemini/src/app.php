@@ -18,7 +18,7 @@ $app['gemini.mapper'] = function ($app) {
     return new UrlMapper($app['db']);
 };
 $app['gemini.minter'] = function ($app) {
-    return new UrlMinter($app['crayfish.fedora_base_url']);
+    return new UrlMinter();
 };
 $app['gemini.controller'] = function ($app) {
     return new GeminiController(

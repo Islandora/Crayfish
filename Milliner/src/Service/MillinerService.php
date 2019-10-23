@@ -128,8 +128,8 @@ class MillinerService implements MillinerServiceInterface
             true
         );
 
-        $container_name = $this->getContainerName($jsonld, "http://purl.org/dc/terms/isPartOf");
-        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token, $container_name);
+        $fedora_container_url = "http://localhost:8080/fcrepo/rest/container_a";
+        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token, $fedora_container_url);
         
         $subject_url = $this->stripFormatJsonld ? $entity_url : $jsonld_url;
 
@@ -504,11 +504,10 @@ class MillinerService implements MillinerServiceInterface
         $token = null
     ) {
         // Mint a new Fedora URL.
-        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token, '');
+        $fedora_container_url = "http://localhost:8080/fcrepo/rest/container_a";
+        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token, $fedora_container_url);
 
-##        $headers = empty($token) ? [] : ['Authorization' => $token];
         $headers = empty($token) ? [] : ['Authorization' => $token];
-        
         $mimetype = $this->drupal->head(
             $external_url,
             ['headers' => $headers]
@@ -544,22 +543,5 @@ class MillinerService implements MillinerServiceInterface
         // Return the response from Fedora.
         return $response;
     }
-
-    /**
-     * Gets the container name!
-     *
-     * @param $jsonld
-     * @param $predicate
-     *
-     * @return mixed string
-     */
-    protected function getContainerName(array $jsonld, $predicate)
-    {
-        $container_name = '';
-        $container = $jsonld['@graph'][0][$predicate];
-        if(!empty($container)) {
-          $container_name = $container[0]["@value"];
-        }
-        return $container_name;
-    }    
+   
 }

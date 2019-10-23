@@ -76,11 +76,11 @@ class GeminiController
             );
         }
 
-        $container_name = $request->headers->get('container-name', '');
+        $fedora_container_url = $request->headers->get('fedora-container-url', '');
 
         try {
             return new Response(
-                $this->urlMinter->mint($uuid, $container_name),
+                $this->urlMinter->mint($uuid, $fedora_container_url),
                 200
             );
         } catch (\InvalidArgumentException $e) {
