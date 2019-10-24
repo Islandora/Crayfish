@@ -14,7 +14,7 @@
 - `$ cd /path/to/Hypercube` and run `$ composer install`
 - Then either
   - For production, configure your web server appropriately (e.g. add a VirtualHost for Hypercube in Apache) some documentation (here)[http://silex.sensiolabs.org/doc/2.0/web_servers.html].
-  - For development, run the PHP built-in webserver `$ php -S localhost:8888 -t src` from Hypercube root.
+  - For development, run the PHP built-in web server `$ php -S localhost:8888 -t src` from Hypercube root.
 
 ### Apache2
 
@@ -33,7 +33,7 @@ Here is an example configuration for Apache 2.4:
   </Directory>
 ```
 
-This will put the Hypercube at the /hypercube endpoint on the webserver.
+This will put the Hypercube at the /hypercube endpoint on the web server.
 
 ## Configuration
 

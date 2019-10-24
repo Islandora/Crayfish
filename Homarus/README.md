@@ -14,7 +14,7 @@
 - `$ cd /path/to/Homarus` and run `$ composer install`
 - Then either
   - For production, configure your web server appropriately (e.g. add a VirtualHost for Homarus in Apache) OR
-  - For development, run the PHP built-in webserver `$ php -S localhost:8888 -t src` from Homarus root.
+  - For development, run the PHP built-in web server `$ php -S localhost:8888 -t src` from Homarus root.
   
 
 ### Apache2
@@ -34,7 +34,7 @@ Alias "/homarus" "/var/www/html/Crayfish/Homarus/src"
 </Directory>
 ```
 
-This will put the Homarus at the /homarus endpoint on the webserver.
+This will put the Homarus at the /homarus endpoint on the web server.
 
 ## Configuration
 
@@ -43,7 +43,7 @@ If your ffmpeg installation is not on your path, then you can configure homarus 
 You also will need to set the `fedora base url` entry to point to your Fedora installation.
 
 ## Usage
-This will return the an avi file for the test video file in Fedora.  
+This will return the an AVI file for the test video file in Fedora.  
 ```
 curl -H "Authorization: Bearer islandora" -H "Accept: video/x-msvideo" -H "Apix-Ldp-Resource:http://localhost:8080/fcrepo/rest/testvideo" http://localhost:8000/homarus/convert --output output.avi
 ```
