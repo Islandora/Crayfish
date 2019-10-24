@@ -44,7 +44,8 @@ class MillinerController
     {
         $token = $request->headers->get("Authorization", null);
         $jsonld_url = $request->headers->get("Content-Location");
-
+        $islandora_fedora_endpoint = $request->headers->get("X-Islandora-Fedora-Endpoint");
+        
         if (empty($jsonld_url)) {
             return new Response("Expected JSONLD url in Content-Location header", 400);
         }
@@ -53,7 +54,8 @@ class MillinerController
             $response = $this->milliner->saveNode(
                 $uuid,
                 $jsonld_url,
-                $token
+                $token,
+                $islandora_fedora_endpoint
             );
 
             return new Response(
@@ -134,6 +136,7 @@ class MillinerController
     {
         $token = $request->headers->get("Authorization", null);
         $external_url = $request->headers->get("Content-Location");
+        $islandora_fedora_endpoint = $request->headers->get("X-Islandora-Fedora-Endpoint");
 
         if (empty($external_url)) {
             return new Response("Expected external url in Content-Location header", 400);
@@ -143,7 +146,8 @@ class MillinerController
             $response = $this->milliner->saveExternal(
                 $uuid,
                 $external_url,
-                $token
+                $token,
+                $islandora_fedora_endpoint
             );
 
             return new Response(

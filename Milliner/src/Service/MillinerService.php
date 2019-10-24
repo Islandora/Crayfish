@@ -76,7 +76,8 @@ class MillinerService implements MillinerServiceInterface
     public function saveNode(
         $uuid,
         $jsonld_url,
-        $token = null
+        $token = null,
+        $islandora_fedora_endpoint
     ) {
         $urls = $this->gemini->getUrls($uuid, $token);
 
@@ -85,7 +86,8 @@ class MillinerService implements MillinerServiceInterface
                 $uuid,
                 rtrim($jsonld_url, '?_format=jsonld'),
                 $jsonld_url,
-                $token
+                $token,
+                $islandora_fedora_endpoint
             );
         } else {
             return $this->updateNode(
@@ -104,6 +106,7 @@ class MillinerService implements MillinerServiceInterface
      * @param string $entity_url
      * @param string $jsonld_url
      * @param string $token
+     * @param string $islandora_fedora_endpoint
      *
      * @return \GuzzleHttp\Psr7\Response
      *
@@ -114,8 +117,12 @@ class MillinerService implements MillinerServiceInterface
         $uuid,
         $entity_url,
         $jsonld_url,
-        $token = null
+        $token = null,
+        $islandora_fedora_endpoint
     ) {
+        // Mint a new Fedora URL.
+        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token, $islandora_fedora_endpoint);
+
         // Get the jsonld from Drupal.
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $drupal_response = $this->drupal->get(
@@ -128,9 +135,6 @@ class MillinerService implements MillinerServiceInterface
             true
         );
 
-        $fedora_container_url = "http://localhost:8080/fcrepo/rest/container_a";
-        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token, $fedora_container_url);
-        
         $subject_url = $this->stripFormatJsonld ? $entity_url : $jsonld_url;
 
         // Mash it into the shape Fedora accepts.
@@ -501,11 +505,11 @@ class MillinerService implements MillinerServiceInterface
     public function saveExternal(
         $uuid,
         $external_url,
-        $token = null
+        $token = null,
+        $islandora_fedora_endpoint
     ) {
         // Mint a new Fedora URL.
-        $fedora_container_url = "http://localhost:8080/fcrepo/rest/container_a";
-        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token, $fedora_container_url);
+        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token, $islandora_fedora_endpoint);
 
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $mimetype = $this->drupal->head(

@@ -12,6 +12,7 @@ interface MillinerServiceInterface
      * @param $uuid
      * @param $jsonld_url
      * @param $token
+     * @param $islandora_fedora_endpoint
      *
      * @throws \Exception
      *
@@ -20,7 +21,8 @@ interface MillinerServiceInterface
     public function saveNode(
         $uuid,
         $jsonld_url,
-        $token = null
+        $token = null,
+        $islandora_fedora_endpoint
     );
 
     /**
@@ -55,6 +57,7 @@ interface MillinerServiceInterface
      * @param $uuid
      * @param $external_url
      * @param $token
+     * @param $islandora_fedora_endpoint
      *
      * @throws \Exception
      *
@@ -63,6 +66,7 @@ interface MillinerServiceInterface
     public function saveExternal(
         $uuid,
         $external_url,
-        $token = null
+        $token = null,
+        $islandora_fedora_endpoint
     );
 }
