@@ -121,8 +121,11 @@ class HomarusController
                 "frag_keyframe+empty_moov ";
         }
 
-        // Arguments to ffmpeg command are sent as a custom header
+        // Arguments to ffmpeg command are sent as a custom header.
         $args = $request->headers->get('X-Islandora-Args');
+      
+        // Add -loglevel error so large files can be processed.
+        $args .= ' -loglevel error';
         $this->log->debug("X-Islandora-Args:", ['args' => $args]);
 
         $cmd_string = "$this->executable -i $source $args $cmd_params -f $format -";
