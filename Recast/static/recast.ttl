@@ -1,6 +1,6 @@
 @prefix apix: <http://fedora.info/definitions/v4/api-extension#> .
 @prefix ldp: <http://www.w3.org/ns/ldp#> .
-@prefix islandora: <http://islandora.ca/CLAW#> .
+@prefix islandora: <http://islandora.ca/islandora8#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
 <> a apix:Extension;

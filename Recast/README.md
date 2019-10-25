@@ -1,3 +1,4 @@
+# ![Recast Mascot](https://user-images.githubusercontent.com/2371345/67399869-3ded6600-f583-11e9-8fec-8e82d57a6d4d.png) 
 # Recast
 [![Contribution Guidelines][2]](./CONTRIBUTING.md)
 [![LICENSE][3]](./LICENSE)
@@ -174,6 +175,18 @@ However:
 Current maintainers:
 
 * [Jared Whiklo](https://github.com/whikloj)
+
+## Development
+
+If you would like to contribute, please get involved by attending our weekly [Tech Call](https://github.com/Islandora/docuentation/wiki). We love to hear from you!
+
+If you would like to contribute code to the project, you need to be covered by an Islandora Foundation [Contributor License Agreement](http://islandora.ca/sites/default/files/islandora_cla.pdf) or [Corporate Contributor License Agreement](http://islandora.ca/sites/default/files/islandora_ccla.pdf). Please see the [Contributors](http://islandora.ca/resources/contributors) pages on Islandora.ca for more information.
+
+We recommend using the [islandora-playbook](https://github.com/Islandora-Devops/islandora-playbook) to get started. 
+
+## License
+
+[MIT](https://opensource.org/licenses/MIT)
 
 [2]: http://img.shields.io/badge/CONTRIBUTING-Guidelines-blue.svg
 [3]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square
