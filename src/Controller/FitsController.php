@@ -31,12 +31,13 @@ class FitsController {
   /**
    * @param Request $request
    * @param LoggerInterface $logger
-   * @return \Psr\Http\Message\ResponseInterface|StreamedResponse
+   * @return StreamedResponse | Response;
    */
   public function generate_fits(Request $request, LoggerInterface $logger) {
     $file_uri = $request->headers->get('Apix-Ldp-Resource');
+    // If no file has been passed it probably because someone is testing the url from their browser.
     if(!$file_uri) {
-      return new Response("The Fits microservice is up and running.");
+      return new Response("<h1>The Fits microservice is up and running.</h1>");
     }
     // Pass along auth headers if present.
     $headers = [];
