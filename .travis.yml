@@ -30,6 +30,7 @@ after_success:
 
 notifications:
   slack:
+    rooms:
+      - secure: $SLACK_NOTIFICATION_KEY
     on_success: change
     on_failure: always
-    secure: $SLACK_NOTIFICATION_KEY
