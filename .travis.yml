@@ -16,7 +16,6 @@ branches:
 
 before_install:
   - export SCRIPT_DIR=$HOME/islandora/.scripts
-  - echo "SLACK NOTIFICATION is ${SLACK_NOTIFICATION_KEY}"
 
 install:
   - git clone https://github.com/Islandora/documentation.git $HOME/islandora
@@ -32,6 +31,6 @@ after_success:
 notifications:
   slack:
     rooms:
-      - secure: "${SLACK_NOTIFICATION_KEY}"
+      - "islandora:${SLACK_NOTIFICATION_KEY}#notifications"
     on_success: change
     on_failure: always
