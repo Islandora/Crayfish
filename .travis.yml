@@ -14,10 +14,6 @@ branches:
     - /master/
     - /^dev/
 
-env:
-  global:
-    secure: "ExE1RkpzbVpTBMUjgbWNdwBUp1oIJ1ZkA03bpxRnSEwyaBBinAwaK7lKfWhD0QB6d/S3ChlpvrxMYHXWNnzK6q8ofnCARR+2LmqlYlR7+1MFyYV5qUNP+iqJrUF6KmKjJU5loUt3y20iFPcOtP6LOehgN19EpDfJKZO1V8Yf/3+8YAC5/dBwRtjfQPvz3uKDsyCLOqNs9DViqhU4XPcqDA/7CVLsV8T9EipTgLNuaAhQsjX3qKOZA46or5VGfi4octP+e/6h3ghGLO8HFsyWXVTdTOJnKME5SHwiYiXh4P355FP/lyQ+jPefj7cz9EXvuSE59lpz0b2E6vseZJ0W7isSZahP/X5xgICBgV8/32icp6qYUYYWThuShjMZxlgXmmzGrb/R8Rj++UR8suMRBWKHpzzrFlc29dtnhNWLLpBnFd3nAxwuYJuBno9sd2kdGd2Nw+7vbrR9xt3ru2Hz9lY3wizQAUOosJN2ESMgcQENhRyqp9KWwW3F4ILNN6fvW/r96aOiTJEUEVPvKoCqimp4TBLBzKkT2V+ogfifiOLTufJtm90EgiM907lkFYrW939ztuSmbz5DgN4Er+mH5v74bbHBGB0I3CO+mgP873la3pFzWXf/92HXDdRak5G0ilmAFIAE0K3UElygO1NDc7OUL3XtFn27Q1s9HsGEVPA="
-
 before_install:
   - export SCRIPT_DIR=$HOME/islandora/.scripts
 
@@ -35,6 +31,6 @@ after_success:
 notifications:
   slack:
     rooms:
-      - "${SLACK_INTEGRATION}"
+      - "islandora:6d2z6zUYNpeC60zjt5XdabFn#notifications"
     on_success: change
     on_failure: always
