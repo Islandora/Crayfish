@@ -31,6 +31,6 @@ after_success:
 notifications:
   slack:
     rooms:
-      - "islandora:${SLACK_NOTIFICATION_KEY}#notifications"
+      - "islandora:${JARED_GET_MAD}"
     on_success: change
     on_failure: always
