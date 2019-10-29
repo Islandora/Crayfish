@@ -30,7 +30,6 @@ after_success:
 
 notifications:
   slack:
-    rooms:
-      - "islandora:${JARED_GET_MAD}"
+    secure: "iWGM2MSf67WbVnGMBvrkNM7veTg+1XhrU768dF3DAYolZCgpumB0JLeBmpI0d9jmbwvFMk6tWnDPEnNZ8Ay1TrhUj2CURaFu3GEAId0etJGzoDBwirGXW7yrvtHdozz1ZiudZalTh+EMg4Rk+2zPaCk8TVli9Ij8jm8G/dhaRUYbv6l62ycK20Ik1wRpJSBxzP2CB/NIJeLl2Z3RbEvza357kY7KYqaw3Q9MMyp72Hvm0s4pvpEricgP60pDz8cAJtETAOgvbPC8qFC7YeLrwLf9nb9mqLtdrKgZpp3LfVZkxsNkonXAdgmwq8XmWS36xVcqKhIPRGYeX0MZRlfOEaON6USeOFkWjpp16tgGYVebtF+P+UxqyBwK53dij45oHxTe7bbzX8zqIE6iKvggYy8kAV5LXuf954+7Cbz41F/l0uiM9MDTgiBju8AnU6ugXBa6JuiDlpSm1PLth8wfx7ChjIgD7L4cfOp2Pns3cwnQclLcZPsrmDaA8F71tqkPiKXuuGIG9ZwypUMkWiaRkWQiaEc+Q0zozcUSm0z6cy2lt8UehYeHowT8iy/FGaz0bXlSGhnWLbX5by1zKQjbbZ0lj8zJ6KCD8GiFoL91mhrlVVD/2fBbQ3+WPfYyHQFbtAPwwgh2f74xHbTI+FCXjkKsm9Q4BvusQNL/ABo+eVo="
     on_success: change
     on_failure: always
