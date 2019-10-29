@@ -14,6 +14,10 @@ branches:
     - /master/
     - /^dev/
 
+env:
+  global:
+    secure: "ZbvpMvKv2mqOGG20AwMYa0SekYOYvJsm9N2NTI7HP+NEVeJ2Ufvub/gX2Q4ldiXAOst9v2otoZGJqt0+pMcbzz4FaD92J9+zbm0xq3vaTJPPQ4Af78vgS8+wveeqzEhOMvECoWEwKCyNJXbEknXeFPQ+Qkmcau7fzAqDEfOpcSeJ8VUFoy29FxUEvqshRFdXv6WSgnuieyBy/bdRVpgsGYm7cewtVj9+PxmeK2N+sNSugKJo0vG/zlfZz//qS6DqCLg6jYkpcR5HsojjZ2ifCzfDoNcvvcRZorTrUwDqqjHMmF+j18yoahRQXSX1tQxLmuM/KNI4grkPesA5j6/eeBKMOGHr2LjSK1UdWgrb/tcA9nZosM11TZc3S9WrsXMBJYmqjRhbpX9Qm28MCHBZh3cakkDcKgCDH7AgxUGl1rGB1s6iAP5FTJGX3h91wNUkyySemY+4e5nfVmTLLMMnrVBph5BNcWXgT3tnpuA0BWiB72AVA2LMx2KZ68JE3xB2Fu9H3Wz4Yz8sxgld7flV6qBF5uAwFk9c31leDoaIQi++LWyVcdKxvv0HAtvNB5sXQMe87cfWJatRncfCBHvwYAVbVmC3X8Zuhttqj1Ao532dwiyCyzsW/eeARM64VZ3JS2NP8eYro3yRUsCCp9+1Hvvv04voCTp1sJbOx6ODdoA="
+
 before_install:
   - export SCRIPT_DIR=$HOME/islandora/.scripts
 
@@ -30,6 +34,7 @@ after_success:
 
 notifications:
   slack:
-    secure: "e1agACzaQoZy/17pOhw/utfKBKWSSBCGlYccSyNG1/CmN1GxXDKg+WjbdxkcUV6apJhHahEQ3LeY9vEhnKB7kTHrOC86FVUcl6jKJMlG3E9c7ZwQMQcV2olb7lcElj+iIf1wMSvklcWQBkFetlvllHnBZV1l/kSX28oA/MZl9hTLUxBM2d19B5AkWN/MDHOfZrvWQnLslUhnbES1K7DWdHXnTyoQcoe/IQ/TIbWUIQCZHvIEsSi8N4bdSVTIZP5iWYdcXgocLMnUzZVn/1kKt9/8DgCMvfVdOdqgQD+kQCbVol/SqfgbwxkWCiD4pIC72SAf1SHIuTmuuMQyr+hnk49yfhIgiJVSg5278FXOqwIFxc+ym0rsrIf4cl/hGkQ6PvRRlhkLcqOjCAmrDfFHVGiAc5Qj8B5GJipbvCypzkWO0gN5asAp5TC+OFPLf0RvKw2NLrWXpHueUto57ZJ8L9F949GPQ/TTHBpKclT8ymy4yJf/SW12zleB0cYvmsP+qq9E08o8nMvrJFLXijZTlRw+2gtLStHG9sxmG9U+YkSPAeCvfzE67Jf3WD2IjzVUfigDGbT3wZ+f9YrF6WhAmvd5S6YjFw27yX4FOfN96RXMwSUmZd5131HiPb5nX+MyCdjnLk92umSvJIR4QTTLHFQVP/Wr6euQ0ot9eATYNtg="
+    rooms:
+      - "${SLACK_INTEGRATION}"
     on_success: change
     on_failure: always
