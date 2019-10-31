@@ -70,6 +70,7 @@ class MillinerControllerTest extends TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
             ]
         );
@@ -124,6 +125,7 @@ class MillinerControllerTest extends TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/sites/default/files/1.jpg',
             ]
         );
@@ -151,7 +153,11 @@ class MillinerControllerTest extends TestCase
             ['uuid' => $uuid],
             [],
             [],
-            ['HTTP_AUTHORIZATION' => 'Bearer islandora']
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
+
+            ]
         );
         $response = $controller->saveNode($uuid, $request);
         $status = $response->getStatusCode();
@@ -204,7 +210,10 @@ class MillinerControllerTest extends TestCase
             ['uuid' => $uuid],
             [],
             [],
-            ['HTTP_AUTHORIZATION' => 'Bearer islandora']
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
+            ]
         );
         $response = $controller->saveExternal($uuid, $request);
         $status = $response->getStatusCode();
@@ -236,6 +245,7 @@ class MillinerControllerTest extends TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
             ]
         );
@@ -260,6 +270,7 @@ class MillinerControllerTest extends TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
             ]
         );
@@ -349,6 +360,7 @@ class MillinerControllerTest extends TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/sites/default/files/1.jpeg',
             ]
         );
@@ -373,6 +385,7 @@ class MillinerControllerTest extends TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/sites/default/files/1.jpeg',
             ]
         );
