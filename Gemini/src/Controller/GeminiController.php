@@ -76,11 +76,11 @@ class GeminiController
             );
         }
 
-        $fedora_container_url = $request->headers->get('fedora-container-url', '');
+        $islandora_fedora_endpoint = $request->headers->get('X-Islandora-Fedora-Endpoint', '');
 
         try {
             return new Response(
-                $this->urlMinter->mint($uuid, $fedora_container_url),
+                $this->urlMinter->mint($uuid, $islandora_fedora_endpoint),
                 200
             );
         } catch (\InvalidArgumentException $e) {

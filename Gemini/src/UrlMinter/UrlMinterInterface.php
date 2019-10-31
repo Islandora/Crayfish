@@ -14,8 +14,8 @@ interface UrlMinterInterface
      * Mints a new uri from an arbitrary input.
      *
      * @param $context
-     * @param $fedora_container_url
+     * @param $islandora_fedora_endpoint
      * @return string
      */
-    public function mint($context, $fedora_container_url);
+    public function mint($context, $islandora_fedora_endpoint);
 }
