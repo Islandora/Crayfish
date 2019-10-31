@@ -76,8 +76,8 @@ class MillinerService implements MillinerServiceInterface
     public function saveNode(
         $uuid,
         $jsonld_url,
-        $token = null,
-        $islandora_fedora_endpoint
+        $islandora_fedora_endpoint,
+        $token = null
     ) {
         $urls = $this->gemini->getUrls($uuid, $token);
 
@@ -86,8 +86,8 @@ class MillinerService implements MillinerServiceInterface
                 $uuid,
                 rtrim($jsonld_url, '?_format=jsonld'),
                 $jsonld_url,
-                $token,
-                $islandora_fedora_endpoint
+                $islandora_fedora_endpoint,
+                $token
             );
         } else {
             return $this->updateNode(
@@ -105,8 +105,8 @@ class MillinerService implements MillinerServiceInterface
      * @param string $uuid
      * @param string $entity_url
      * @param string $jsonld_url
-     * @param string $token
      * @param string $islandora_fedora_endpoint
+     * @param string $token
      *
      * @return \GuzzleHttp\Psr7\Response
      *
@@ -117,8 +117,8 @@ class MillinerService implements MillinerServiceInterface
         $uuid,
         $entity_url,
         $jsonld_url,
-        $token = null,
-        $islandora_fedora_endpoint
+        $islandora_fedora_endpoint,
+        $token = null
     ) {
         // Mint a new Fedora URL.
         $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token, $islandora_fedora_endpoint);
@@ -505,8 +505,8 @@ class MillinerService implements MillinerServiceInterface
     public function saveExternal(
         $uuid,
         $external_url,
-        $token = null,
-        $islandora_fedora_endpoint
+        $islandora_fedora_endpoint,
+        $token = null
     ) {
         // Mint a new Fedora URL.
         $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token, $islandora_fedora_endpoint);
@@ -547,5 +547,4 @@ class MillinerService implements MillinerServiceInterface
         // Return the response from Fedora.
         return $response;
     }
-   
 }

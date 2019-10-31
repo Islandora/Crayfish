@@ -10,13 +10,14 @@ use Prophecy\Argument;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class MillinerControllerTest
  * @package Islandora\Milliner\Tests
  * @coversDefaultClass \Islandora\Milliner\Controller\MillinerController
  */
-class MillinerControllerTest extends \PHPUnit_Framework_TestCase
+class MillinerControllerTest extends TestCase
 {
     /**
      * @var LoggerInterface
@@ -44,13 +45,13 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     {
         // Wire up a controller.
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveNode(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveNode(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner->saveMedia(Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner->deleteNode(Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
-        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner = $milliner->reveal();
 
@@ -220,7 +221,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     public function testSaveNodeReturnsSuccessOnSuccess()
     {
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveNode(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveNode(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(201));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
@@ -246,7 +247,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
         );
 
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveNode(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveNode(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(204));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
@@ -333,7 +334,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     public function testSaveExternalReturnsSuccessOnSuccess()
     {
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(201));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
@@ -359,7 +360,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
         );
 
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(204));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);

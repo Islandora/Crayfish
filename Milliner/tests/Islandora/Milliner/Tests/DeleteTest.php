@@ -11,13 +11,14 @@ use Monolog\Handler\NullHandler;
 use Monolog\Logger;
 use Prophecy\Argument;
 use Psr\Log\LoggerInterface;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class MillinerServiceTest
  * @package Islandora\Milliner\Tests
  * @coversDefaultClass \Islandora\Milliner\Service\MillinerService
  */
-class DeleteTest extends \PHPUnit_Framework_TestCase
+class DeleteTest extends TestCase
 {
     /**
      * @var LoggerInterface
