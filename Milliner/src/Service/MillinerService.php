@@ -553,7 +553,7 @@ class MillinerService implements MillinerServiceInterface
         $token = null
     ) {
         $urls = $this->gemini->getUrls($uuid, $token);
-        if (!empty($urls)){
+        if (!empty($urls)) {
             $fedora_url = $urls['fedora'];
             $headers = empty($token) ? [] : ['Authorization' => $token];
             $date = new DateTime();
@@ -570,7 +570,8 @@ class MillinerService implements MillinerServiceInterface
                 if (!in_array($status, [201])) {
                     $reason = $response->getReasonPhrase();
                     throw new \RuntimeException(
-                        "Client error: `POST $fedora_url` resulted in `$status $reason` response: " . $response->getBody(),
+                        "Client error: `POST $fedora_url` resulted in `$status $reason` response: " .
+                        $response->getBody(),
                         $status
                     );
                 }
