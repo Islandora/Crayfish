@@ -553,30 +553,34 @@ class MillinerService implements MillinerServiceInterface
         $token = null
     ) {
         $urls = $this->gemini->getUrls($uuid, $token);
-        $fedora_url = $urls['fedora'];
-        $headers = empty($token) ? [] : ['Authorization' => $token];
-        $date = new DateTime();
-        $timestamp = $date->format("D, d M Y H:i:s O");
-        // create version in Fedora.
-        try {
-            $response = $this->fedora->createVersion(
-                $fedora_url,
-                $timestamp,
-                null,
-                $headers
-            );
-            $status = $response->getStatusCode();
-            if (!in_array($status, [201])) {
-                $reason = $response->getReasonPhrase();
-                throw new \RuntimeException(
-                    "Client error: `POST $fedora_url` resulted in `$status $reason` response: " . $response->getBody(),
-                    $status
+        if (!empty($urls)){
+            $fedora_url = $urls['fedora'];
+            $headers = empty($token) ? [] : ['Authorization' => $token];
+            $date = new DateTime();
+            $timestamp = $date->format("D, d M Y H:i:s O");
+            // create version in Fedora.
+            try {
+                $response = $this->fedora->createVersion(
+                    $fedora_url,
+                    $timestamp,
+                    null,
+                    $headers
                 );
+                $status = $response->getStatusCode();
+                if (!in_array($status, [201])) {
+                    $reason = $response->getReasonPhrase();
+                    throw new \RuntimeException(
+                        "Client error: `POST $fedora_url` resulted in `$status $reason` response: " . $response->getBody(),
+                        $status
+                    );
+                }
+                // Return the response from Fedora.
+                return $response;
+            } catch (Exception $e) {
+                $this->log->error('Caught exception when creating version: ', $e->getMessage(), "\n");
             }
-            // Return the response from Fedora.
-            return $response;
-        } catch (Exception $e) {
-            $this->log->error('Caught exception when creating version: ', $e->getMessage(), "\n");
+        } else {
+            return new Response(404);
         }
     }
 }
