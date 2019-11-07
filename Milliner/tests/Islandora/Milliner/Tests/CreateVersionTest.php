@@ -216,4 +216,57 @@ class CreateVersionTest extends TestCase
             "Milliner must return 403 when Fedora returns 403.  Received: $status"
         );
     }
+
+    /**
+     * @covers ::__construct
+     * @covers ::createVersion
+     * @expectedExceptionCode 404
+     */
+
+    public function testCreateVersionReturns404IfNotInGemini()
+    {
+        $mapping = [];
+        $gemini = $this->prophesize(GeminiClient::class);
+        $gemini->getUrls(Argument::any(), Argument::any())
+            ->willReturn($mapping);
+        $gemini->saveUrls(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+            ->willReturn(true);
+        $gemini = $gemini->reveal();
+
+        $drupal_response = new Response(
+            200,
+            ['Content-Type' => 'application/ld+json'],
+            file_get_contents(__DIR__ . '/../../../../static/Content.jsonld')
+        );
+        $drupal = $this->prophesize(Client::class);
+        $drupal->get(Argument::any(), Argument::any())
+            ->willReturn($drupal_response);
+        $drupal = $drupal->reveal();
+
+        $fedora_response = new Response(404);
+        $fedora = $this->prophesize(IFedoraApi::class);
+        $fedora->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+            ->willReturn($fedora_response);
+        $fedora = $fedora->reveal();
+
+        $milliner = new MillinerService(
+            $fedora,
+            $drupal,
+            $gemini,
+            $this->logger,
+            $this->modifiedDatePredicate,
+            false
+        );
+
+        $response = $milliner->createVersion(
+            "9541c0c1-5bee-4973-a9d0-9998",
+            "Bearer islandora"
+        );
+
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 404,
+            "Milliner must return 404 when not in Gemini.  Received: $status"
+        );
+    }
 }
