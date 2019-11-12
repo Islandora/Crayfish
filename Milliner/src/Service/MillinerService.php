@@ -8,6 +8,7 @@ use GuzzleHttp\Psr7\Response;
 use Islandora\Chullo\IFedoraApi;
 use Islandora\Crayfish\Commons\Client\GeminiClient;
 use Psr\Log\LoggerInterface;
+use \DateTime;
 
 /**
  * Class MillinerService
@@ -541,5 +542,46 @@ class MillinerService implements MillinerServiceInterface
 
         // Return the response from Fedora.
         return $response;
+    }
+
+    /**
+     * Creates a new LDP-RS in Fedora from a Node.
+     * {@inheritDoc}
+     */
+    public function createVersion(
+        $uuid,
+        $token = null
+    ) {
+        $urls = $this->gemini->getUrls($uuid, $token);
+        if (!empty($urls)) {
+            $fedora_url = $urls['fedora'];
+            $headers = empty($token) ? [] : ['Authorization' => $token];
+            $date = new DateTime();
+            $timestamp = $date->format("D, d M Y H:i:s O");
+            // create version in Fedora.
+            try {
+                $response = $this->fedora->createVersion(
+                    $fedora_url,
+                    $timestamp,
+                    null,
+                    $headers
+                );
+                $status = $response->getStatusCode();
+                if (!in_array($status, [201])) {
+                    $reason = $response->getReasonPhrase();
+                    throw new \RuntimeException(
+                        "Client error: `POST $fedora_url` resulted in `$status $reason` response: " .
+                        $response->getBody(),
+                        $status
+                    );
+                }
+                // Return the response from Fedora.
+                return $response;
+            } catch (Exception $e) {
+                $this->log->error('Caught exception when creating version: ', $e->getMessage(), "\n");
+            }
+        } else {
+            return new Response(404);
+        }
     }
 }
