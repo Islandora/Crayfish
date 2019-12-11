@@ -10,13 +10,14 @@ use Prophecy\Argument;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class MillinerControllerTest
  * @package Islandora\Milliner\Tests
  * @coversDefaultClass \Islandora\Milliner\Controller\MillinerController
  */
-class MillinerControllerTest extends \PHPUnit_Framework_TestCase
+class MillinerControllerTest extends TestCase
 {
     /**
      * @var LoggerInterface
@@ -51,7 +52,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner->deleteNode(Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
-        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner->createVersion(Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
@@ -72,6 +73,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
             ]
         );
@@ -126,6 +128,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/sites/default/files/1.jpg',
             ]
         );
@@ -170,7 +173,11 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             ['uuid' => $uuid],
             [],
             [],
-            ['HTTP_AUTHORIZATION' => 'Bearer islandora']
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
+
+            ]
         );
         $response = $controller->saveNode($uuid, $request);
         $status = $response->getStatusCode();
@@ -223,7 +230,10 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             ['uuid' => $uuid],
             [],
             [],
-            ['HTTP_AUTHORIZATION' => 'Bearer islandora']
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
+            ]
         );
         $response = $controller->saveExternal($uuid, $request);
         $status = $response->getStatusCode();
@@ -255,6 +265,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
             ]
         );
@@ -279,6 +290,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
             ]
         );
@@ -353,7 +365,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     public function testSaveExternalReturnsSuccessOnSuccess()
     {
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(201));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
@@ -368,6 +380,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/sites/default/files/1.jpeg',
             ]
         );
@@ -379,7 +392,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
         );
 
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(204));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
@@ -392,6 +405,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/sites/default/files/1.jpeg',
             ]
         );

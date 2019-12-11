@@ -10,13 +10,14 @@ use Islandora\Milliner\Service\MillinerService;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;
 use Prophecy\Argument;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class MillinerServiceTest
  * @package Islandora\Milliner\Tests
  * @coversDefaultClass \Islandora\Milliner\Service\MillinerService
  */
-class SaveMediaTest extends \PHPUnit_Framework_TestCase
+class SaveMediaTest extends TestCase
 {
     /**
      * @var LoggerInterface

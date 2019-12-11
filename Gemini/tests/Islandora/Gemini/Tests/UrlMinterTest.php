@@ -20,7 +20,7 @@ class UrlMinterTest extends \PHPUnit_Framework_TestCase
     public function testThrowsExceptionOnBlankString()
     {
         $minter = new UrlMinter("http://localhost:8080/fcrepo/rest");
-        $minter->mint("");
+        $minter->mint("", "");
     }
 
     /**
@@ -32,7 +32,7 @@ class UrlMinterTest extends \PHPUnit_Framework_TestCase
     public function testThrowsExceptionOnShortUUID()
     {
         $minter = new UrlMinter("http://localhost:8080/fcrepo/rest");
-        $minter->mint("abcd");
+        $minter->mint("abcd", "http://localhost:8080/fcrepo/rest/");
     }
 
     /**
@@ -42,10 +42,10 @@ class UrlMinterTest extends \PHPUnit_Framework_TestCase
     public function testHandlesMissingTrailingSlashInBaseUrl()
     {
         $missing_slash = new UrlMinter("http://localhost:8080/fcrepo/rest");
-        $first = $missing_slash->mint("5d150b3a-9d1b-437f-87a9-104b8cf15859");
+        $first = $missing_slash->mint("5d150b3a-9d1b-437f-87a9-104b8cf15859", "http://localhost:8080/fcrepo/rest/");
 
         $with_slash = new UrlMinter("http://localhost:8080/fcrepo/rest/");
-        $second = $with_slash->mint("5d150b3a-9d1b-437f-87a9-104b8cf15859");
+        $second = $with_slash->mint("5d150b3a-9d1b-437f-87a9-104b8cf15859", "http://localhost:8080/fcrepo/rest/");
 
         $this->assertTrue(
             strcmp($first, $second) == 0,
@@ -61,7 +61,7 @@ class UrlMinterTest extends \PHPUnit_Framework_TestCase
     {
         $minter = new UrlMinter("http://localhost:8080/fcrepo/rest");
         $expected = "http://localhost:8080/fcrepo/rest/5d/15/0b/3a/5d150b3a-9d1b-437f-87a9-104b8cf15859";
-        $actual = $minter->mint("5d150b3a-9d1b-437f-87a9-104b8cf15859");
+        $actual = $minter->mint("5d150b3a-9d1b-437f-87a9-104b8cf15859", "http://localhost:8080/fcrepo/rest/");
 
         $this->assertTrue(
             strcmp($actual, $expected) == 0,

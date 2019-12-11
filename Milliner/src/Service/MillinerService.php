@@ -77,6 +77,7 @@ class MillinerService implements MillinerServiceInterface
     public function saveNode(
         $uuid,
         $jsonld_url,
+        $islandora_fedora_endpoint,
         $token = null
     ) {
         $urls = $this->gemini->getUrls($uuid, $token);
@@ -86,6 +87,7 @@ class MillinerService implements MillinerServiceInterface
                 $uuid,
                 rtrim($jsonld_url, '?_format=jsonld'),
                 $jsonld_url,
+                $islandora_fedora_endpoint,
                 $token
             );
         } else {
@@ -104,6 +106,7 @@ class MillinerService implements MillinerServiceInterface
      * @param string $uuid
      * @param string $entity_url
      * @param string $jsonld_url
+     * @param string $islandora_fedora_endpoint
      * @param string $token
      *
      * @return \GuzzleHttp\Psr7\Response
@@ -115,10 +118,11 @@ class MillinerService implements MillinerServiceInterface
         $uuid,
         $entity_url,
         $jsonld_url,
+        $islandora_fedora_endpoint,
         $token = null
     ) {
         // Mint a new Fedora URL.
-        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token);
+        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token, $islandora_fedora_endpoint);
 
         // Get the jsonld from Drupal.
         $headers = empty($token) ? [] : ['Authorization' => $token];
@@ -502,10 +506,11 @@ class MillinerService implements MillinerServiceInterface
     public function saveExternal(
         $uuid,
         $external_url,
+        $islandora_fedora_endpoint,
         $token = null
     ) {
         // Mint a new Fedora URL.
-        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token);
+        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token, $islandora_fedora_endpoint);
 
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $mimetype = $this->drupal->head(

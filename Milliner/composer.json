@@ -32,7 +32,7 @@
         ],
         "test": [
             "@check",
-	        "phpunit"
+	        "./vendor/bin/phpunit"
         ]
     },
     "config": {

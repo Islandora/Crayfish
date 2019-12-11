@@ -55,7 +55,7 @@ class SaveNodeTest extends TestCase
         $gemini = $this->prophesize(GeminiClient::class);
         $gemini->getUrls(Argument::any(), Argument::any())
             ->willReturn([]);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any())
+        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
             ->willThrow(
                 new RequestException(
                     "Unauthorized",
@@ -83,7 +83,8 @@ class SaveNodeTest extends TestCase
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
-            $token = "Bearer islandora"
+            "http://localhost:8080/fcrepo/rest/",
+            "Bearer islandora"
         );
     }
 
@@ -100,7 +101,7 @@ class SaveNodeTest extends TestCase
         $gemini = $this->prophesize(GeminiClient::class);
         $gemini->getUrls(Argument::any(), Argument::any())
             ->willReturn([]);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any())
+        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($url);
         $gemini = $gemini->reveal();
 
@@ -132,7 +133,8 @@ class SaveNodeTest extends TestCase
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
-            $token = "Bearer islandora"
+            "http://localhost:8080/fcrepo/rest/",
+            "Bearer islandora"
         );
     }
 
@@ -150,7 +152,7 @@ class SaveNodeTest extends TestCase
         $gemini = $this->prophesize(GeminiClient::class);
         $gemini->getUrls(Argument::any(), Argument::any())
             ->willReturn([]);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any())
+        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($url);
         $gemini = $gemini->reveal();
 
@@ -205,7 +207,7 @@ class SaveNodeTest extends TestCase
         $gemini = $this->prophesize(GeminiClient::class);
         $gemini->getUrls(Argument::any(), Argument::any())
             ->willReturn([]);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any())
+        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($url);
         $gemini->saveUrls(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(true);
@@ -239,7 +241,8 @@ class SaveNodeTest extends TestCase
         $response = $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
-            $token = "Bearer islandora"
+            "http://localhost:8080/fcrepo/rest/",
+            "Bearer islandora"
         );
 
         $status = $response->getStatusCode();
@@ -261,7 +264,7 @@ class SaveNodeTest extends TestCase
         $gemini = $this->prophesize(GeminiClient::class);
         $gemini->getUrls(Argument::any(), Argument::any())
             ->willReturn([]);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any())
+        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($url);
         $gemini->saveUrls(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(true);
@@ -295,7 +298,8 @@ class SaveNodeTest extends TestCase
         $response = $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
-            $token = "Bearer islandora"
+            "http://localhost:8080/fcrepo/rest/",
+            "Bearer islandora"
         );
 
         $status = $response->getStatusCode();
@@ -346,7 +350,8 @@ class SaveNodeTest extends TestCase
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
-            $token = "Bearer islandora"
+            "http://localhost:8080/fcrepo/rest/",
+            "Bearer islandora"
         );
     }
 
@@ -403,7 +408,8 @@ class SaveNodeTest extends TestCase
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
-            $token = "Bearer islandora"
+            "http://localhost:8080/fcrepo/rest/",
+            "Bearer islandora"
         );
     }
 
@@ -460,7 +466,8 @@ class SaveNodeTest extends TestCase
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
-            $token = "Bearer islandora"
+            "http://localhost:8080/fcrepo/rest/",
+            "Bearer islandora"
         );
     }
 
@@ -520,7 +527,8 @@ class SaveNodeTest extends TestCase
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
-            $token = "Bearer islandora"
+            "http://localhost:8080/fcrepo/rest/",
+            "Bearer islandora"
         );
     }
 
@@ -580,7 +588,8 @@ class SaveNodeTest extends TestCase
         $response = $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
-            $token = "Bearer islandora"
+            "http://localhost:8080/fcrepo/rest/",
+            "Bearer islandora"
         );
 
         $status = $response->getStatusCode();
@@ -646,7 +655,8 @@ class SaveNodeTest extends TestCase
         $response = $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
-            $token = "Bearer islandora"
+            "http://localhost:8080/fcrepo/rest/",
+            "Bearer islandora"
         );
 
         $status = $response->getStatusCode();
