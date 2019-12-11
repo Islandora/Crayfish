@@ -69,4 +69,17 @@ interface MillinerServiceInterface
         $islandora_fedora_endpoint,
         $token = null
     );
+
+    /**
+     * @param $uuid
+     * @param $token
+     *
+     * @throws \Exception
+     *
+     * @return \GuzzleHttp\Psr7\Response
+     */
+    public function createVersion(
+        $uuid,
+        $token = null
+    );
 }

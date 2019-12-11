@@ -1,6 +1,6 @@
 {
     "name": "islandora/crayfish",
-    "description": "Collection of Islandora CLAW microservices, lovingly known as Crayfish.",
+    "description": "Collection of Islandora microservices, lovingly known as Crayfish.",
     "type": "project",
     "homepage": "https://github.com/Islandora/Crayfish",
     "support": {
@@ -14,18 +14,8 @@
             "role": "Owner"
         },
         {
-            "name": "Jared Whiklo",
-            "email": "jwhiklo@gmail.com",
-            "role": "Maintainer"
-        },
-        {
-            "name": "Nick Ruest",
-            "email": "ruestn@gmail.com",
-            "role": "Maintainer"
-        },
-        {
-            "name": "Diego Pino",
-            "email": "dpino@krayon.cl",
+            "name": "Jonathan Green",
+            "email": "Jonathan.Green@lyrasis.org",
             "role": "Maintainer"
         }
     ]

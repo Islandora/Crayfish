@@ -191,7 +191,7 @@ class SaveNodeTest extends TestCase
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
-            "Bearer islandora"
+            $token = "Bearer islandora"
         );
     }
 

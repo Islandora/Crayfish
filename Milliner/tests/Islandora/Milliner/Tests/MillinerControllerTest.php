@@ -40,6 +40,7 @@ class MillinerControllerTest extends TestCase
      * @covers ::saveNode
      * @covers ::saveMedia
      * @covers ::deleteNode
+     * @covers ::createVersion
      */
     public function testMethodsReturnMillinerErrors()
     {
@@ -52,6 +53,8 @@ class MillinerControllerTest extends TestCase
         $milliner->deleteNode(Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+            ->willThrow(new \Exception("Forbidden", 403));
+        $milliner->createVersion(Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner = $milliner->reveal();
 
@@ -130,6 +133,23 @@ class MillinerControllerTest extends TestCase
             ]
         );
         $response = $controller->saveExternal($uuid, $request);
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 403,
+            "Response code must be that of thrown exception.  Expected 403, received $status"
+        );
+
+        // Version.
+        // Delete.
+        $request = Request::create(
+            "http://localhost:8000/milliner/version/$uuid",
+            "POST",
+            ['uuid' => $uuid],
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer islandora']
+        );
+        $response = $controller->createVersion($uuid, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 403,
@@ -420,6 +440,63 @@ class MillinerControllerTest extends TestCase
         );
 
         $response = $controller->deleteNode($uuid, $request);
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 204,
+            "Response code must be 204 when milliner returns 204.  Received: $status"
+        );
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::createVersion
+     */
+    public function testCreateVersionReturnsSuccessOnSuccess()
+    {
+        $milliner = $this->prophesize(MillinerServiceInterface::class);
+        $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+            ->willReturn(new Response(201));
+        $milliner = $milliner->reveal();
+        $controller = new MillinerController($milliner, $this->logger);
+
+        // Nodes.
+        $uuid = "abc123";
+        $request = Request::create(
+            "http://localhost:8000/milliner/version/$uuid",
+            "POST",
+            ['uuid' => $uuid],
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
+            ]
+        );
+        $response = $controller->createVersion($uuid, $request);
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 201,
+            "Response code must be 201 when milliner returns 201.  Received: $status"
+        );
+
+        $milliner = $this->prophesize(MillinerServiceInterface::class);
+        $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+            ->willReturn(new Response(204));
+        $milliner = $milliner->reveal();
+        $controller = new MillinerController($milliner, $this->logger);
+
+        $request = Request::create(
+            "http://localhost:8000/milliner/version/$uuid",
+            "POST",
+            ['uuid' => $uuid],
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
+            ]
+        );
+        $response = $controller->createVersion($uuid, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 204,

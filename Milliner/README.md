@@ -6,7 +6,7 @@ Microservice that converts Drupal entities into Fedora resources.
 
 ## Installation
 
-Milliner requires a functioning [Drupal 8](https://www.drupal.org/docs/8/install) installation with the [jsonld](http://github.com/Islandora-CLAW/jsonld) module enabled.
+Milliner requires a functioning [Drupal 8](https://www.drupal.org/docs/8/install) installation with the [jsonld](http://github.com/Islandora/jsonld) module enabled.
 It also requires a functioning [Fedora](http://fedorarepository.org/) repository.
 You will also need an SQL database as needed for [Gemini](../Gemini)
 
@@ -67,6 +67,18 @@ will return `204 No Content` if the resource is successfully updated.
 Current maintainers:
 
 * [Daniel Lamb](https://github.com/dannylamb)
+
+## Development
+
+If you would like to contribute, please get involved by attending our weekly [Tech Call](https://github.com/Islandora/docuentation/wiki). We love to hear from you!
+
+If you would like to contribute code to the project, you need to be covered by an Islandora Foundation [Contributor License Agreement](http://islandora.ca/sites/default/files/islandora_cla.pdf) or [Corporate Contributor License Agreement](http://islandora.ca/sites/default/files/islandora_ccla.pdf). Please see the [Contributors](http://islandora.ca/resources/contributors) pages on Islandora.ca for more information.
+
+We recommend using the [islandora-playbook](https://github.com/Islandora-Devops/islandora-playbook) to get started. 
+
+## License
+
+[MIT](https://opensource.org/licenses/MIT)
 
 [3]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square
 [4]: https://getcomposer.org/download/
