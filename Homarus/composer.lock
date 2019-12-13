@@ -544,12 +544,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Islandora/Crayfish-Commons.git",
-                "reference": "988ad57fa7e1d07b60f4190d39130de252d8baf0"
+                "reference": "4ae10f1858c86536c41797fe1370d46059b485be"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Islandora/Crayfish-Commons/zipball/988ad57fa7e1d07b60f4190d39130de252d8baf0",
-                "reference": "988ad57fa7e1d07b60f4190d39130de252d8baf0",
+                "url": "https://api.github.com/repos/Islandora/Crayfish-Commons/zipball/4ae10f1858c86536c41797fe1370d46059b485be",
+                "reference": "4ae10f1858c86536c41797fe1370d46059b485be",
                 "shasum": ""
             },
             "require": {
