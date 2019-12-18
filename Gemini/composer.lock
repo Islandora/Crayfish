@@ -565,12 +565,12 @@
             "version": "dev-dev",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Islandora-CLAW/chullo.git",
+                "url": "https://github.com/Islandora/chullo.git",
                 "reference": "30f13e76e1cd918e84ca960daf4613477f022c74"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Islandora-CLAW/chullo/zipball/30f13e76e1cd918e84ca960daf4613477f022c74",
+                "url": "https://api.github.com/repos/Islandora/chullo/zipball/30f13e76e1cd918e84ca960daf4613477f022c74",
                 "reference": "30f13e76e1cd918e84ca960daf4613477f022c74",
                 "shasum": ""
             },
@@ -603,18 +603,13 @@
                     "email": "community@islandora.ca"
                 },
                 {
-                    "name": "Nick Ruest",
-                    "role": "Maintainer",
-                    "email": "ruestn@gmail.com"
-                },
-                {
                     "name": "Daniel Lamb",
                     "role": "Maintainer",
                     "email": "dlamb@islandora.ca"
                 }
             ],
             "description": "A PHP client for interacting with a Fedora 4 server.",
-            "homepage": "https://github.com/islandora-claw/chullo",
+            "homepage": "https://github.com/islandora/chullo",
             "time": "2019-06-28 17:29:44"
         },
         {
@@ -622,12 +617,12 @@
             "version": "dev-dev",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Islandora-CLAW/Crayfish-Commons.git",
+                "url": "https://github.com/Islandora/Crayfish-Commons.git",
                 "reference": "988ad57fa7e1d07b60f4190d39130de252d8baf0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Islandora-CLAW/Crayfish-Commons/zipball/988ad57fa7e1d07b60f4190d39130de252d8baf0",
+                "url": "https://api.github.com/repos/Islandora/Crayfish-Commons/zipball/988ad57fa7e1d07b60f4190d39130de252d8baf0",
                 "reference": "988ad57fa7e1d07b60f4190d39130de252d8baf0",
                 "shasum": ""
             },

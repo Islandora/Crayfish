@@ -156,4 +156,28 @@ class MillinerController
             return new Response($e->getMessage(), $code);
         }
     }
+
+    /**
+     * @param string $uuid
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function createVersion($uuid, Request $request)
+    {
+        $token = $request->headers->get("Authorization", null);
+        try {
+            $response = $this->milliner->createVersion(
+                $uuid,
+                $token
+            );
+            return new Response(
+                $response->getBody(),
+                $response->getStatusCode()
+            );
+        } catch (\Exception $e) {
+            $this->log->error("", ['Exception' => $e]);
+            $code = $e->getCode() == 0 ? 500 : $e->getCode();
+            return new Response($e->getMessage(), $code);
+        }
+    }
 }

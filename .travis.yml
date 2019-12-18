@@ -15,23 +15,21 @@ branches:
     - /^dev/
 
 before_install:
-  - export SCRIPT_DIR=$HOME/CLAW/.scripts
+  - export SCRIPT_DIR=$HOME/islandora/.scripts
 
 install:
-  - git clone https://github.com/Islandora-CLAW/CLAW.git $HOME/CLAW
+  - git clone https://github.com/Islandora/documentation.git $HOME/islandora
   - for D in */; do (cd $D; composer install) done
 
 script:
   - $SCRIPT_DIR/line_endings.sh $TRAVIS_BUILD_DIR
   - .scripts/tester
 
-notifications:
-  irc:
-    channels:
-      - "irc.freenode.org#islandora"
-    on_success: change
-    on_failure: always
-    skip_join: true
-
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+notifications:
+  slack:
+    on_success: change
+    on_failure: always
+    secure: $SLACK_NOTIFICATION_KEY
