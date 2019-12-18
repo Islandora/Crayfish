@@ -192,6 +192,24 @@ class HomarusControllerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(400, $response->getStatusCode(), "Response must return 400");
     }
 
+    public function testFailOnSettingLogLevel() {
+        $controller = $this->getDefaultController();
+        $mock_fedora_response = $this->getMockFedoraResource();
+
+        $request = Request::create(
+            "/",
+            "GET"
+        );
+        $request->headers->set('Authorization', 'some_token');
+        $request->headers->set('Apix-Ldp-Resource', 'http://localhost:8080/fcrepo/rest/foo');
+        $request->headers->set('Accept', 'video/mp4');
+        $request->headers->set('X-Islandora-Args', '-vn -ar 44100 -loglevel debug -ac 2 -ab 192');
+        $request->attributes->set('fedora_resource', $mock_fedora_response);
+
+        $response = $controller->convert($request);
+        $this->assertEquals(400, $response->getStatusCode(), "Response must return 400");
+    }
+
     private function getDefaultController()
     {
         // Mock a CmdExecuteService.
