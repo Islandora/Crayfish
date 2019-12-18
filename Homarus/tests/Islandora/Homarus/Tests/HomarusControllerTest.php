@@ -192,7 +192,8 @@ class HomarusControllerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(400, $response->getStatusCode(), "Response must return 400");
     }
 
-    public function testFailOnSettingLogLevel() {
+    public function testFailOnSettingLogLevel()
+    {
         $controller = $this->getDefaultController();
         $mock_fedora_response = $this->getMockFedoraResource();
 

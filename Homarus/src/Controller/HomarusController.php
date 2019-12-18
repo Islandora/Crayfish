@@ -123,16 +123,16 @@ class HomarusController
         // Arguments to ffmpeg command are sent as a custom header.
         $args = $request->headers->get('X-Islandora-Args');
 
-	// Reject messages that try to set loglevel. We have to force
-	// it to be '-loglevel error'. Anything more verbose caues
-	// issues with large files.
-	if (preg_match("/\-loglevel/", $args)) {
+        // Reject messages that try to set loglevel. We have to force
+        // it to be '-loglevel error'. Anything more verbose caues
+        // issues with large files.
+        if (preg_match("/\-loglevel/", $args)) {
             $this->log->error("Malformed request, don't try to set loglevel in X-Islandora-Args");
             return new Response(
                 "Malformed request, don't try to set loglevel in X-Islandora-Args",
                 400
             );
-	}
+        }
       
         // Add -loglevel error so large files can be processed.
         $args .= ' -loglevel error';
