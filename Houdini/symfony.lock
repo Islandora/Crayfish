@@ -38,6 +38,9 @@
     "namshi/jose": {
         "version": "7.2.3"
     },
+    "php": {
+        "version": "7.2"
+    },
     "phpunit/php-timer": {
         "version": "1.0.x-dev"
     },
