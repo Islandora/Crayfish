@@ -36,7 +36,7 @@ class FitsController {
    * @return StreamedResponse | Response;
    */
   public function generate_fits(Request $request) {
-    $log = new Logger('islandors_fits');
+    $log = new Logger('islandora_fits');
     $log->pushHandler(new StreamHandler('/var/log/islandora/fits.log', Logger::DEBUG));
     $file_uri = $request->headers->get('Apix-Ldp-Resource');
     // If no file has been passed it probably because someone is testing the url from their browser.
