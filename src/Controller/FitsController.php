@@ -1,5 +1,5 @@
 <?php
-// src/Controller/FitsController.php
+
 namespace App\Controller;
 
 use Islandora\Chullo\IFedoraApi;
@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Request;
 use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 class FitsController {
 
@@ -33,11 +35,13 @@ class FitsController {
    * @param LoggerInterface $logger
    * @return StreamedResponse | Response;
    */
-  public function generate_fits(Request $request, LoggerInterface $logger) {
+  public function generate_fits(Request $request) {
+    $log = new Logger('islandors_fits');
+    $log->pushHandler(new StreamHandler('/var/log/islandora/fits.log', Logger::DEBUG));
     $file_uri = $request->headers->get('Apix-Ldp-Resource');
     // If no file has been passed it probably because someone is testing the url from their browser.
     if(!$file_uri) {
-      return new Response("<h1>The Fits microservice is up and running.</h1>");
+      return new Response("<h2>The Fits microservice is up and running.</h2>");
     }
     // Pass along auth headers if present.
     $headers = [];
@@ -54,7 +58,7 @@ class FitsController {
         ],
       ],
     ]);
-
+    $log->addInfo('Response Status', ["Status" => $response->getStatusCode(), "URI" => $file_uri]);
     $fits_xml = $response->getBody()->getContents();
     $encoding = mb_detect_encoding($fits_xml, 'UTF-8', TRUE);
     if ($encoding != 'UTF-8') {
