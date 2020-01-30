@@ -32,33 +32,40 @@ class FitsController {
 
   /**
    * @param Request $request
-   * @param LoggerInterface $logger
+   * @param LoggerInterface $loggerger
    * @return StreamedResponse | Response;
    */
   public function generate_fits(Request $request) {
-    $log = new Logger('islandora_fits');
-    $log->pushHandler(new StreamHandler('/var/log/islandora/fits.log', Logger::DEBUG));
+    $logger = new Logger('islandora_fits');
+    $logger->pushHandler(new StreamHandler('/var/log/islandora/fits.log', Logger::DEBUG));
+    $token = $request->headers->get('Authorization');
     $file_uri = $request->headers->get('Apix-Ldp-Resource');
     // If no file has been passed it probably because someone is testing the url from their browser.
-    if(!$file_uri) {
+    if (!$file_uri) {
       return new Response("<h2>The Fits microservice is up and running.</h2>");
     }
-    // Pass along auth headers if present.
-    $headers = [];
-    if ($request->headers->has("Authorization")) {
-      $headers['Authorization'] = $request->headers->get("Authorization");
+    try {
+      $context = stream_context_create([
+        "http" => [
+          "header" => "Authorization:  $token",
+        ],
+      ]);
+      $body = file_get_contents($file_uri, FALSE, $context);
     }
+    catch (\Exception $e) {
+      $logger->addError('ERROR', [$e->getMessage()]);
+    }
+    
     $response = $this->client->post('examine', [
-      'headers' => $headers,
       'multipart' => [
         [
           'name' => 'datafile',
           'filename' => $file_uri,
-          'contents' => file_get_contents($file_uri),
+          'contents' => $body,
         ],
       ],
     ]);
-    $log->addInfo('Response Status', ["Status" => $response->getStatusCode(), "URI" => $file_uri]);
+    $logger->addInfo('Response Status', ["Status" => $response->getStatusCode(), "URI" => $file_uri]);
     $fits_xml = $response->getBody()->getContents();
     $encoding = mb_detect_encoding($fits_xml, 'UTF-8', TRUE);
     if ($encoding != 'UTF-8') {
