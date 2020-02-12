@@ -14,18 +14,13 @@ use Monolog\Handler\StreamHandler;
 
 class FitsController {
 
-  protected $fitsGenerator;
   protected $client;
-
 
   /**
    * FitsController constructor.
-   * @param IFedoraApi $api
-   * @param FitsGenerator $fitsGenerator
    */
 
   public function __construct(FitsGenerator $fitsGenerator) {
-    $this->fitsGenerator = $fitsGenerator;
     $options = ['base_uri' => $_ENV['FITS_WEBSERVICE_URI']];
     $this->client = new Client($options);
   }
@@ -36,6 +31,7 @@ class FitsController {
    * @return StreamedResponse | Response;
    */
   public function generate_fits(Request $request) {
+    set_time_limit(0);
     $logger = new Logger('islandora_fits');
     $logger->pushHandler(new StreamHandler('/var/log/islandora/fits.log', Logger::DEBUG));
     $token = $request->headers->get('Authorization');
@@ -44,27 +40,25 @@ class FitsController {
     if (!$file_uri) {
       return new Response("<h2>The Fits microservice is up and running.</h2>");
     }
+    $context = stream_context_create([
+      "http" => [
+        "header" => "Authorization:  $token",
+      ],
+    ]);
     try {
-      $context = stream_context_create([
-        "http" => [
-          "header" => "Authorization:  $token",
+      $response = $this->client->post('examine', [
+        'multipart' => [
+          [
+            'name' => 'datafile',
+            'filename' => $file_uri,
+            'contents' => fopen($file_uri, 'r', FALSE, $context),
+          ],
         ],
       ]);
-      $body = file_get_contents($file_uri, FALSE, $context);
     }
     catch (\Exception $e) {
       $logger->addError('ERROR', [$e->getMessage()]);
     }
-    
-    $response = $this->client->post('examine', [
-      'multipart' => [
-        [
-          'name' => 'datafile',
-          'filename' => $file_uri,
-          'contents' => $body,
-        ],
-      ],
-    ]);
     $logger->addInfo('Response Status', ["Status" => $response->getStatusCode(), "URI" => $file_uri]);
     $fits_xml = $response->getBody()->getContents();
     $encoding = mb_detect_encoding($fits_xml, 'UTF-8', TRUE);
