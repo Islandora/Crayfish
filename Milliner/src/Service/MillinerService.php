@@ -195,8 +195,6 @@ class MillinerService implements MillinerServiceInterface
         $token = null
     ) {
 
-        $this->log->info("in update node");
-        $this->log->info("fedora url to update " . $fedora_url);
         // Get the RDF from Fedora.
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $headers['Accept'] = 'application/ld+json';
@@ -206,7 +204,6 @@ class MillinerService implements MillinerServiceInterface
         );
 
         $status = $fedora_response->getStatusCode();
-        $this->log->info("fedora response status " . $status);
         if ($status != 200) {
             $reason = $fedora_response->getReasonPhrase();
             throw new \RuntimeException(
@@ -247,7 +244,6 @@ class MillinerService implements MillinerServiceInterface
             true
         );
 
-        $this->log->info("drupal response status " . $drupal_response->getStatusCode());
         // Mash it into the shape Fedora accepts.
         $subject_url = $this->stripFormatJsonld ? $entity_url : $jsonld_url;
         $drupal_jsonld = $this->processJsonld(
@@ -280,7 +276,6 @@ class MillinerService implements MillinerServiceInterface
         );
 
         $status = $response->getStatusCode();
-        $this->log->info("fedora saveResource response status " . $status);
         if (!in_array($status, [201, 204])) {
             $reason = $response->getReasonPhrase();
             throw new \RuntimeException(
