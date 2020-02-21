@@ -97,4 +97,17 @@ interface MillinerServiceInterface
         $json_url,
         $token = null
     );
+
+        /**
+     * @param $uuid
+     * @param $token
+     *
+     * @throws \Exception
+     *
+     * @return array
+     */
+    public function getGeminiUrls(
+        $uuid,
+        $token = null
+    );
 }
