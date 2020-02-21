@@ -170,7 +170,10 @@ class MillinerController
     {
         $token = $request->headers->get("Authorization", null);
         try {
-            $urls = $this->gemini->getUrls($uuid, $token);
+            $this->log->info("in create Node version with " . $uuid);
+            $urls = $this->milliner->getGeminiUrls($uuid, $token);
+            $this->log->info($urls);
+            $this->log->info("fedora url is " . $urls['fedora']);
             if (!empty($urls)) {
                 $fedora_url = $urls['fedora'];
                 $response = $this->milliner->createVersion(

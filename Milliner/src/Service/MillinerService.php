@@ -376,6 +376,7 @@ class MillinerService implements MillinerServiceInterface
         $json_url,
         $token = null
     ) {
+        $headers = empty($token) ? [] : ['Authorization' => $token];
         $urls = $this->getFileFromMedia($source_field, $json_url, $token);
         $fedora_file_url = $urls['fedora'];
         $jsonld_url = $urls['jsonld'];
@@ -529,7 +530,7 @@ class MillinerService implements MillinerServiceInterface
         $fedora_url,
         $token = null
     ) {
-
+        $this->log->error("the fedora url in service is " . $fedora_url);
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $date = new DateTime();
         $timestamp = $date->format("D, d M Y H:i:s O");
@@ -596,5 +597,16 @@ class MillinerService implements MillinerServiceInterface
             );
         }
         return array('fedora'=>$urls['fedora'], 'jsonld' =>$jsonld_url, 'drupal'=>$urls['drupal']);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getGeminiUrls(
+        $uuid,
+        $token = null
+    ) {
+        $urls = $this->gemini->getUrls($uuid, $token);
+        return $urls;
     }
 }
