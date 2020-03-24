@@ -1,0 +1,52 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    app.executable: /usr/local/bin/ffmpeg
+    app.mime_types:
+        valid:
+            - video/mp4
+            - video/x-msvideo
+            - video/ogg
+            - audio/x-wav
+            - audio/mpeg
+            - audio/aac
+            - image/jpeg
+        default: video/mp4
+    app.mime_to_format:
+        valid:
+            video/mp4: mp4
+            video/x-msvideo: avi
+            video/ogg: ogg
+            audio/x-wav: wav
+            audio/mpeg: mp3
+            audio/aac: m4a
+            image/jpeg: image2pipe
+        default: mp4
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\Islandora\Homarus\:
+        resource: '../src/*'
+        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
+
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    App\Islandora\Homarus\Controller\HomarusController:
+        public: false
+        bind:
+            $mimetypes: '%app.mime_types%'
+            $executable: '%app.executable%'
+            $mime_to_format: '%app.mime_to_format%'
+        tags: ['controller.service_arguments']
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
