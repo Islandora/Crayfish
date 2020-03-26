@@ -4,8 +4,7 @@
     "type": "project",
     "require": {
         "silex/silex": "^2.0",
-        "islandora/crayfish-commons": "dev-dev",
-        "islandora/chullo": "dev-dev"
+        "islandora/crayfish-commons": "1.1.0"
     },
     "license": "MIT",
     "authors": [

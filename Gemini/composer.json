@@ -3,7 +3,7 @@
     "description": "Path mapping Service between Fedora and Drupal",
     "require": {
         "silex/silex": "^2.0",
-        "islandora/crayfish-commons": "dev-dev",
+        "islandora/crayfish-commons": "1.1.0",
         "doctrine/migrations": "^1.5",
         "kurl/silex-doctrine-migrations-provider": "^0.3.1"
     },
