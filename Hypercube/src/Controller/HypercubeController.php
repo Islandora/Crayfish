@@ -78,7 +78,7 @@ class HypercubeController
         $this->log->debug("Got Content-Type:", ['type' => $content_type]);
 
         if ($content_type == 'application/pdf') {
-            $cmd_string = $this->pdftotext_executable . " $args - -";
+            $cmd_string = $this->pdftotext_executable . " $args -enc UTF-8 - -";
         } else {
             $cmd_string = $this->tesseract_executable . " stdin stdout $args";
         }
