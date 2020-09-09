@@ -561,6 +561,8 @@ class MillinerControllerTest extends TestCase
         $milliner = $this->prophesize(MillinerServiceInterface::class);
         $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(204));
+	$milliner->getFileFromMedia(Argument::any(), Argument::any(), Argument::any())
+            ->willReturn(array('fedora'=>'', 'drupal'=>'', 'jsonld'=>''));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
 
