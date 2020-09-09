@@ -170,10 +170,7 @@ class MillinerController
     {
         $token = $request->headers->get("Authorization", null);
         try {
-            $this->log->info("in create Node version with " . $uuid);
             $urls = $this->milliner->getGeminiUrls($uuid, $token);
-            $this->log->info($urls);
-            $this->log->info("fedora url is " . $urls['fedora']);
             if (!empty($urls)) {
                 $fedora_url = $urls['fedora'];
                 $response = $this->milliner->createVersion(
@@ -205,10 +202,8 @@ class MillinerController
         $json_url = $request->headers->get("Content-Location");
 
         if (empty($json_url)) {
-            $this->log->info("json url is EMPTY");
+            $this->log->error("json url is EMPTY");
             return new Response("Expected JSON url in Content-Location header", 400);
-        } else {
-            $this->log->info("json url is" . $json_url);
         }
         try {
             $urls = $this->milliner->getFileFromMedia($source_field, $json_url, $token);

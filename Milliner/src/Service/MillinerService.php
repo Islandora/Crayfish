@@ -530,7 +530,6 @@ class MillinerService implements MillinerServiceInterface
         $fedora_url,
         $token = null
     ) {
-        $this->log->error("the fedora url in service is " . $fedora_url);
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $date = new DateTime();
         $timestamp = $date->format("D, d M Y H:i:s O");
@@ -596,7 +595,7 @@ class MillinerService implements MillinerServiceInterface
                 404
             );
         }
-        return array('fedora'=>$urls['fedora'], 'jsonld' =>$jsonld_url, 'drupal'=>$urls['drupal']);
+        return ['fedora'=>$urls['fedora'], 'jsonld' =>$jsonld_url, 'drupal'=>$urls['drupal']];
     }
 
     /**
