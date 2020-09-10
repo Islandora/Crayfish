@@ -48,11 +48,15 @@ class MillinerControllerTest extends TestCase
         $milliner = $this->prophesize(MillinerServiceInterface::class);
         $milliner->saveNode(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
+        $milliner->getFileFromMedia(Argument::any(), Argument::any(), Argument::any())
+            ->willThrow(new \Exception("Forbidden", 403));
         $milliner->saveMedia(Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner->deleteNode(Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+            ->willThrow(new \Exception("Forbidden", 403));
+        $milliner->getGeminiUrls(Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner->createVersion(Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
@@ -473,6 +477,8 @@ class MillinerControllerTest extends TestCase
     public function testCreateNodeVersionReturnsSuccessOnSuccess()
     {
         $milliner = $this->prophesize(MillinerServiceInterface::class);
+        $milliner->getGeminiUrls(Argument::any(), Argument::any())
+            ->willReturn(['fedora' => "http://example.org/fcrepo/abc123", "drupal" => "http://example.org/node/1"]);
         $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(201));
         $milliner = $milliner->reveal();
@@ -499,6 +505,8 @@ class MillinerControllerTest extends TestCase
         );
 
         $milliner = $this->prophesize(MillinerServiceInterface::class);
+        $milliner->getGeminiUrls(Argument::any(), Argument::any())
+            ->willReturn(['fedora' => "http://example.org/fcrepo/abc123", "drupal" => "http://example.org/node/1"]);
         $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(204));
         $milliner = $milliner->reveal();
