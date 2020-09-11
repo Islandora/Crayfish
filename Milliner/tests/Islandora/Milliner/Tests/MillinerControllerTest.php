@@ -48,11 +48,15 @@ class MillinerControllerTest extends TestCase
         $milliner = $this->prophesize(MillinerServiceInterface::class);
         $milliner->saveNode(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
+        $milliner->getFileFromMedia(Argument::any(), Argument::any(), Argument::any())
+            ->willThrow(new \Exception("Forbidden", 403));
         $milliner->saveMedia(Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner->deleteNode(Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+            ->willThrow(new \Exception("Forbidden", 403));
+        $milliner->getGeminiUrls(Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner->createVersion(Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
@@ -103,6 +107,25 @@ class MillinerControllerTest extends TestCase
             "Response code must be that of thrown exception.  Expected 403, received $status"
         );
 
+        // Version Media.
+        $request = Request::create(
+            "http://localhost:8000/milliner/media/$source_field/version",
+            "POST",
+            ['source_field' => $source_field],
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/media/6?_format=json',
+            ]
+        );
+        $response = $controller->createMediaVersion($source_field, $request);
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 403,
+            "Response code must be that of thrown exception.  Expected 403, received $status"
+        );
+
         // Delete.
         $request = Request::create(
             "http://localhost:8000/milliner/node/$uuid",
@@ -142,14 +165,14 @@ class MillinerControllerTest extends TestCase
         // Version.
         // Delete.
         $request = Request::create(
-            "http://localhost:8000/milliner/version/$uuid",
+            "http://localhost:8000/milliner/node/$uuid/version",
             "POST",
             ['uuid' => $uuid],
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer islandora']
         );
-        $response = $controller->createVersion($uuid, $request);
+        $response = $controller->createNodeVersion($uuid, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 403,
@@ -449,11 +472,13 @@ class MillinerControllerTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::createVersion
+     * @covers ::createNodeVersion
      */
-    public function testCreateVersionReturnsSuccessOnSuccess()
+    public function testCreateNodeVersionReturnsSuccessOnSuccess()
     {
         $milliner = $this->prophesize(MillinerServiceInterface::class);
+        $milliner->getGeminiUrls(Argument::any(), Argument::any())
+            ->willReturn(['fedora' => "http://example.org/fcrepo/abc123", "drupal" => "http://example.org/node/1"]);
         $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(201));
         $milliner = $milliner->reveal();
@@ -462,7 +487,7 @@ class MillinerControllerTest extends TestCase
         // Nodes.
         $uuid = "abc123";
         $request = Request::create(
-            "http://localhost:8000/milliner/version/$uuid",
+            "http://localhost:8000/milliner/node/$uuid/version",
             "POST",
             ['uuid' => $uuid],
             [],
@@ -472,7 +497,69 @@ class MillinerControllerTest extends TestCase
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
             ]
         );
-        $response = $controller->createVersion($uuid, $request);
+        $response = $controller->createNodeVersion($uuid, $request);
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 201,
+            "Response code must be 201 when milliner returns 201.  Received: $status"
+        );
+
+        $milliner = $this->prophesize(MillinerServiceInterface::class);
+        $milliner->getGeminiUrls(Argument::any(), Argument::any())
+            ->willReturn(['fedora' => "http://example.org/fcrepo/abc123", "drupal" => "http://example.org/node/1"]);
+        $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+            ->willReturn(new Response(204));
+        $milliner = $milliner->reveal();
+        $controller = new MillinerController($milliner, $this->logger);
+
+        $request = Request::create(
+            "http://localhost:8000/milliner/node/$uuid/version",
+            "POST",
+            ['uuid' => $uuid],
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
+            ]
+        );
+        $response = $controller->createNodeVersion($uuid, $request);
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 204,
+            "Response code must be 204 when milliner returns 204.  Received: $status"
+        );
+    }
+
+        /**
+     * @covers ::__construct
+     * @covers ::createMediaVersion
+     */
+    public function testCreateMediaVersionReturnsSuccessOnSuccess()
+    {
+        $milliner = $this->prophesize(MillinerServiceInterface::class);
+        $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+            ->willReturn(new Response(201));
+        $milliner->getFileFromMedia(Argument::any(), Argument::any(), Argument::any())
+            ->willReturn(array('fedora'=>'', 'drupal'=>'', 'jsonld'=>''));
+        $milliner = $milliner->reveal();
+        $controller = new MillinerController($milliner, $this->logger);
+
+        // Nodes.
+        $uuid = "abc123";
+        $source_field = 'field_image';
+        $request = Request::create(
+            "http://localhost:8000/milliner/media/$source_field/version",
+            "POST",
+            ['source_field' => $source_field],
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/media/6?_format=json',
+            ]
+        );
+        $response = $controller->createMediaVersion($uuid, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 201,
@@ -482,21 +569,23 @@ class MillinerControllerTest extends TestCase
         $milliner = $this->prophesize(MillinerServiceInterface::class);
         $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(204));
+        $milliner->getFileFromMedia(Argument::any(), Argument::any(), Argument::any())
+            ->willReturn(array('fedora'=>'', 'drupal'=>'', 'jsonld'=>''));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
 
         $request = Request::create(
-            "http://localhost:8000/milliner/version/$uuid",
+            "http://localhost:8000/milliner/media/$source_field/version",
             "POST",
-            ['uuid' => $uuid],
+            ['source_field' => $source_field],
             [],
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
-                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/media/6?_format=json',
             ]
         );
-        $response = $controller->createVersion($uuid, $request);
+        $response = $controller->createMediaVersion($uuid, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 204,

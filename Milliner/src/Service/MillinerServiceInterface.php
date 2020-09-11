@@ -71,7 +71,7 @@ interface MillinerServiceInterface
     );
 
     /**
-     * @param $uuid
+     * @param $fedora_url
      * @param $token
      *
      * @throws \Exception
@@ -79,6 +79,34 @@ interface MillinerServiceInterface
      * @return \GuzzleHttp\Psr7\Response
      */
     public function createVersion(
+        $fedora_url,
+        $token = null
+    );
+
+    /**
+     * @param $json_url
+     * @param $jsonld_url
+     * @param $token
+     *
+     * @throws \Exception
+     *
+     * @return array
+     */
+    public function getFileFromMedia(
+        $source_field,
+        $json_url,
+        $token = null
+    );
+
+        /**
+     * @param $uuid
+     * @param $token
+     *
+     * @throws \Exception
+     *
+     * @return array
+     */
+    public function getGeminiUrls(
         $uuid,
         $token = null
     );
