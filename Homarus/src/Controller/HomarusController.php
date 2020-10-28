@@ -137,8 +137,9 @@ class HomarusController
         // Add -loglevel error so large files can be processed.
         $args .= ' -loglevel error';
         $this->log->debug("X-Islandora-Args:", ['args' => $args]);
-
-        $cmd_string = "$this->executable -i $source $args $cmd_params -f $format -";
+        $token = $request->headers->get('Authorization');
+        $headers = "'Authorization:  $token'";
+        $cmd_string = "$this->executable -headers $headers -i $source  $args $cmd_params -f $format -";
         $this->log->debug('Ffmpeg Command:', ['cmd' => $cmd_string]);
 
         // Return response.
