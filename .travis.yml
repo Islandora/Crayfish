@@ -18,7 +18,7 @@ before_install:
   - export SCRIPT_DIR=$HOME/islandora_ci
 
 install:
-  - git clone https://github.com/Islandora/islandora_ci.git
+  - git clone https://github.com/Islandora/islandora_ci.git $HOME/islandora_ci
   - for D in */; do (cd $D; composer install) done
 
 script:
