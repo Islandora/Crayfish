@@ -15,10 +15,10 @@ branches:
     - /^dev/
 
 before_install:
-  - export SCRIPT_DIR=$HOME/islandora/.scripts
+  - export SCRIPT_DIR=$HOME/islandora_ci
 
 install:
-  - git clone https://github.com/Islandora/documentation.git $HOME/islandora
+  - git clone https://github.com/Islandora/islandora_ci.git $HOME/islandora_ci
   - for D in */; do (cd $D; composer install) done
 
 script:
