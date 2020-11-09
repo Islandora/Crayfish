@@ -33,9 +33,9 @@ class GeminiController
 
     /**
      * GeminiController constructor.
-     * @param \Islandora\Gemini\UrlMapper\UrlMapperInterface
-     * @param \Islandora\Gemini\UrlMinter\UrlMinterInterface
-     * @param \Symfony\Component\Routing\Generator\UrlGenerator
+     * @param \Islandora\Gemini\UrlMapper\UrlMapperInterface $urlMapper
+     * @param \Islandora\Gemini\UrlMinter\UrlMinterInterface $urlMinter
+     * @param \Symfony\Component\Routing\Generator\UrlGenerator $urlGenerator
      */
     public function __construct(
         UrlMapperInterface $urlMapper,

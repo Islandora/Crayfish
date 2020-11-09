@@ -18,12 +18,29 @@ class UrlMapper implements UrlMapperInterface
     protected $connection;
 
     /**
+     * @var string
+     */
+    protected $drupalDomain;
+
+    /**
+     * @var string
+     */
+    protected $fedoraDomain;
+
+    /**
      * UrlMapper constructor.
      * @param \Doctrine\DBAL\Connection $connection
+     * @param string $drupalDomain
+     * @param string $fedoraDomain
      */
-    public function __construct(Connection $connection)
-    {
+    public function __construct(
+        Connection $connection,
+        $drupalDomain = "",
+        $fedoraDomain = ""
+    ) {
         $this->connection = $connection;
+        $this->drupalDomain = $drupalDomain;
+        $this->fedoraDomain = $fedoraDomain;
     }
 
     /**
@@ -32,10 +49,26 @@ class UrlMapper implements UrlMapperInterface
     public function getUrls($uuid)
     {
         $sql = 'SELECT drupal_uri as drupal, fedora_uri as fedora FROM Gemini WHERE uuid = :uuid';
-        return $this->connection->fetchAssoc(
+        $result = $this->connection->fetchAssoc(
             $sql,
             ['uuid' => $uuid]
         );
+
+        if (!empty($this->drupalDomain)) {
+            $result['drupal'] = $this->replaceDomain($result['drupal'], $this->drupalDomain);
+        }
+
+        if (!empty($this->fedoraDomain)) {
+            $result['fedora'] = $this->replaceDomain($result['fedora'], $this->fedoraDomain);
+        }
+
+        return $result;
+    }
+
+    protected function replaceDomain($url, $domain)
+    {
+        $parts = parse_url($url);
+        return "$parts[scheme]://$domain$parts[path]";
     }
 
     /**
@@ -108,12 +141,34 @@ class UrlMapper implements UrlMapperInterface
      */
     public function findUrls($uri)
     {
+        $parts = parse_url($uri);
+        $path = $parts['path'];
+
         $query =
-          'SELECT fedora_uri as uri FROM Gemini WHERE drupal_uri = :uri union
-            SELECT drupal_uri as uri FROM Gemini WHERE fedora_uri = :uri';
-        return $this->connection->fetchAssoc(
+          'SELECT fedora_uri FROM Gemini WHERE drupal_uri LIKE :path union
+           SELECT drupal_uri FROM Gemini WHERE fedora_uri LIKE :path';
+
+        $result = $this->connection->fetchAssoc(
             $query,
-            ['uri' => $uri]
+            ['path' => "%$path"]
         );
+
+        if (isset($result['fedora_uri'])) {
+            if (!empty($this->fedoraDomain)) {
+                $result['fedora_uri'] = $this->replaceDomain($result['fedora_uri'], $this->fedoraDomain);
+            }
+            $result['uri'] = $result['fedora_uri'];
+            unset($result['fedora_uri']);
+        }
+
+        if (isset($result['drupal_uri'])) {
+            if (!empty($this->drupalDomain)) {
+                $result['drupal_uri'] = $this->replaceDomain($result['drupal_uri'], $this->drupalDomain);
+            }
+            $result['uri'] = $result['drupal_uri'];
+            unset($result['drupal_uri']);
+        }
+
+        return $result;
     }
 }
