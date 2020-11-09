@@ -40,7 +40,7 @@ syn:
   enable: True
   # Path to the syn config file for authentication.
   # example can be found here:
-  # https://github.com/Islandora/Syn/blob/master/conf/syn-settings.example$
+  # https://github.com/Islandora/Syn/blob/main/conf/syn-settings.example$
   config: ../syn-settings.xml
 
 

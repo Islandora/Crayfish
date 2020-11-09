@@ -4,7 +4,7 @@
     "require": {
         "silex/silex": "^2.0",
         "islandora/crayfish-commons": "dev-dev",
-        "doctrine/migrations": "^1.5",
+        "doctrine/migrations": "^1.8",
         "kurl/silex-doctrine-migrations-provider": "^0.3.1"
     },
     "require-dev": {

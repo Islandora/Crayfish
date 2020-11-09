@@ -166,12 +166,50 @@ class MillinerController
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function createVersion($uuid, Request $request)
+    public function createNodeVersion($uuid, Request $request)
     {
         $token = $request->headers->get("Authorization", null);
         try {
+            $urls = $this->milliner->getGeminiUrls($uuid, $token);
+            if (!empty($urls)) {
+                $fedora_url = $urls['fedora'];
+                $response = $this->milliner->createVersion(
+                    $fedora_url,
+                    $token
+                );
+                return new Response(
+                    $response->getBody(),
+                    $response->getStatusCode()
+                );
+            } else {
+                return new Response(404);
+            }
+        } catch (\Exception $e) {
+            $this->log->error("", ['Exception' => $e]);
+            $code = $e->getCode() == 0 ? 500 : $e->getCode();
+            return new Response($e->getMessage(), $code);
+        }
+    }
+
+    /**
+     * @param string $source_field
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function createMediaVersion($source_field, Request $request)
+    {
+        $token = $request->headers->get("Authorization", null);
+        $json_url = $request->headers->get("Content-Location");
+
+        if (empty($json_url)) {
+            $this->log->error("json url is EMPTY");
+            return new Response("Expected JSON url in Content-Location header", 400);
+        }
+        try {
+            $urls = $this->milliner->getFileFromMedia($source_field, $json_url, $token);
+            $fedora_file_url = $urls['fedora'];
             $response = $this->milliner->createVersion(
-                $uuid,
+                $fedora_file_url,
                 $token
             );
             return new Response(
