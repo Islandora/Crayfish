@@ -54,11 +54,11 @@ class UrlMapper implements UrlMapperInterface
             ['uuid' => $uuid]
         );
 
-        if (!empty($this->drupalDomain)) {
+        if (!empty($this->drupalDomain) && isset($result['drupal'])) {
             $result['drupal'] = $this->replaceDomain($result['drupal'], $this->drupalDomain);
         }
 
-        if (!empty($this->fedoraDomain)) {
+        if (!empty($this->fedoraDomain) && isset($result['fedora'])) {
             $result['fedora'] = $this->replaceDomain($result['fedora'], $this->fedoraDomain);
         }
 
