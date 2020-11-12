@@ -50,6 +50,8 @@ class MillinerController
             return new Response("Expected JSONLD url in Content-Location header", 400);
         }
 
+	$this->log->debug("JSONLD URL: $jsonld_url");
+	$this->log->debug("FEDORA ENDPOINT: $islandora_fedora_endpoint");
         try {
             $response = $this->milliner->saveNode(
                 $uuid,

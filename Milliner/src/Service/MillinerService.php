@@ -81,7 +81,7 @@ class MillinerService implements MillinerServiceInterface
         $token = null
     ) {
         $path = $this->mapper->getFedoraPath($uuid);
-	$islandora_fedora_endpoint = rtrim("/", $islandora_fedora_endpoint);
+	$islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
 	$fedora_url  = "$islandora_fedora_endpoint/$path";
 
 	$response = $this->fedora->getResourceHeaders($fedora_url);
@@ -143,6 +143,8 @@ class MillinerService implements MillinerServiceInterface
         // Save it in Fedora.
         $headers['Content-Type'] = 'application/ld+json';
         $headers['Prefer'] = 'return=minimal; handling=lenient';
+	$this->log->debug("HEADERS " . json_encode($headers));
+	$this->log->debug("FEDORA URL " . $fedora_url);
         $response = $this->fedora->saveResource(
             $fedora_url,
             json_encode($jsonld),
@@ -398,7 +400,7 @@ class MillinerService implements MillinerServiceInterface
         $token = null
     ) {
         $path = $this->mapper->getFedoraPath($uuid);
-	$islandora_fedora_endpoint = rtrim("/", $islandora_fedora_endpoint);
+	$islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
 	$fedora_url  = "$islandora_fedora_endpoint/$path";
 
         $headers = empty($token) ? [] : ['Authorization' => $token];
@@ -430,7 +432,7 @@ class MillinerService implements MillinerServiceInterface
         $token = null
     ) {
         $path = $this->mapper->getFedoraPath($uuid);
-	$islandora_fedora_endpoint = rtrim("/", $islandora_fedora_endpoint);
+	$islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
 	$fedora_url  = "$islandora_fedora_endpoint/$path";
 
         $headers = empty($token) ? [] : ['Authorization' => $token];
@@ -471,7 +473,7 @@ class MillinerService implements MillinerServiceInterface
         $token = null
     ) {
         $path = $this->mapper->getFedoraPath($uuid);
-	$islandora_fedora_endpoint = rtrim("/", $islandora_fedora_endpoint);
+	$islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
 	$fedora_url  = "$islandora_fedora_endpoint/$path";
 
         $headers = empty($token) ? [] : ['Authorization' => $token];
@@ -565,7 +567,7 @@ class MillinerService implements MillinerServiceInterface
 	// Construct the fedora url
 	$pieces = explode("_flysystem/", $drupal_url);
 	$fedora_file_path = end($pieces); 
-	$islandora_fedora_endpoint = rtrim("/", $islandora_fedora_endpoint);
+	$islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
         $fedora_file_url = "$islandora_fedora_endpoint/$fedora_file_path" ;
 
         // Now look for the 'describedby' link header on the file in Fedora.
