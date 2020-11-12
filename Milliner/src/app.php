@@ -4,9 +4,9 @@ require_once __DIR__.'/../vendor/autoload.php';
 
 use GuzzleHttp\Client;
 use Islandora\Chullo\FedoraApi;
+use Islandora\Crayfish\Commons\EntityMapper\EntityMapper;
 use Islandora\Crayfish\Commons\Provider\IslandoraServiceProvider;
 use Islandora\Crayfish\Commons\Provider\YamlConfigServiceProvider;
-use Islandora\Crayfish\Commons\Client\GeminiClient;
 use Islandora\Milliner\Controller\MillinerController;
 use Islandora\Milliner\Service\MillinerService;
 use Pimple\Exception\UnknownIdentifierException;
@@ -33,10 +33,7 @@ $app['milliner.controller'] = function () use ($app) {
         new MillinerService(
             FedoraApi::create($app['crayfish.fedora_base_url']),
             new Client(),
-            GeminiClient::create(
-                $app['crayfish.gemini_base_url'],
-                $app['monolog']
-            ),
+	    new EntityMapper(),
             $app['monolog'],
             $app['crayfish.modified_date_predicate'],
             $strip_format_jsonld
@@ -48,8 +45,8 @@ $app['milliner.controller'] = function () use ($app) {
 $app->post('/node/{uuid}', "milliner.controller:saveNode");
 $app->delete('/node/{uuid}', "milliner.controller:deleteNode");
 $app->post('/node/{uuid}/version', "milliner.controller:createNodeVersion");
-$app->post('/media/{source_field}', "milliner.controller:saveMedia");
-$app->post('/media/{source_field}/version', 'milliner.controller:createMediaVersion');
+$app->post('/media', "milliner.controller:saveMedia");
+$app->post('/media/version', 'milliner.controller:createMediaVersion');
 $app->post('/external/{uuid}', "milliner.controller:saveExternal");
 
 return $app;
