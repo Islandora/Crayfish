@@ -15,7 +15,11 @@ $app->register(new IslandoraServiceProvider());
 $app->register(new YamlConfigServiceProvider(__DIR__ . '/../cfg/config.yaml'));
 $app['debug'] = $app['crayfish.debug'];
 $app['gemini.mapper'] = function ($app) {
-    return new UrlMapper($app['db']);
+    return new UrlMapper(
+        $app['db'],
+        $app['crayfish.drupal_domain'],
+        $app['crayfish.fedora_domain']
+    );
 };
 $app['gemini.minter'] = function ($app) {
     return new UrlMinter();

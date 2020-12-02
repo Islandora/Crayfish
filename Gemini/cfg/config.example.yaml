@@ -2,7 +2,11 @@
 
 debug: false 
 
-fedora_base_url: http://localhost:8080/fcrepo/rest
+# Leave these blank unless you know what you're doing.  If you're moving
+# data from one server to another and the domain changes, set these
+# to your new domain.
+fedora_domain: 
+drupal_domain: 
 
 db.options:
   driver: pdo_mysql
