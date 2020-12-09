@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0fb3099640bd56053666ddf4a53503f6",
+    "content-hash": "17983e56ca024537ece51b509f208836",
     "packages": [
         {
             "name": "easyrdf/easyrdf",
@@ -4025,7 +4025,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.2",
+        "php": "^7.4",
         "ext-ctype": "*",
         "ext-iconv": "*"
     },
