@@ -6,6 +6,7 @@ use Doctrine\DBAL\Driver\DriverException;
 use Islandora\Gemini\UrlMapper\UrlMapper;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 
 /**
@@ -13,7 +14,7 @@ use Prophecy\Argument;
  * @package Islandora\Gemini\Tests
  * @coversDefaultClass \Islandora\Gemini\UrlMapper\UrlMapper
  */
-class UrlMapperTest extends \PHPUnit_Framework_TestCase
+class UrlMapperTest extends TestCase
 {
     /**
      * @covers ::__construct

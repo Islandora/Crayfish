@@ -5,6 +5,7 @@ namespace Islandora\Gemini\Tests;
 use Islandora\Gemini\Controller\GeminiController;
 use Islandora\Gemini\UrlMapper\UrlMapperInterface;
 use Islandora\Gemini\UrlMinter\UrlMinterInterface;
+use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 
@@ -13,7 +14,7 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
  * @package Islandora\Gemini\Tests
  * @coversDefaultClass \Islandora\Gemini\Controller\GeminiController
  */
-class DeleteTest extends \PHPUnit_Framework_TestCase
+class DeleteTest extends TestCase
 {
     /**
      * @covers ::__construct

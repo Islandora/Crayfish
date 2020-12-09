@@ -27,12 +27,12 @@
     },
     "scripts": {
         "check": [
-            "phpcs --standard=PSR2 src tests",
-            "phpcpd --names *.php src"
+            "vendor/bin/phpcs --standard=PSR2 src tests",
+            "vendor/bin/phpcpd --suffix *.php src"
         ],
         "test": [
             "@check",
-	        "./vendor/bin/phpunit"
+	        "vendor/bin/phpunit"
         ]
     },
     "config": {

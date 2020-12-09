@@ -6,6 +6,7 @@ use Islandora\Crayfish\Commons\ApixFedoraResourceRetriever;
 use Islandora\Crayfish\Commons\CmdExecuteService;
 use Islandora\Homarus\Controller\HomarusController;
 use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -14,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @coversDefaultClass \Islandora\Homarus\Controller\HomarusController
  */
-class HomarusControllerTest extends \PHPUnit_Framework_TestCase
+class HomarusControllerTest extends TestCase
 {
 
     private $mime_to_format;
@@ -28,7 +29,7 @@ class HomarusControllerTest extends \PHPUnit_Framework_TestCase
     /**
      * Setup to reset to defaults.
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->mime_to_format = [
             'video/mp4_mp4',

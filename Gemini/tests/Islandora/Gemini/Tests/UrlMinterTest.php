@@ -3,13 +3,14 @@
 namespace Islandora\Gemini\Tests;
 
 use Islandora\Gemini\UrlMinter\UrlMinter;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class UrlMinterTest
  * @package Islandora\Gemini\Tests
  * @coversDefaultClass \Islandora\Gemini\UrlMinter\UrlMinter
  */
-class UrlMinterTest extends \PHPUnit_Framework_TestCase
+class UrlMinterTest extends TestCase
 {
     /**
      * @covers ::__construct

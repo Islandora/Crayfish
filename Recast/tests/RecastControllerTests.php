@@ -35,7 +35,7 @@ class RecastControllerTest extends TestCase
   /**
    * {@inheritdoc}
    */
-    public function setUp()
+    public function setUp(): void
     {
         $this->gemini_prophecy = $this->prophesize(GeminiClient::class);
         $this->logger_prophecy = $this->prophesize(Logger::class);
@@ -180,10 +180,10 @@ class RecastControllerTest extends TestCase
 
         $response = $controller->recast($request, $mock_silex_app, 'add');
         $body = $response->getContent();
-        $this->assertContains('fedora:', $body, "Did not find fedora: prefix");
-        $this->assertNotContains('ldp:', $body, "Found ldp: prefix");
-        $this->assertContains('pcdm:', $body, "Did not find pcdm: prefix");
-        $this->assertContains('<http://www.w3.org/ns/ldp#RDFSource>', $body, "Did not find full LDP uri");
+        $this->assertStringContainsString('fedora:', $body, "Did not find fedora: prefix");
+        $this->assertStringNotContainsString('ldp:', $body, "Found ldp: prefix");
+        $this->assertStringContainsString('pcdm:', $body, "Did not find pcdm: prefix");
+        $this->assertStringContainsString('<http://www.w3.org/ns/ldp#RDFSource>', $body, "Did not find full LDP uri");
     }
 
   /**
