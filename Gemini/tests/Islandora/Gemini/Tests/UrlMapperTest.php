@@ -153,7 +153,6 @@ class UrlMapperTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::saveUrls
-     * @expectedException \Exception
      */
     public function testSaveUrlsRollsBackOnException()
     {
@@ -165,6 +164,7 @@ class UrlMapperTest extends TestCase
         $connection = $connection->reveal();
 
         $mapper = new UrlMapper($connection);
+        $this->expectException(\Exception::class);
         $mapper->saveUrls("foo", "bar", "baz");
     }
 
@@ -213,7 +213,6 @@ class UrlMapperTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::deleteUrls
-     * @expectedException \Exception
      */
     public function testDeleteUrlsRollsBackOnException()
     {
@@ -225,6 +224,7 @@ class UrlMapperTest extends TestCase
         $connection = $connection->reveal();
 
         $mapper = new UrlMapper($connection);
+        $this->expectException(\Exception::class);
         $mapper->deleteUrls("foo");
     }
 

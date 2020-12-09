@@ -102,8 +102,6 @@ class CreateVersionTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::createVersion
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 404
      */
 
     public function testCreateVersionReturnsFedora404()
@@ -135,6 +133,8 @@ class CreateVersionTest extends TestCase
             ->willReturn($fedora_response);
         $fedora = $fedora->reveal();
 
+        $this->expectException(\RuntimeException::class, null, 404);
+
         $milliner = new MillinerService(
             $fedora,
             $drupal,
@@ -160,8 +160,6 @@ class CreateVersionTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::createVersion
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 403
      */
     public function testcreateVersionThrowsOnFedoraSaveError()
     {
@@ -195,6 +193,7 @@ class CreateVersionTest extends TestCase
             ->willReturn($fedora_response);
         $fedora = $fedora->reveal();
 
+        $this->expectException(\RuntimeException::class, null, 403);
 
         $milliner = new MillinerService(
             $fedora,
