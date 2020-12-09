@@ -37,14 +37,14 @@
     },
     "config": {
         "platform": {
-            "php": "7.2"
+            "php": "7.4"
         }
     },
     "require-dev": {
         "symfony/browser-kit": "^3.0",
         "symfony/css-selector": "^3.0",
-        "phpunit/phpunit": "^5.0",
+        "phpunit/phpunit": "^9.0",
         "squizlabs/php_codesniffer": "^3.0",
-        "sebastian/phpcpd": "^3.0"
+        "sebastian/phpcpd": "^6.0"
     }
 }
