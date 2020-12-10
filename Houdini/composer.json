@@ -32,7 +32,7 @@
         "symfony/var-dumper": "^4.3",
         "squizlabs/php_codesniffer": "^3.0",
         "sebastian/phpcpd": "^6.0",
-        "symfony/phpunit-bridge": "^4.3"
+        "symfony/phpunit-bridge": "^5.2"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -70,7 +70,7 @@
         ],
         "test": [
             "@check",
-            "php bin/phpunit"
+            "bin/phpunit"
         ],
         "auto-scripts": {
             "cache:clear": "symfony-cmd",

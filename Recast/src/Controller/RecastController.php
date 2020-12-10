@@ -75,7 +75,7 @@ class RecastController
         if (!in_array($operation, $this->availableMethods)) {
             return new Response(sprintf(
                 'Valid methods for recast are [%s] received "%s".',
-                implode($this->availableMethods, ', '),
+                implode(', ', $this->availableMethods),
                 $operation
             ), 400);
         }

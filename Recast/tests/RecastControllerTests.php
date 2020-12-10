@@ -140,7 +140,7 @@ class RecastControllerTest extends TestCase
 
         // Do with add
         $response = $controller->recast($request, $mock_silex_app, 'oops');
-        $this->assertEquals(400, $response->getStatusCode(), "Invalid status code");
+        $this->assertEquals($response->getStatusCode(), 400, "Invalid status code");
     }
 
     /**
