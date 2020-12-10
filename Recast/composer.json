@@ -5,7 +5,7 @@
     "require": {
         "silex/silex": "^2.0",
         "islandora/crayfish-commons": "dev-dev",
-        "easyrdf/easyrdf": "^0.9"
+        "easyrdf/easyrdf": "^1"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
