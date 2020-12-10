@@ -1,6 +1,6 @@
 # ![Crayfish](https://cloud.githubusercontent.com/assets/2371345/15409657/2dfb463a-1dec-11e6-9089-06df94ef3f37.png) Crayfish
 
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.2-8892BF.svg?style=flat-square)](https://php.net/)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.4-8892BF.svg?style=flat-square)](https://php.net/)
 [![Build Status](https://travis-ci.com/Islandora/Crayfish.svg?branch=main)](https://travis-ci.com/Islandora/Crayfish)
 [![Contribution Guidelines](http://img.shields.io/badge/CONTRIBUTING-Guidelines-blue.svg)](./CONTRIBUTING.md)
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
@@ -14,7 +14,7 @@ A collection of Islandora 8 microservices, lovingly known as Crayfish.  Some of 
 
 The minimum requirements for any microservice are
 
-* PHP 5.6+
+* PHP 7.4+
 * [Composer](https://getcomposer.org/)
 
 Many microservices have extra installation requirements.  Please see the README of each microservice for additional details.
