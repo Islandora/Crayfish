@@ -13,6 +13,18 @@ use Symfony\Component\HttpFoundation\Response;
 if (class_exists('\EasyRdf_Graph')) {
     class_alias('\EasyRdf_Graph', ' \EasyRdf\Graph');
 }
+
+if (class_exists('\EasyRdf_Format')) {
+    class_alias('\EasyRdf_Format', ' \EasyRdf\Format');
+}
+
+if (class_exists('\EasyRdf_Exception')) {
+    class_alias('\EasyRdf_Exception', ' \EasyRdf\Exception');
+}
+
+if (class_exists('\EasyRdf_Namespace')) {
+    class_alias('\EasyRdf_Namespace', ' \EasyRdf\RdfNamespace');
+}
 // phpcs:enable
 
 class RecastController
