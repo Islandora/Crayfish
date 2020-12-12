@@ -9,6 +9,12 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+// phpcs:disable
+if (class_exists('\EasyRdf_Graph')) {
+    class_alias('\EasyRdf_Graph', ' \EasyRdf\Graph');
+}
+// phpcs:enable
+
 class RecastController
 {
 

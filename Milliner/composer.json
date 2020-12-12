@@ -5,7 +5,8 @@
     "require": {
         "silex/silex": "^2.0",
         "islandora/crayfish-commons": "dev-dev",
-        "islandora/chullo": "dev-dev"
+        "islandora/chullo": "dev-dev",
+        "php": "^7.3 || ^7.4"
     },
     "license": "MIT",
     "authors": [
@@ -36,10 +37,7 @@
         ]
     },
     "config": {
-        "sort-packages": true,
-        "platform": {
-            "php": "7.4"
-        }
+        "sort-packages": true
     },
     "require-dev": {
         "symfony/browser-kit": "^3.0",

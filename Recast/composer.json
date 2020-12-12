@@ -5,7 +5,8 @@
     "require": {
         "silex/silex": "^2.0",
         "islandora/crayfish-commons": "dev-dev",
-        "easyrdf/easyrdf": "^1"
+        "easyrdf/easyrdf": "^0.9 || ^1",
+        "php": "^7.3 || ^7.4"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -43,10 +44,7 @@
         ]
     },
     "config": {
-        "sort-packages": true,
-        "platform": {
-            "php": "7.4"
-        }
+        "sort-packages": true
     },
     "require-dev": {
         "symfony/browser-kit": "^3.0",

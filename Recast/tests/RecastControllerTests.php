@@ -12,6 +12,12 @@ use Psr\Http\Message\StreamInterface;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 
+// phpcs:disable
+if (class_exists('\EasyRdf_Graph')) {
+    class_alias('\EasyRdf_Graph', ' \EasyRdf\Graph');
+}
+// phpcs:enable
+
 /**
  * Class RecastControllerTest
  *

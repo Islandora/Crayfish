@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "98056cbc3268332f1ab0c40c0773b6b0",
+    "content-hash": "4821fa896f6e9d2e7b54f19499e7b8e5",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -593,19 +593,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Islandora/chullo.git",
-                "reference": "3a971f1d24e62d65b6e841000d0546326992ddaa"
+                "reference": "6a5454e2bcdb2b24bf481b842692d4d1de6a0287"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Islandora/chullo/zipball/3a971f1d24e62d65b6e841000d0546326992ddaa",
-                "reference": "3a971f1d24e62d65b6e841000d0546326992ddaa",
+                "url": "https://api.github.com/repos/Islandora/chullo/zipball/6a5454e2bcdb2b24bf481b842692d4d1de6a0287",
+                "reference": "6a5454e2bcdb2b24bf481b842692d4d1de6a0287",
                 "shasum": ""
             },
             "require": {
-                "easyrdf/easyrdf": "^1",
+                "easyrdf/easyrdf": "^0.9 || ^1",
                 "guzzlehttp/guzzle": "^6.1.0",
                 "ml/json-ld": "^1.0.4",
-                "php": "^7.4"
+                "php": "^7.3 || ^7.4"
             },
             "require-dev": {
                 "mockery/mockery": "^0.9",
@@ -647,7 +647,7 @@
                 "issues": "https://github.com/Islandora/documentation/issues",
                 "source": "https://github.com/Islandora/chullo/tree/dev"
             },
-            "time": "2020-12-10T19:10:29+00:00"
+            "time": "2020-12-11T21:38:08+00:00"
         },
         {
             "name": "islandora/crayfish-commons",
@@ -5235,10 +5235,9 @@
     },
     "prefer-stable": true,
     "prefer-lowest": false,
-    "platform": [],
-    "platform-dev": [],
-    "platform-overrides": {
-        "php": "7.4"
+    "platform": {
+        "php": "^7.3 || ^7.4"
     },
+    "platform-dev": [],
     "plugin-api-version": "2.0.0"
 }

@@ -4,7 +4,8 @@
     "type": "project",
     "require": {
         "silex/silex": "^2.0",
-        "islandora/crayfish-commons": "dev-dev"
+        "islandora/crayfish-commons": "dev-dev",
+        "php": "^7.3 || ^7.4"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -37,10 +38,7 @@
         ]
     },
     "config": {
-        "sort-packages": true,
-        "platform": {
-            "php": "7.4"
-        }
+        "sort-packages": true
     },
     "require-dev": {
         "symfony/browser-kit": "^3.0",

@@ -16,7 +16,7 @@
         }
     ],
     "require": {
-        "php": "^7.4",
+        "php": "^7.3 || ^7.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "symfony/console": "^4.3",
@@ -40,10 +40,7 @@
         "preferred-install": {
             "*": "dist"
         },
-        "sort-packages": true,
-        "platform": {
-            "php": "7.4"
-        }
+        "sort-packages": true
     },
     "autoload": {
         "psr-4": {
