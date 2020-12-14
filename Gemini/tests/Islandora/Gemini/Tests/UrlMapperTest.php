@@ -6,6 +6,7 @@ use Doctrine\DBAL\Driver\DriverException;
 use Islandora\Gemini\UrlMapper\UrlMapper;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 
 /**
@@ -13,7 +14,7 @@ use Prophecy\Argument;
  * @package Islandora\Gemini\Tests
  * @coversDefaultClass \Islandora\Gemini\UrlMapper\UrlMapper
  */
-class UrlMapperTest extends \PHPUnit_Framework_TestCase
+class UrlMapperTest extends TestCase
 {
     /**
      * @covers ::__construct
@@ -152,7 +153,6 @@ class UrlMapperTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::__construct
      * @covers ::saveUrls
-     * @expectedException \Exception
      */
     public function testSaveUrlsRollsBackOnException()
     {
@@ -164,6 +164,7 @@ class UrlMapperTest extends \PHPUnit_Framework_TestCase
         $connection = $connection->reveal();
 
         $mapper = new UrlMapper($connection);
+        $this->expectException(\Exception::class);
         $mapper->saveUrls("foo", "bar", "baz");
     }
 
@@ -212,7 +213,6 @@ class UrlMapperTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::__construct
      * @covers ::deleteUrls
-     * @expectedException \Exception
      */
     public function testDeleteUrlsRollsBackOnException()
     {
@@ -224,6 +224,7 @@ class UrlMapperTest extends \PHPUnit_Framework_TestCase
         $connection = $connection->reveal();
 
         $mapper = new UrlMapper($connection);
+        $this->expectException(\Exception::class);
         $mapper->deleteUrls("foo");
     }
 

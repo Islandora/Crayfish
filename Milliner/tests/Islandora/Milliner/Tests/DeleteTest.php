@@ -33,7 +33,7 @@ class DeleteTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -46,8 +46,6 @@ class DeleteTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::deleteNode
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 403
      */
     public function testDeleteReturnsFedoraError()
     {
@@ -71,6 +69,8 @@ class DeleteTest extends TestCase
             $this->modifiedDatePredicate,
             false
         );
+
+        $this->expectException(\RuntimeException::class, null, 403);
 
         $milliner->deleteNode("abc123", "Bearer islandora");
     }

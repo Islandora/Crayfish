@@ -3,35 +3,34 @@
 namespace Islandora\Gemini\Tests;
 
 use Islandora\Gemini\UrlMinter\UrlMinter;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class UrlMinterTest
  * @package Islandora\Gemini\Tests
  * @coversDefaultClass \Islandora\Gemini\UrlMinter\UrlMinter
  */
-class UrlMinterTest extends \PHPUnit_Framework_TestCase
+class UrlMinterTest extends TestCase
 {
     /**
      * @covers ::__construct
      * @covers ::mint
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 400
      */
     public function testThrowsExceptionOnBlankString()
     {
         $minter = new UrlMinter("http://localhost:8080/fcrepo/rest");
+        $this->expectException(\InvalidArgumentException::class, null, 400);
         $minter->mint("", "");
     }
 
     /**
      * @covers ::__construct
      * @covers ::mint
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionCode 400
      */
     public function testThrowsExceptionOnShortUUID()
     {
         $minter = new UrlMinter("http://localhost:8080/fcrepo/rest");
+        $this->expectException(\InvalidArgumentException::class, null, 400);
         $minter->mint("abcd", "http://localhost:8080/fcrepo/rest/");
     }
 

@@ -34,7 +34,7 @@ class SaveNodeTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -47,8 +47,6 @@ class SaveNodeTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::saveNode
-     * @expectedException \GuzzleHttp\Exception\RequestException
-     * @expectedExceptionCode 403
      */
     public function testCreateNodeThrowsOnMintError()
     {
@@ -80,6 +78,8 @@ class SaveNodeTest extends TestCase
             false
         );
 
+        $this->expectException(\GuzzleHttp\Exception\RequestException::class, null, 403);
+
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
@@ -92,8 +92,6 @@ class SaveNodeTest extends TestCase
      * @covers ::__construct
      * @covers ::saveNode
      * @covers ::processJsonld
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 403
      */
     public function testCreateNodeThrowsOnFedoraError()
     {
@@ -130,6 +128,8 @@ class SaveNodeTest extends TestCase
             false
         );
 
+        $this->expectException(\RuntimeException::class, null, 403);
+
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
@@ -143,8 +143,6 @@ class SaveNodeTest extends TestCase
      * @covers ::saveNode
      * @covers ::createNode
      * @covers ::processJsonld
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 403
      */
     public function testCreateNodeThrowsOnFedoraSaveError()
     {
@@ -187,6 +185,8 @@ class SaveNodeTest extends TestCase
             $this->modifiedDatePredicate,
             false
         );
+
+        $this->expectException(\RuntimeException::class, null, 403);
 
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
@@ -316,8 +316,6 @@ class SaveNodeTest extends TestCase
      * @covers ::processJsonld
      * @covers ::getModifiedTimestamp
      * @covers ::getFirstPredicate
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 403
      */
     public function testUpdateNodeThrowsOnFedoraGetError()
     {
@@ -347,6 +345,8 @@ class SaveNodeTest extends TestCase
             false
         );
 
+        $this->expectException(\RuntimeException::class, null, 403);
+
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
@@ -362,8 +362,6 @@ class SaveNodeTest extends TestCase
      * @covers ::processJsonld
      * @covers ::getModifiedTimestamp
      * @covers ::getFirstPredicate
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 500
      */
     public function testUpdateNodeThrows500OnBadDatePredicate()
     {
@@ -396,6 +394,8 @@ class SaveNodeTest extends TestCase
             ->willReturn($fedora_get_response);
         $fedora = $fedora->reveal();
 
+        $this->expectException(\RuntimeException::class, null, 500);
+
         $milliner = new MillinerService(
             $fedora,
             $drupal,
@@ -420,8 +420,6 @@ class SaveNodeTest extends TestCase
      * @covers ::processJsonld
      * @covers ::getModifiedTimestamp
      * @covers ::getFirstPredicate
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 412
      */
     public function testUpdateNodeThrows412OnStaleContent()
     {
@@ -463,6 +461,8 @@ class SaveNodeTest extends TestCase
             false
         );
 
+        $this->expectException(\RuntimeException::class, null, 412);
+
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
@@ -478,8 +478,6 @@ class SaveNodeTest extends TestCase
      * @covers ::processJsonld
      * @covers ::getModifiedTimestamp
      * @covers ::getFirstPredicate
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 403
      */
     public function testUpdateNodeThrowsOnFedoraSaveError()
     {
@@ -523,6 +521,8 @@ class SaveNodeTest extends TestCase
             $this->modifiedDatePredicate,
             false
         );
+
+        $this->expectException(\RuntimeException::class, null, 403);
 
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",

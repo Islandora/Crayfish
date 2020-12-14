@@ -5,6 +5,7 @@ namespace Islandora\Hypercube\Tests;
 use Islandora\Crayfish\Commons\CmdExecuteService;
 use Islandora\Hypercube\Controller\HypercubeController;
 use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -13,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @coversDefaultClass \Islandora\Hypercube\Controller\HypercubeController
  */
-class HypercubeControllerTest extends \PHPUnit_Framework_TestCase
+class HypercubeControllerTest extends TestCase
 {
     /**
      * @covers ::__construct

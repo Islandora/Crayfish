@@ -34,7 +34,7 @@ class SaveExternalTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -47,8 +47,6 @@ class SaveExternalTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::saveExternal
-     * @expectedException \GuzzleHttp\Exception\RequestException
-     * @expectedExceptionCode 403
      */
     public function testSaveExternalThrowsOnMintError()
     {
@@ -78,6 +76,8 @@ class SaveExternalTest extends TestCase
             false
         );
 
+        $this->expectException(\GuzzleHttp\Exception\RequestException::class, null, 403);
+
         $milliner->saveExternal(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
@@ -89,8 +89,6 @@ class SaveExternalTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::saveExternal
-     * @expectedException \GuzzleHttp\Exception\RequestException
-     * @expectedExceptionCode 403
      */
     public function testSaveExternalThrowsOnHeadError()
     {
@@ -123,6 +121,8 @@ class SaveExternalTest extends TestCase
             false
         );
 
+        $this->expectException(\GuzzleHttp\Exception\RequestException::class, null, 403);
+
         $milliner->saveExternal(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
@@ -134,8 +134,6 @@ class SaveExternalTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::saveExternal
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 403
      */
     public function testSaveExternalThrowsOnPutError()
     {
@@ -164,6 +162,8 @@ class SaveExternalTest extends TestCase
             false
         );
 
+        $this->expectException(\RuntimeException::class, null, 403);
+
         $milliner->saveExternal(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
@@ -175,8 +175,6 @@ class SaveExternalTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::saveExternal
-     * @expectedException \GuzzleHttp\Exception\RequestException
-     * @expectedExceptionCode 403
      */
     public function testSaveExternalThrowsOnGeminiError()
     {
@@ -203,6 +201,8 @@ class SaveExternalTest extends TestCase
         $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(201));
         $fedora = $fedora->reveal();
+
+        $this->expectException(\GuzzleHttp\Exception\RequestException::class, null, 403);
 
         $milliner = new MillinerService(
             $fedora,

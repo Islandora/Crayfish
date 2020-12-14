@@ -8,3 +8,5 @@ coverage.xml
 syn-settings.xml
 */cfg/config.yaml
 clover.xml
+.php_cs.cache
+.phpunit.result.cache

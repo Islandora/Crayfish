@@ -9,6 +9,24 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+// phpcs:disable
+if (class_exists('\EasyRdf_Graph')) {
+    class_alias('\EasyRdf_Graph', ' \EasyRdf\Graph');
+}
+
+if (class_exists('\EasyRdf_Format')) {
+    class_alias('\EasyRdf_Format', ' \EasyRdf\Format');
+}
+
+if (class_exists('\EasyRdf_Exception')) {
+    class_alias('\EasyRdf_Exception', ' \EasyRdf\Exception');
+}
+
+if (class_exists('\EasyRdf_Namespace')) {
+    class_alias('\EasyRdf_Namespace', ' \EasyRdf\RdfNamespace');
+}
+// phpcs:enable
+
 class RecastController
 {
 
@@ -106,20 +124,20 @@ class RecastController
             $mimeType = $matches[1];
         }
         try {
-            $format = \EasyRdf_Format::getFormat($mimeType)->getName();
-        } catch (\EasyRdf_Exception $e) {
+            $format = \EasyRdf\Format::getFormat($mimeType)->getName();
+        } catch (\EasyRdf\Exception $e) {
             $this->log->info("Could not parse format {$mimeType}");
             return new Response("Cannot process resource in format ({$mimeType})", 400);
         }
 
         try {
-            $graph = new \EasyRdf_Graph();
+            $graph = new \EasyRdf\Graph();
             $graph->parse(
                 $body,
                 $format,
                 $fedora_uri
             );
-        } catch (\EasyRdf_Exception $e) {
+        } catch (\EasyRdf\Exception $e) {
             $this->log->error("Error parsing graph in {$format}");
             return new Response("Error parsing graph", 400);
         }
@@ -168,9 +186,9 @@ class RecastController
                     $output_type = "text/turtle";
                 }
                 try {
-                    $format = \EasyRdf_Format::getFormat($output_type)->getName();
+                    $format = \EasyRdf\Format::getFormat($output_type)->getName();
                     break;
-                } catch (\EasyRdf_Exception $e) {
+                } catch (\EasyRdf\Exception $e) {
                     // pass
                 }
             }
@@ -188,9 +206,9 @@ class RecastController
             $namespaces = $app['crayfish.namespaces'][0];
             if (is_array($namespaces) && count($namespaces) > 0) {
                 foreach ($namespaces as $prefix => $uri) {
-                    if (\EasyRdf_Namespace::prefixOfUri($uri) == '') {
+                    if (\EasyRdf\RdfNamespace::prefixOfUri($uri) == '') {
                         $this->log->debug("Adding $prefix -> $uri");
-                        \EasyRdf_Namespace::set($prefix, $uri);
+                        \EasyRdf\RdfNamespace::set($prefix, $uri);
                     }
                 }
             }
@@ -219,7 +237,7 @@ class RecastController
   /**
    * Locate the predicate for an object in a graph.
    *
-   * @param \EasyRdf_Graph $graph
+   * @param \EasyRdf\Graph $graph
    *   The graph to look in.
    * @param string $object
    *   The object to look for.
@@ -227,7 +245,7 @@ class RecastController
    * @return mixed string|null
    *   Return the predicate or null.
    */
-    private function findPredicateForObject(\EasyRdf_Graph $graph, $object)
+    private function findPredicateForObject(\EasyRdf\Graph $graph, $object)
     {
         $properties = $graph->reversePropertyUris($object);
         foreach ($properties as $p) {
