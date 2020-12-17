@@ -10,13 +10,14 @@ use Prophecy\Argument;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class MillinerControllerTest
  * @package Islandora\Milliner\Tests
  * @coversDefaultClass \Islandora\Milliner\Controller\MillinerController
  */
-class MillinerControllerTest extends \PHPUnit_Framework_TestCase
+class MillinerControllerTest extends TestCase
 {
     /**
      * @var LoggerInterface
@@ -26,7 +27,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -39,18 +40,25 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
      * @covers ::saveNode
      * @covers ::saveMedia
      * @covers ::deleteNode
+     * @covers ::createVersion
      */
     public function testMethodsReturnMillinerErrors()
     {
         // Wire up a controller.
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveNode(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveNode(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+            ->willThrow(new \Exception("Forbidden", 403));
+        $milliner->getFileFromMedia(Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner->saveMedia(Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner->deleteNode(Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
-        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+            ->willThrow(new \Exception("Forbidden", 403));
+        $milliner->getGeminiUrls(Argument::any(), Argument::any())
+            ->willThrow(new \Exception("Forbidden", 403));
+        $milliner->createVersion(Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner = $milliner->reveal();
 
@@ -69,6 +77,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
             ]
         );
@@ -92,6 +101,25 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             ]
         );
         $response = $controller->saveMedia($source_field, $request);
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 403,
+            "Response code must be that of thrown exception.  Expected 403, received $status"
+        );
+
+        // Version Media.
+        $request = Request::create(
+            "http://localhost:8000/milliner/media/$source_field/version",
+            "POST",
+            ['source_field' => $source_field],
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/media/6?_format=json',
+            ]
+        );
+        $response = $controller->createMediaVersion($source_field, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 403,
@@ -123,10 +151,28 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/sites/default/files/1.jpg',
             ]
         );
         $response = $controller->saveExternal($uuid, $request);
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 403,
+            "Response code must be that of thrown exception.  Expected 403, received $status"
+        );
+
+        // Version.
+        // Delete.
+        $request = Request::create(
+            "http://localhost:8000/milliner/node/$uuid/version",
+            "POST",
+            ['uuid' => $uuid],
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer islandora']
+        );
+        $response = $controller->createNodeVersion($uuid, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 403,
@@ -150,7 +196,11 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             ['uuid' => $uuid],
             [],
             [],
-            ['HTTP_AUTHORIZATION' => 'Bearer islandora']
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
+
+            ]
         );
         $response = $controller->saveNode($uuid, $request);
         $status = $response->getStatusCode();
@@ -203,7 +253,10 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             ['uuid' => $uuid],
             [],
             [],
-            ['HTTP_AUTHORIZATION' => 'Bearer islandora']
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
+            ]
         );
         $response = $controller->saveExternal($uuid, $request);
         $status = $response->getStatusCode();
@@ -220,7 +273,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     public function testSaveNodeReturnsSuccessOnSuccess()
     {
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveNode(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveNode(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(201));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
@@ -235,6 +288,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
             ]
         );
@@ -246,7 +300,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
         );
 
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveNode(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveNode(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(204));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
@@ -259,6 +313,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
             ]
         );
@@ -333,7 +388,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
     public function testSaveExternalReturnsSuccessOnSuccess()
     {
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(201));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
@@ -348,6 +403,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/sites/default/files/1.jpeg',
             ]
         );
@@ -359,7 +415,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
         );
 
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(204));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
@@ -372,6 +428,7 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/sites/default/files/1.jpeg',
             ]
         );
@@ -406,6 +463,129 @@ class MillinerControllerTest extends \PHPUnit_Framework_TestCase
         );
 
         $response = $controller->deleteNode($uuid, $request);
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 204,
+            "Response code must be 204 when milliner returns 204.  Received: $status"
+        );
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::createNodeVersion
+     */
+    public function testCreateNodeVersionReturnsSuccessOnSuccess()
+    {
+        $milliner = $this->prophesize(MillinerServiceInterface::class);
+        $milliner->getGeminiUrls(Argument::any(), Argument::any())
+            ->willReturn(['fedora' => "http://example.org/fcrepo/abc123", "drupal" => "http://example.org/node/1"]);
+        $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+            ->willReturn(new Response(201));
+        $milliner = $milliner->reveal();
+        $controller = new MillinerController($milliner, $this->logger);
+
+        // Nodes.
+        $uuid = "abc123";
+        $request = Request::create(
+            "http://localhost:8000/milliner/node/$uuid/version",
+            "POST",
+            ['uuid' => $uuid],
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
+            ]
+        );
+        $response = $controller->createNodeVersion($uuid, $request);
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 201,
+            "Response code must be 201 when milliner returns 201.  Received: $status"
+        );
+
+        $milliner = $this->prophesize(MillinerServiceInterface::class);
+        $milliner->getGeminiUrls(Argument::any(), Argument::any())
+            ->willReturn(['fedora' => "http://example.org/fcrepo/abc123", "drupal" => "http://example.org/node/1"]);
+        $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+            ->willReturn(new Response(204));
+        $milliner = $milliner->reveal();
+        $controller = new MillinerController($milliner, $this->logger);
+
+        $request = Request::create(
+            "http://localhost:8000/milliner/node/$uuid/version",
+            "POST",
+            ['uuid' => $uuid],
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/node/1?_format=jsonld',
+            ]
+        );
+        $response = $controller->createNodeVersion($uuid, $request);
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 204,
+            "Response code must be 204 when milliner returns 204.  Received: $status"
+        );
+    }
+
+        /**
+     * @covers ::__construct
+     * @covers ::createMediaVersion
+     */
+    public function testCreateMediaVersionReturnsSuccessOnSuccess()
+    {
+        $milliner = $this->prophesize(MillinerServiceInterface::class);
+        $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+            ->willReturn(new Response(201));
+        $milliner->getFileFromMedia(Argument::any(), Argument::any(), Argument::any())
+            ->willReturn(array('fedora'=>'', 'drupal'=>'', 'jsonld'=>''));
+        $milliner = $milliner->reveal();
+        $controller = new MillinerController($milliner, $this->logger);
+
+        // Nodes.
+        $uuid = "abc123";
+        $source_field = 'field_image';
+        $request = Request::create(
+            "http://localhost:8000/milliner/media/$source_field/version",
+            "POST",
+            ['source_field' => $source_field],
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/media/6?_format=json',
+            ]
+        );
+        $response = $controller->createMediaVersion($uuid, $request);
+        $status = $response->getStatusCode();
+        $this->assertTrue(
+            $status == 201,
+            "Response code must be 201 when milliner returns 201.  Received: $status"
+        );
+
+        $milliner = $this->prophesize(MillinerServiceInterface::class);
+        $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+            ->willReturn(new Response(204));
+        $milliner->getFileFromMedia(Argument::any(), Argument::any(), Argument::any())
+            ->willReturn(array('fedora'=>'', 'drupal'=>'', 'jsonld'=>''));
+        $milliner = $milliner->reveal();
+        $controller = new MillinerController($milliner, $this->logger);
+
+        $request = Request::create(
+            "http://localhost:8000/milliner/media/$source_field/version",
+            "POST",
+            ['source_field' => $source_field],
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/media/6?_format=json',
+            ]
+        );
+        $response = $controller->createMediaVersion($uuid, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 204,

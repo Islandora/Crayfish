@@ -33,9 +33,9 @@ class GeminiController
 
     /**
      * GeminiController constructor.
-     * @param \Islandora\Gemini\UrlMapper\UrlMapperInterface
-     * @param \Islandora\Gemini\UrlMinter\UrlMinterInterface
-     * @param \Symfony\Component\Routing\Generator\UrlGenerator
+     * @param \Islandora\Gemini\UrlMapper\UrlMapperInterface $urlMapper
+     * @param \Islandora\Gemini\UrlMinter\UrlMinterInterface $urlMinter
+     * @param \Symfony\Component\Routing\Generator\UrlGenerator $urlGenerator
      */
     public function __construct(
         UrlMapperInterface $urlMapper,
@@ -76,9 +76,11 @@ class GeminiController
             );
         }
 
+        $islandora_fedora_endpoint = $request->headers->get('X-Islandora-Fedora-Endpoint', '');
+
         try {
             return new Response(
-                $this->urlMinter->mint($uuid),
+                $this->urlMinter->mint($uuid, $islandora_fedora_endpoint),
                 200
             );
         } catch (\InvalidArgumentException $e) {

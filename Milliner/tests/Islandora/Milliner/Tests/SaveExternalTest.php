@@ -34,7 +34,7 @@ class SaveExternalTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -47,13 +47,11 @@ class SaveExternalTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::saveExternal
-     * @expectedException \GuzzleHttp\Exception\RequestException
-     * @expectedExceptionCode 403
      */
     public function testSaveExternalThrowsOnMintError()
     {
         $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any())
+        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
             ->willThrow(
                 new RequestException(
                     "Unauthorized",
@@ -78,9 +76,12 @@ class SaveExternalTest extends TestCase
             false
         );
 
+        $this->expectException(\GuzzleHttp\Exception\RequestException::class, null, 403);
+
         $milliner->saveExternal(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
+            "http://localhost:8080/fcrepo/rest/",
             "Bearer islandora"
         );
     }
@@ -88,14 +89,12 @@ class SaveExternalTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::saveExternal
-     * @expectedException \GuzzleHttp\Exception\RequestException
-     * @expectedExceptionCode 403
      */
     public function testSaveExternalThrowsOnHeadError()
     {
         $url = "http://localhost:8080/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc81";
         $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any())
+        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($url);
         $gemini = $gemini->reveal();
 
@@ -122,9 +121,12 @@ class SaveExternalTest extends TestCase
             false
         );
 
+        $this->expectException(\GuzzleHttp\Exception\RequestException::class, null, 403);
+
         $milliner->saveExternal(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
+            "http://localhost:8080/fcrepo/rest/",
             "Bearer islandora"
         );
     }
@@ -132,14 +134,12 @@ class SaveExternalTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::saveExternal
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 403
      */
     public function testSaveExternalThrowsOnPutError()
     {
         $url = "http://localhost:8080/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc81";
         $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any())
+        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($url);
         $gemini = $gemini->reveal();
 
@@ -162,9 +162,12 @@ class SaveExternalTest extends TestCase
             false
         );
 
+        $this->expectException(\RuntimeException::class, null, 403);
+
         $milliner->saveExternal(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
+            "http://localhost:8080/fcrepo/rest/",
             "Bearer islandora"
         );
     }
@@ -172,14 +175,12 @@ class SaveExternalTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::saveExternal
-     * @expectedException \GuzzleHttp\Exception\RequestException
-     * @expectedExceptionCode 403
      */
     public function testSaveExternalThrowsOnGeminiError()
     {
         $url = "http://localhost:8080/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc81";
         $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any())
+        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($url);
         $gemini->saveUrls(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willThrow(
@@ -201,6 +202,8 @@ class SaveExternalTest extends TestCase
             ->willReturn(new Response(201));
         $fedora = $fedora->reveal();
 
+        $this->expectException(\GuzzleHttp\Exception\RequestException::class, null, 403);
+
         $milliner = new MillinerService(
             $fedora,
             $drupal,
@@ -213,6 +216,7 @@ class SaveExternalTest extends TestCase
         $milliner->saveExternal(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
+            "http://localhost:8080/fcrepo/rest/",
             "Bearer islandora"
         );
     }

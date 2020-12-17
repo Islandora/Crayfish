@@ -10,19 +10,10 @@ namespace Islandora\Gemini\UrlMinter;
 
 class UrlMinter implements UrlMinterInterface
 {
-    protected $base_url;
-
-    public function __construct(
-        $base_url
-    ) {
-        $trimmed = trim($base_url);
-        $this->base_url = rtrim($trimmed, '/') . '/';
-    }
-
     /**
      * {@inheritdoc}
      */
-    public function mint($context)
+    public function mint($context, $islandora_fedora_endpoint)
     {
         if (strlen($context) < 8) {
             throw new \InvalidArgumentException(
@@ -31,10 +22,12 @@ class UrlMinter implements UrlMinterInterface
             );
         }
 
+        $islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
         $segments = str_split(substr($context, 0, 8), 2);
 
         $path = implode("/", $segments) . "/$context";
+        $minted_url = $islandora_fedora_endpoint . '/' . $path;
 
-        return $this->base_url . $path;
+        return $minted_url;
     }
 }

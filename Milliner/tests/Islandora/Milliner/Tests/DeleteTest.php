@@ -11,13 +11,14 @@ use Monolog\Handler\NullHandler;
 use Monolog\Logger;
 use Prophecy\Argument;
 use Psr\Log\LoggerInterface;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class MillinerServiceTest
  * @package Islandora\Milliner\Tests
  * @coversDefaultClass \Islandora\Milliner\Service\MillinerService
  */
-class DeleteTest extends \PHPUnit_Framework_TestCase
+class DeleteTest extends TestCase
 {
     /**
      * @var LoggerInterface
@@ -32,7 +33,7 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -45,8 +46,6 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::__construct
      * @covers ::deleteNode
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 403
      */
     public function testDeleteReturnsFedoraError()
     {
@@ -70,6 +69,8 @@ class DeleteTest extends \PHPUnit_Framework_TestCase
             $this->modifiedDatePredicate,
             false
         );
+
+        $this->expectException(\RuntimeException::class, null, 403);
 
         $milliner->deleteNode("abc123", "Bearer islandora");
     }

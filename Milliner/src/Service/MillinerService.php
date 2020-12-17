@@ -8,6 +8,7 @@ use GuzzleHttp\Psr7\Response;
 use Islandora\Chullo\IFedoraApi;
 use Islandora\Crayfish\Commons\Client\GeminiClient;
 use Psr\Log\LoggerInterface;
+use \DateTime;
 
 /**
  * Class MillinerService
@@ -76,6 +77,7 @@ class MillinerService implements MillinerServiceInterface
     public function saveNode(
         $uuid,
         $jsonld_url,
+        $islandora_fedora_endpoint,
         $token = null
     ) {
         $urls = $this->gemini->getUrls($uuid, $token);
@@ -85,6 +87,7 @@ class MillinerService implements MillinerServiceInterface
                 $uuid,
                 rtrim($jsonld_url, '?_format=jsonld'),
                 $jsonld_url,
+                $islandora_fedora_endpoint,
                 $token
             );
         } else {
@@ -103,6 +106,7 @@ class MillinerService implements MillinerServiceInterface
      * @param string $uuid
      * @param string $entity_url
      * @param string $jsonld_url
+     * @param string $islandora_fedora_endpoint
      * @param string $token
      *
      * @return \GuzzleHttp\Psr7\Response
@@ -114,10 +118,11 @@ class MillinerService implements MillinerServiceInterface
         $uuid,
         $entity_url,
         $jsonld_url,
+        $islandora_fedora_endpoint,
         $token = null
     ) {
         // Mint a new Fedora URL.
-        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token);
+        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token, $islandora_fedora_endpoint);
 
         // Get the jsonld from Drupal.
         $headers = empty($token) ? [] : ['Authorization' => $token];
@@ -189,6 +194,7 @@ class MillinerService implements MillinerServiceInterface
         $fedora_url,
         $token = null
     ) {
+
         // Get the RDF from Fedora.
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $headers['Accept'] = 'application/ld+json';
@@ -370,38 +376,10 @@ class MillinerService implements MillinerServiceInterface
         $json_url,
         $token = null
     ) {
-        // First get the media json from Drupal.
         $headers = empty($token) ? [] : ['Authorization' => $token];
-        $drupal_response = $this->drupal->get(
-            $json_url,
-            ['headers' => $headers]
-        );
-
-        $jsonld_url = $this->getLinkHeader($drupal_response, "alternate", "application/ld+json");
-
-        $media_json = json_decode(
-            $drupal_response->getBody(),
-            true
-        );
-
-        if (!isset($media_json[$source_field]) || empty($media_json[$source_field])) {
-            throw new \RuntimeException(
-                "Cannot parse file UUID from $json_url.  Ensure $source_field exists on the media and is populated.",
-                500
-            );
-        }
-        $file_uuid = $media_json[$source_field][0]['target_uuid'];
-
-        // Get the file's LDP-NR counterpart in Fedora.
-        $urls = $this->gemini->getUrls($file_uuid, $token);
-        if (empty($urls)) {
-            $file_url = $media_json[$source_field][0]['url'];
-            throw new \RuntimeException(
-                "$file_url has not been mapped in Gemini with uuid $file_uuid",
-                404
-            );
-        }
+        $urls = $this->getFileFromMedia($source_field, $json_url, $token);
         $fedora_file_url = $urls['fedora'];
+        $jsonld_url = $urls['jsonld'];
 
         // Now look for the 'describedby' link header on the file in Fedora.
         // I'm using the drupal http client because I have the full
@@ -501,10 +479,11 @@ class MillinerService implements MillinerServiceInterface
     public function saveExternal(
         $uuid,
         $external_url,
+        $islandora_fedora_endpoint,
         $token = null
     ) {
         // Mint a new Fedora URL.
-        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token);
+        $fedora_url = $this->gemini->mintFedoraUrl($uuid, $token, $islandora_fedora_endpoint);
 
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $mimetype = $this->drupal->head(
@@ -541,5 +520,92 @@ class MillinerService implements MillinerServiceInterface
 
         // Return the response from Fedora.
         return $response;
+    }
+
+    /**
+     * Creates a new LDP-RS in Fedora from a Node.
+     * {@inheritDoc}
+     */
+    public function createVersion(
+        $fedora_url,
+        $token = null
+    ) {
+        $headers = empty($token) ? [] : ['Authorization' => $token];
+        $date = new DateTime();
+        $timestamp = $date->format("D, d M Y H:i:s O");
+        // create version in Fedora.
+        try {
+            $response = $this->fedora->createVersion(
+                $fedora_url,
+                $timestamp,
+                null,
+                $headers
+            );
+            $status = $response->getStatusCode();
+            if (!in_array($status, [201])) {
+                $reason = $response->getReasonPhrase();
+                throw new \RuntimeException(
+                    "Client error: `POST $fedora_url` resulted in `$status $reason` response: " .
+                    $response->getBody(),
+                    $status
+                );
+            }
+            // Return the response from Fedora.
+            return $response;
+        } catch (Exception $e) {
+            $this->log->error('Caught exception when creating version: ', $e->getMessage(), "\n");
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getFileFromMedia(
+        $source_field,
+        $json_url,
+        $token = null
+    ) {
+        // First get the media json from Drupal.
+        $headers = empty($token) ? [] : ['Authorization' => $token];
+        $drupal_response = $this->drupal->get(
+            $json_url,
+            ['headers' => $headers]
+        );
+
+        $jsonld_url = $this->getLinkHeader($drupal_response, "alternate", "application/ld+json");
+        $media_json = json_decode(
+            $drupal_response->getBody(),
+            true
+        );
+
+        if (!isset($media_json[$source_field]) || empty($media_json[$source_field])) {
+            throw new \RuntimeException(
+                "Cannot parse file UUID from $json_url.  Ensure $source_field exists on the media and is populated.",
+                500
+            );
+        }
+        $file_uuid = $media_json[$source_field][0]['target_uuid'];
+
+        // Get the file's LDP-NR counterpart in Fedora.
+        $urls = $this->gemini->getUrls($file_uuid, $token);
+        if (empty($urls)) {
+            $file_url = $media_json[$source_field][0]['url'];
+            throw new \RuntimeException(
+                "$file_url has not been mapped in Gemini with uuid $file_uuid",
+                404
+            );
+        }
+        return ['fedora'=>$urls['fedora'], 'jsonld' =>$jsonld_url, 'drupal'=>$urls['drupal']];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getGeminiUrls(
+        $uuid,
+        $token = null
+    ) {
+        $urls = $this->gemini->getUrls($uuid, $token);
+        return $urls;
     }
 }

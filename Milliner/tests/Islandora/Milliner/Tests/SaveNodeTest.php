@@ -34,7 +34,7 @@ class SaveNodeTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -47,15 +47,13 @@ class SaveNodeTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::saveNode
-     * @expectedException \GuzzleHttp\Exception\RequestException
-     * @expectedExceptionCode 403
      */
     public function testCreateNodeThrowsOnMintError()
     {
         $gemini = $this->prophesize(GeminiClient::class);
         $gemini->getUrls(Argument::any(), Argument::any())
             ->willReturn([]);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any())
+        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
             ->willThrow(
                 new RequestException(
                     "Unauthorized",
@@ -80,9 +78,12 @@ class SaveNodeTest extends TestCase
             false
         );
 
+        $this->expectException(\GuzzleHttp\Exception\RequestException::class, null, 403);
+
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
+            "http://localhost:8080/fcrepo/rest/",
             "Bearer islandora"
         );
     }
@@ -91,8 +92,6 @@ class SaveNodeTest extends TestCase
      * @covers ::__construct
      * @covers ::saveNode
      * @covers ::processJsonld
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 403
      */
     public function testCreateNodeThrowsOnFedoraError()
     {
@@ -100,7 +99,7 @@ class SaveNodeTest extends TestCase
         $gemini = $this->prophesize(GeminiClient::class);
         $gemini->getUrls(Argument::any(), Argument::any())
             ->willReturn([]);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any())
+        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($url);
         $gemini = $gemini->reveal();
 
@@ -129,9 +128,12 @@ class SaveNodeTest extends TestCase
             false
         );
 
+        $this->expectException(\RuntimeException::class, null, 403);
+
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
+            "http://localhost:8080/fcrepo/rest/",
             "Bearer islandora"
         );
     }
@@ -141,8 +143,6 @@ class SaveNodeTest extends TestCase
      * @covers ::saveNode
      * @covers ::createNode
      * @covers ::processJsonld
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 403
      */
     public function testCreateNodeThrowsOnFedoraSaveError()
     {
@@ -150,7 +150,7 @@ class SaveNodeTest extends TestCase
         $gemini = $this->prophesize(GeminiClient::class);
         $gemini->getUrls(Argument::any(), Argument::any())
             ->willReturn([]);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any())
+        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($url);
         $gemini = $gemini->reveal();
 
@@ -186,10 +186,12 @@ class SaveNodeTest extends TestCase
             false
         );
 
+        $this->expectException(\RuntimeException::class, null, 403);
+
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
-            "Bearer islandora"
+            $token = "Bearer islandora"
         );
     }
 
@@ -205,7 +207,7 @@ class SaveNodeTest extends TestCase
         $gemini = $this->prophesize(GeminiClient::class);
         $gemini->getUrls(Argument::any(), Argument::any())
             ->willReturn([]);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any())
+        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($url);
         $gemini->saveUrls(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(true);
@@ -239,6 +241,7 @@ class SaveNodeTest extends TestCase
         $response = $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
+            "http://localhost:8080/fcrepo/rest/",
             "Bearer islandora"
         );
 
@@ -261,7 +264,7 @@ class SaveNodeTest extends TestCase
         $gemini = $this->prophesize(GeminiClient::class);
         $gemini->getUrls(Argument::any(), Argument::any())
             ->willReturn([]);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any())
+        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($url);
         $gemini->saveUrls(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(true);
@@ -295,6 +298,7 @@ class SaveNodeTest extends TestCase
         $response = $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
+            "http://localhost:8080/fcrepo/rest/",
             "Bearer islandora"
         );
 
@@ -312,8 +316,6 @@ class SaveNodeTest extends TestCase
      * @covers ::processJsonld
      * @covers ::getModifiedTimestamp
      * @covers ::getFirstPredicate
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 403
      */
     public function testUpdateNodeThrowsOnFedoraGetError()
     {
@@ -343,9 +345,12 @@ class SaveNodeTest extends TestCase
             false
         );
 
+        $this->expectException(\RuntimeException::class, null, 403);
+
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
+            "http://localhost:8080/fcrepo/rest/",
             "Bearer islandora"
         );
     }
@@ -357,8 +362,6 @@ class SaveNodeTest extends TestCase
      * @covers ::processJsonld
      * @covers ::getModifiedTimestamp
      * @covers ::getFirstPredicate
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 500
      */
     public function testUpdateNodeThrows500OnBadDatePredicate()
     {
@@ -391,6 +394,8 @@ class SaveNodeTest extends TestCase
             ->willReturn($fedora_get_response);
         $fedora = $fedora->reveal();
 
+        $this->expectException(\RuntimeException::class, null, 500);
+
         $milliner = new MillinerService(
             $fedora,
             $drupal,
@@ -403,6 +408,7 @@ class SaveNodeTest extends TestCase
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
+            "http://localhost:8080/fcrepo/rest/",
             "Bearer islandora"
         );
     }
@@ -414,8 +420,6 @@ class SaveNodeTest extends TestCase
      * @covers ::processJsonld
      * @covers ::getModifiedTimestamp
      * @covers ::getFirstPredicate
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 412
      */
     public function testUpdateNodeThrows412OnStaleContent()
     {
@@ -457,9 +461,12 @@ class SaveNodeTest extends TestCase
             false
         );
 
+        $this->expectException(\RuntimeException::class, null, 412);
+
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
+            "http://localhost:8080/fcrepo/rest/",
             "Bearer islandora"
         );
     }
@@ -471,8 +478,6 @@ class SaveNodeTest extends TestCase
      * @covers ::processJsonld
      * @covers ::getModifiedTimestamp
      * @covers ::getFirstPredicate
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 403
      */
     public function testUpdateNodeThrowsOnFedoraSaveError()
     {
@@ -517,9 +522,12 @@ class SaveNodeTest extends TestCase
             false
         );
 
+        $this->expectException(\RuntimeException::class, null, 403);
+
         $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
+            "http://localhost:8080/fcrepo/rest/",
             "Bearer islandora"
         );
     }
@@ -580,6 +588,7 @@ class SaveNodeTest extends TestCase
         $response = $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
+            "http://localhost:8080/fcrepo/rest/",
             "Bearer islandora"
         );
 
@@ -646,6 +655,7 @@ class SaveNodeTest extends TestCase
         $response = $milliner->saveNode(
             "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
             "http://localhost:8000/node/1?_format=jsonld",
+            "http://localhost:8080/fcrepo/rest/",
             "Bearer islandora"
         );
 

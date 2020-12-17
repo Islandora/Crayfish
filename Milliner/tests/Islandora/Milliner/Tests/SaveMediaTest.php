@@ -10,13 +10,14 @@ use Islandora\Milliner\Service\MillinerService;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;
 use Prophecy\Argument;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class MillinerServiceTest
  * @package Islandora\Milliner\Tests
  * @coversDefaultClass \Islandora\Milliner\Service\MillinerService
  */
-class SaveMediaTest extends \PHPUnit_Framework_TestCase
+class SaveMediaTest extends TestCase
 {
     /**
      * @var LoggerInterface
@@ -31,7 +32,7 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
     /**
      * {@inheritdoc}
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -48,8 +49,6 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
      * @covers ::getModifiedTimestamp
      * @covers ::processJsonld
      * @covers ::getLinkHeader
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 500
      */
     public function testSaveMediaThrows500WithNoFileField()
     {
@@ -76,6 +75,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             false
         );
 
+        $this->expectException(\RuntimeException::class, null, 500);
+
         $milliner->saveMedia(
             "field_image",
             "http://localhost:8000/media/6?_format=json",
@@ -90,8 +91,6 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
      * @covers ::getModifiedTimestamp
      * @covers ::processJsonld
      * @covers ::getLinkHeader
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 500
      */
     public function testSaveMediaThrows500WithEmptyFileField()
     {
@@ -118,6 +117,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             false
         );
 
+        $this->expectException(\RuntimeException::class, null, 500);
+
         $milliner->saveMedia(
             "field_image",
             "http://localhost:8000/media/6?_format=json",
@@ -132,8 +133,6 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
      * @covers ::getModifiedTimestamp
      * @covers ::processJsonld
      * @covers ::getLinkHeader
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 404
      */
     public function testSaveMediaThrows404WhenFileIsNotInGemini()
     {
@@ -163,6 +162,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             false
         );
 
+        $this->expectException(\RuntimeException::class, null, 404);
+
         $milliner->saveMedia(
             "field_image",
             "http://localhost:8000/media/6?_format=json",
@@ -177,8 +178,6 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
      * @covers ::getModifiedTimestamp
      * @covers ::processJsonld
      * @covers ::getLinkHeader
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 404
      */
     public function testSaveMediaThrowsFedoraHeadError()
     {
@@ -208,6 +207,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             ->willReturn($mapping);
         $gemini = $gemini->reveal();
 
+        $this->expectException(\RuntimeException::class, null, 404);
+
         $milliner = new MillinerService(
             $fedora,
             $drupal,
@@ -231,8 +232,6 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
      * @covers ::getModifiedTimestamp
      * @covers ::processJsonld
      * @covers ::getLinkHeader
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 500
      */
     public function testSaveMediaThrows500WhenNoDescribedbyHeader()
     {
@@ -271,6 +270,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             false
         );
 
+        $this->expectException(\RuntimeException::class, null, 500);
+
         $milliner->saveMedia(
             "field_image",
             "http://localhost:8000/media/6?_format=json",
@@ -285,8 +286,6 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
      * @covers ::getModifiedTimestamp
      * @covers ::processJsonld
      * @covers ::getLinkHeader
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 404
      */
     public function testSaveMediaThrowsFedoraGetError()
     {
@@ -335,6 +334,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             false
         );
 
+        $this->expectException(\RuntimeException::class, null, 404);
+
         $milliner->saveMedia(
             "field_image",
             "http://localhost:8000/media/6?_format=json",
@@ -349,8 +350,6 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
      * @covers ::getModifiedTimestamp
      * @covers ::processJsonld
      * @covers ::getLinkHeader
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 412
      */
     public function testSaveMediaThrows412OnStaleData()
     {
@@ -411,6 +410,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             false
         );
 
+        $this->expectException(\RuntimeException::class, null, 412);
+
         $milliner->saveMedia(
             "field_image",
             "http://localhost:8000/media/6?_format=json",
@@ -425,8 +426,6 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
      * @covers ::getModifiedTimestamp
      * @covers ::processJsonld
      * @covers ::getLinkHeader
-     * @expectedException \RuntimeException
-     * @expectedExceptionCode 403
      */
     public function testSaveMediaThrowsFedoraPutError()
     {
@@ -491,6 +490,8 @@ class SaveMediaTest extends \PHPUnit_Framework_TestCase
             $this->modifiedDatePredicate,
             false
         );
+
+        $this->expectException(\RuntimeException::class, null, 403);
 
         $milliner->saveMedia(
             "field_image",

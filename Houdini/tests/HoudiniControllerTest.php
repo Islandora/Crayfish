@@ -1,10 +1,10 @@
 <?php
 
-namespace Islandora\Houdini\Tests;
+namespace App\Islandora\Houdini\Tests;
 
 use Islandora\Crayfish\Commons\CmdExecuteService;
-use Islandora\Crayfish\Commons\ApixFedoraResourceRetriever;
-use Islandora\Houdini\Controller\HoudiniController;
+use App\Islandora\Houdini\Controller\HoudiniController;
+use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -12,9 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Monolog\Logger;
 
 /**
- * @coversDefaultClass \Islandora\Houdini\Controller\HoudiniController
+ * @coversDefaultClass \App\Islandora\Houdini\Controller\HoudiniController
  */
-class HoudiniControllerTest extends \PHPUnit_Framework_TestCase
+class HoudiniControllerTest extends TestCase
 {
 
     /**
