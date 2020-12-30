@@ -4,6 +4,7 @@ namespace Islandora\Gemini\Tests;
 
 use Islandora\Gemini\UrlMinter\UrlMinter;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * Class UrlMinterTest
@@ -12,6 +13,7 @@ use PHPUnit\Framework\TestCase;
  */
 class UrlMinterTest extends TestCase
 {
+    use ProphecyTrait;
     /**
      * @covers ::__construct
      * @covers ::mint

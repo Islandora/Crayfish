@@ -7,6 +7,7 @@ use Islandora\Recast\Controller\RecastController;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Silex\Application;
@@ -26,6 +27,7 @@ if (class_exists('\EasyRdf_Graph')) {
  */
 class RecastControllerTest extends TestCase
 {
+    use ProphecyTrait;
 
     private $gemini_prophecy;
 

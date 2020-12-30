@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * Class UrlMapperTest
@@ -16,6 +17,7 @@ use Prophecy\Argument;
  */
 class UrlMapperTest extends TestCase
 {
+    use ProphecyTrait;
     /**
      * @covers ::__construct
      * @covers ::getUrls

@@ -7,6 +7,7 @@ use Islandora\Gemini\UrlMapper\UrlMapperInterface;
 use Islandora\Gemini\UrlMinter\UrlMinterInterface;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 
 /**
@@ -16,6 +17,8 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
  */
 class GetTest extends TestCase
 {
+
+    use ProphecyTrait;
     /**
      * @covers ::__construct
      * @covers ::get
