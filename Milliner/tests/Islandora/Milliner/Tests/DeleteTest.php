@@ -10,6 +10,7 @@ use Islandora\Milliner\Service\MillinerService;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Log\LoggerInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -20,6 +21,7 @@ use PHPUnit\Framework\TestCase;
  */
 class DeleteTest extends TestCase
 {
+    use ProphecyTrait;
     /**
      * @var LoggerInterface
      */

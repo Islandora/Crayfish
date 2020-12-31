@@ -13,6 +13,7 @@ use Monolog\Handler\NullHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * Class SaveExternalTest
@@ -21,6 +22,7 @@ use Prophecy\Argument;
  */
 class SaveExternalTest extends TestCase
 {
+    use ProphecyTrait;
     /**
      * @var LoggerInterface
      */

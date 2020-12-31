@@ -65,7 +65,7 @@ class UrlMapper implements UrlMapperInterface
         return $result;
     }
 
-    protected function replaceDomain($url, $domain)
+    private function replaceDomain($url, $domain)
     {
         $parts = parse_url($url);
         return "$parts[scheme]://$domain$parts[path]";

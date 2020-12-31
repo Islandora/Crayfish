@@ -7,6 +7,7 @@ use Islandora\Milliner\Service\MillinerServiceInterface;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use GuzzleHttp\Psr7\Response;
@@ -19,6 +20,8 @@ use PHPUnit\Framework\TestCase;
  */
 class MillinerControllerTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @var LoggerInterface
      */
@@ -40,7 +43,8 @@ class MillinerControllerTest extends TestCase
      * @covers ::saveNode
      * @covers ::saveMedia
      * @covers ::deleteNode
-     * @covers ::createVersion
+     * @covers ::createNodeVersion
+     * @covers ::createMediaVersion
      */
     public function testMethodsReturnMillinerErrors()
     {

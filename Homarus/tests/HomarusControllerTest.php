@@ -1,10 +1,9 @@
 <?php
 
-namespace Islandora\Homarus\Tests;
+namespace App\Islandora\Homarus\Tests;
 
-use Islandora\Crayfish\Commons\ApixFedoraResourceRetriever;
 use Islandora\Crayfish\Commons\CmdExecuteService;
-use Islandora\Homarus\Controller\HomarusController;
+use App\Islandora\Homarus\Controller\HomarusController;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
@@ -13,18 +12,14 @@ use Psr\Http\Message\StreamInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @coversDefaultClass \Islandora\Homarus\Controller\HomarusController
+ * @coversDefaultClass \App\Islandora\Homarus\Controller\HomarusController
  */
 class HomarusControllerTest extends TestCase
 {
 
     private $mime_to_format;
 
-    private $default_format;
-
     private $content_types;
-
-    private $default_content_type;
 
     /**
      * Setup to reset to defaults.
@@ -32,20 +27,22 @@ class HomarusControllerTest extends TestCase
     public function setUp(): void
     {
         $this->mime_to_format = [
-            'video/mp4_mp4',
-            'video/x-msvideo_avi',
-            'video/ogg_ogg',
+            'valid' => [
+                'video/mp4' => 'mp4',
+                'video/x-msvideo' => 'avi',
+                'video/ogg' => 'ogg',
+            ],
+            'default' => 'mp4',
         ];
-
-        $this->default_format = 'mp4';
 
         $this->content_types = [
-            'video/mp4',
-            'video/x-msvideo',
-            'video/ogg',
+            'valid' => [
+                'video/mp4',
+                'video/x-msvideo',
+                'video/ogg',
+            ],
+            'default' => 'video/mp4',
         ];
-
-        $this->default_content_type = 'video/mp4';
     }
 
     /**
@@ -77,11 +74,9 @@ class HomarusControllerTest extends TestCase
         $controller = new HomarusController(
             $mock_service,
             $this->content_types,
-            $this->default_content_type,
             'convert',
-            $this->prophesize(Logger::class)->reveal(),
             $this->mime_to_format,
-            $this->default_format
+            $this->prophesize(Logger::class)->reveal()
         );
 
         $mock_fedora_response = $this->getMockFedoraResource();
@@ -222,11 +217,9 @@ class HomarusControllerTest extends TestCase
         $controller = new HomarusController(
             $mock_service,
             $this->content_types,
-            $this->default_content_type,
             'convert',
-            $this->prophesize(Logger::class)->reveal(),
             $this->mime_to_format,
-            $this->default_format
+            $this->prophesize(Logger::class)->reveal()
         );
         return $controller;
     }

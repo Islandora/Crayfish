@@ -7,6 +7,7 @@ use Islandora\Hypercube\Controller\HypercubeController;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class HypercubeControllerTest extends TestCase
 {
+    use ProphecyTrait;
     /**
      * @covers ::__construct
      * @covers ::options

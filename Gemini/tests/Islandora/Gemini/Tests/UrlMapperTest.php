@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * Class UrlMapperTest
@@ -16,6 +17,7 @@ use Prophecy\Argument;
  */
 class UrlMapperTest extends TestCase
 {
+    use ProphecyTrait;
     /**
      * @covers ::__construct
      * @covers ::getUrls
@@ -299,5 +301,26 @@ class UrlMapperTest extends TestCase
             empty($results),
             "getUrls() modified connection results.  Expected empty array, received " . json_encode($results)
         );
+    }
+
+  /**
+   * @covers ::replaceDomain
+   */
+    public function testReplaceDomain()
+    {
+        $params = [
+            'path' => __DIR__ . '../../../resources/testdb.sqlite3',
+            'driver' => 'pdo_sqlite'
+        ];
+        $class = new \ReflectionClass('\Islandora\Gemini\UrlMapper\UrlMapper');
+        $methodCall = $class->getMethod('replaceDomain');
+        $methodCall->setAccessible(true);
+        $domain = "something.new";
+        $url = "https://something.old/my/file";
+        $expected = "https://something.new/my/file";
+        $connection = \Doctrine\DBAL\DriverManager::getConnection($params);
+        $mapper = new UrlMapper($connection, "drupal.domain", "fedora.domain");
+        $newUrl = $methodCall->invokeArgs($mapper, [$url, $domain]);
+        $this->assertEquals($expected, $newUrl);
     }
 }

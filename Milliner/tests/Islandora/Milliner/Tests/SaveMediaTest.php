@@ -11,6 +11,7 @@ use Monolog\Handler\NullHandler;
 use Monolog\Logger;
 use Prophecy\Argument;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * Class MillinerServiceTest
@@ -19,6 +20,7 @@ use PHPUnit\Framework\TestCase;
  */
 class SaveMediaTest extends TestCase
 {
+    use ProphecyTrait;
     /**
      * @var LoggerInterface
      */
