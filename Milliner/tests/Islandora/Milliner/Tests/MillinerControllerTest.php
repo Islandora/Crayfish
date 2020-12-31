@@ -21,6 +21,7 @@ use PHPUnit\Framework\TestCase;
 class MillinerControllerTest extends TestCase
 {
     use ProphecyTrait;
+
     /**
      * @var LoggerInterface
      */
@@ -42,7 +43,8 @@ class MillinerControllerTest extends TestCase
      * @covers ::saveNode
      * @covers ::saveMedia
      * @covers ::deleteNode
-     * @covers ::createVersion
+     * @covers ::createNodeVersion
+     * @covers ::createMediaVersion
      */
     public function testMethodsReturnMillinerErrors()
     {

@@ -14,8 +14,8 @@ use Prophecy\PhpUnit\ProphecyTrait;
 class UrlMinterTest extends TestCase
 {
     use ProphecyTrait;
+
     /**
-     * @covers ::__construct
      * @covers ::mint
      */
     public function testThrowsExceptionOnBlankString()
@@ -26,7 +26,6 @@ class UrlMinterTest extends TestCase
     }
 
     /**
-     * @covers ::__construct
      * @covers ::mint
      */
     public function testThrowsExceptionOnShortUUID()
@@ -37,7 +36,6 @@ class UrlMinterTest extends TestCase
     }
 
     /**
-     * @covers ::__construct
      * @covers ::mint
      */
     public function testHandlesMissingTrailingSlashInBaseUrl()
@@ -55,7 +53,6 @@ class UrlMinterTest extends TestCase
     }
 
     /**
-     * @covers ::__construct
      * @covers ::mint
      */
     public function testMintsUrlWithPairTrees()
