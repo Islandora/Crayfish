@@ -3,6 +3,7 @@
 namespace Islandora\Milliner\Service;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\Response;
 use Islandora\Chullo\IFedoraApi;
@@ -449,10 +450,21 @@ class MillinerService implements MillinerServiceInterface
 	$fedora_url  = "$islandora_fedora_endpoint/$path";
 
         $headers = empty($token) ? [] : ['Authorization' => $token];
-        $mimetype = $this->drupal->head(
-            $external_url,
-            ['headers' => $headers]
-        )->getHeader('Content-Type')[0];
+	// Try it with an without auth b/c files can be public or private.
+        try {
+            $drupal_response = $this->drupal->head(
+                $external_url,
+                ['headers' => $headers]
+            );
+        }
+        catch (ClientException $e) {
+           $this->log->debug("GOT {$e->getCode()}, TRYING WIHTOUT AUTH HEADER"); 
+           $drupal_response = $this->drupal->head(
+               $external_url,
+               ['headers' => []]
+           );
+        }
+        $mimetype = $drupal_response->getHeader('Content-Type')[0];
 
         // Save it in Fedora as external content.
         $external_rel = "http://fedora.info/definitions/fcrepo#ExternalContent";
