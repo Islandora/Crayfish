@@ -181,7 +181,6 @@ class MillinerService implements MillinerServiceInterface
         $fedora_url,
         $token = null
     ) {
-
         // Get the RDF from Fedora.
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $headers['Accept'] = 'application/ld+json';
@@ -232,7 +231,10 @@ class MillinerService implements MillinerServiceInterface
         );
 
         // Mash it into the shape Fedora accepts.
-        $subject_url = $this->stripFormatJsonld ? rtrim($jsonld_url, '?_format=jsonld') : $jsonld_url;
+        $subject_url = $this->getLinkHeader($drupal_response, "describes");
+        if (empty($subject_url)) {
+            $subject_url = $this->stripFormatJsonld ? rtrim($jsonld_url, '?_format=jsonld') : $jsonld_url;
+        }
         $drupal_jsonld = $this->processJsonld(
             $drupal_jsonld,
             $subject_url,
@@ -290,10 +292,15 @@ class MillinerService implements MillinerServiceInterface
 	    $this->log->debug("FEDORA URL: $fedora_url");
 	    $this->log->debug("BEFORE: " . json_encode($jsonld));
         // Strip out everything other than the resource in question.
+	// Ignore http/https.
+	$parts = parse_url($drupal_url);
+	$subject_url = $parts['host'] . $parts['path'];
         $resource = array_filter(
             $jsonld['@graph'],
-            function (array $elem) use ($drupal_url) {
-                return $elem['@id'] == $drupal_url;
+            function (array $elem) use ($subject_url) {
+	        $parts = parse_url($elem['@id']);
+		$other_url = $parts['host'] . $parts['path'];
+                return $other_url == $subject_url;
             }
         );
 
@@ -587,14 +594,14 @@ class MillinerService implements MillinerServiceInterface
 	// Construct the fedora url. 
 	// Try to handle flysystem files first. 
 	$islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
-	$pieces = explode("_flysystem/fedora", $drupal_url);
+	$pieces = explode("_flysystem/fedora/", $drupal_url);
 	if (count($pieces) > 1) {
 	    $fedora_file_path = end($pieces); 
 	}
 	else {
             $fedora_file_path = $this->mapper->getFedoraPath($file_uuid);
 	}
-	$fedora_file_url  = $islandora_fedora_endpoint . $fedora_file_path;
+	$fedora_file_url  = "$islandora_fedora_endpoint/$fedora_file_path";
 
         // Now look for the 'describedby' link header on the file in Fedora.
         // I'm using the drupal http client because I have the full
