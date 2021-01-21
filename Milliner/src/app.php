@@ -29,6 +29,15 @@ $app['milliner.controller'] = function () use ($app) {
         $strip_format_jsonld = false;
     }
 
+    try {
+        $fedora6 = filter_var(
+            $app['crayfish.fedora6'],
+            FILTER_VALIDATE_BOOLEAN
+        );
+    } catch (UnknownIdentifierException $e) {
+        $fedora6 = false;
+    }
+
     return new MillinerController(
         new MillinerService(
             FedoraApi::create($app['crayfish.fedora_base_url']),
@@ -36,7 +45,8 @@ $app['milliner.controller'] = function () use ($app) {
 	    new EntityMapper(),
             $app['monolog'],
             $app['crayfish.modified_date_predicate'],
-            $strip_format_jsonld
+            $strip_format_jsonld,
+            $fedora6
         ),
         $app['monolog']
     );

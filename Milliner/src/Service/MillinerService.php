@@ -47,6 +47,11 @@ class MillinerService implements MillinerServiceInterface
     protected $stripFormatJsonld;
 
     /**
+     * @var bool
+     */
+    protected $fedora6;
+
+    /**
      * MillinerService constructor.
      *
      * @param \Islandora\Chullo\IFedoraApi $fedora
@@ -62,7 +67,8 @@ class MillinerService implements MillinerServiceInterface
         EntityMapperInterface $mapper,
         LoggerInterface $log,
         $modifiedDatePredicate,
-        $stripFormatJsonld
+	$stripFormatJsonld,
+	$fedora6
     ) {
         $this->fedora = $fedora;
         $this->drupal = $drupal;
@@ -70,6 +76,7 @@ class MillinerService implements MillinerServiceInterface
         $this->log = $log;
         $this->modifiedDatePredicate = $modifiedDatePredicate;
         $this->stripFormatJsonld = $stripFormatJsonld;
+        $this->fedora6 = $fedora6;
     }
 
     /**
@@ -185,6 +192,7 @@ class MillinerService implements MillinerServiceInterface
         // Get the RDF from Fedora.
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $headers['Accept'] = 'application/ld+json';
+        $headers['Prefer'] = 'handling=lenient';
         $fedora_response = $this->fedora->getResource(
             $fedora_url,
             $headers
@@ -203,6 +211,8 @@ class MillinerService implements MillinerServiceInterface
         // Strip off the W/ prefix to make the ETag strong.
         $etags = $fedora_response->getHeader("ETag");
         $etag = ltrim(reset($etags), "W/");
+
+	$this->log->debug("FEDORA ETAG: $etag");
 
         // Get the modified date from the RDF.
         $fedora_jsonld = json_decode(
@@ -257,7 +267,10 @@ class MillinerService implements MillinerServiceInterface
 
         // Conditionally save it in Fedora.
         $headers['Content-Type'] = 'application/ld+json';
-        $headers['Prefer'] = 'return=minimal; handling=lenient';
+        $headers['Prefer'] = 'handling=lenient';
+	if ($this->fedora6) {
+          $headers['Prefer'] .= ';received=minimal';
+	}
         $headers['If-Match'] = $etag;
         $response = $this->fedora->saveResource(
             $fedora_url,
