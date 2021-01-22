@@ -192,7 +192,9 @@ class MillinerService implements MillinerServiceInterface
         // Get the RDF from Fedora.
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $headers['Accept'] = 'application/ld+json';
-        $headers['Prefer'] = 'handling=lenient';
+	if ($this->fedora6) {
+            $headers['Prefer'] = 'return=representation; omit="http://fedora.info/definitions/v4/repository#ServerManaged"';
+	}
         $fedora_response = $this->fedora->getResource(
             $fedora_url,
             $headers
@@ -209,10 +211,10 @@ class MillinerService implements MillinerServiceInterface
         }
 
         // Strip off the W/ prefix to make the ETag strong.
-        $etags = $fedora_response->getHeader("ETag");
-        $etag = ltrim(reset($etags), "W/");
+        $state_tokens = $fedora_response->getHeader("X-State-Token");
+        $state_token = '"' . ltrim(reset($state_tokens)) . '"';
 
-	$this->log->debug("FEDORA ETAG: $etag");
+	$this->log->debug("FEDORA State Token: $state_token");
 
         // Get the modified date from the RDF.
         $fedora_jsonld = json_decode(
@@ -268,10 +270,10 @@ class MillinerService implements MillinerServiceInterface
         // Conditionally save it in Fedora.
         $headers['Content-Type'] = 'application/ld+json';
         $headers['Prefer'] = 'handling=lenient';
-	if ($this->fedora6) {
+	if (!$this->fedora6) {
           $headers['Prefer'] .= ';received=minimal';
 	}
-        $headers['If-Match'] = $etag;
+        $headers['X-If-State-Match'] = $state_token;
         $response = $this->fedora->saveResource(
             $fedora_url,
             json_encode($drupal_jsonld),
