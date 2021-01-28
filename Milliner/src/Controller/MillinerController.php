@@ -50,8 +50,8 @@ class MillinerController
             return new Response("Expected JSONLD url in Content-Location header", 400);
         }
 
-	$this->log->debug("JSONLD URL: $jsonld_url");
-	$this->log->debug("FEDORA ENDPOINT: $islandora_fedora_endpoint");
+        $this->log->debug("JSONLD URL: $jsonld_url");
+        $this->log->debug("FEDORA ENDPOINT: $islandora_fedora_endpoint");
         try {
             $response = $this->milliner->saveNode(
                 $uuid,
@@ -114,7 +114,7 @@ class MillinerController
 
         try {
             $response = $this->milliner->saveMedia(
-		$source_field,
+                $source_field,
                 $json_url,
                 $islandora_fedora_endpoint,
                 $token
@@ -174,11 +174,11 @@ class MillinerController
     {
         $token = $request->headers->get("Authorization", null);
         $islandora_fedora_endpoint = $request->headers->get("X-Islandora-Fedora-Endpoint");
-	
+    
         try {
             $response = $this->milliner->createVersion(
                 $uuid,
-		$islandora_fedora_endpoint,
+                $islandora_fedora_endpoint,
                 $token
             );
             return new Response(
@@ -205,9 +205,9 @@ class MillinerController
 
         try {
             $response = $this->milliner->createMediaVersion(
-		$source_field,
+                $source_field,
                 $json_url,
-		$islandora_fedora_endpoint,
+                $islandora_fedora_endpoint,
                 $token
             );
             return new Response(

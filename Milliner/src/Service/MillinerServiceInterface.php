@@ -83,7 +83,7 @@ interface MillinerServiceInterface
      */
     public function createVersion(
         $uuid,
-	$islandora_fedora_endpoint,
+        $islandora_fedora_endpoint,
         $token = null
     );
 
@@ -100,7 +100,7 @@ interface MillinerServiceInterface
     public function createMediaVersion(
         $source_field,
         $json_url,
-	$islandora_fedora_endpoint,
+        $islandora_fedora_endpoint,
         $token = null
     );
 }

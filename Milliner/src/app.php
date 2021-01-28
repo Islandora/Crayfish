@@ -42,7 +42,7 @@ $app['milliner.controller'] = function () use ($app) {
         new MillinerService(
             FedoraApi::create($app['crayfish.fedora_base_url']),
             new Client(),
-	    new EntityMapper(),
+            new EntityMapper(),
             $app['monolog'],
             $app['crayfish.modified_date_predicate'],
             $strip_format_jsonld,
