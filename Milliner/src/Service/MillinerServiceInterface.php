@@ -44,6 +44,7 @@ interface MillinerServiceInterface
 
     /**
      * @param $uuid
+     * @param $islandora_fedora_endpoint
      * @param $token
      *
      * @throws \Exception
@@ -52,6 +53,7 @@ interface MillinerServiceInterface
      */
     public function deleteNode(
         $uuid,
+        $islandora_fedora_endpoint,
         $token = null
     );
 

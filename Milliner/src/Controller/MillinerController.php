@@ -79,10 +79,12 @@ class MillinerController
     public function deleteNode($uuid, Request $request)
     {
         $token = $request->headers->get("Authorization", null);
+        $islandora_fedora_endpoint = $request->headers->get("X-Islandora-Fedora-Endpoint");
 
         try {
             $response = $this->milliner->deleteNode(
                 $uuid,
+                $islandora_fedora_endpoint,
                 $token
             );
 

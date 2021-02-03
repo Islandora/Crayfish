@@ -427,6 +427,7 @@ class MillinerService implements MillinerServiceInterface
      */
     public function deleteNode(
         $uuid,
+        $islandora_fedora_endpoint,
         $token = null
     ) {
         $path = $this->mapper->getFedoraPath($uuid);

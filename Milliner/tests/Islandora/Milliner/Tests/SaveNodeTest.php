@@ -7,12 +7,13 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\RequestException;
 use Islandora\Chullo\IFedoraApi;
-use Islandora\Crayfish\Commons\Client\GeminiClient;
+use Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface;
 use Islandora\Milliner\Service\MillinerService;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * Class MillinerServiceTest
@@ -21,6 +22,8 @@ use Prophecy\Argument;
  */
 class SaveNodeTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @var LoggerInterface
      */
@@ -30,6 +33,26 @@ class SaveNodeTest extends TestCase
      * @var string
      */
     protected $modifiedDatePredicate;
+
+    /**
+     * @var string
+     */
+    protected $uuid;
+
+    /**
+     * @var string
+     */
+    protected $fedoraBaseUrl;
+
+    /**
+     * @var Islandora\Crayfish\Commons\EntityMapper\EntityMapper
+     */
+    protected $mapper;
+
+    /**
+     * @var Islandora\Crayfish\Commons\EntityMapper\EntityMapper
+     */
+    protected $drupal;
 
     /**
      * {@inheritdoc}
@@ -42,50 +65,24 @@ class SaveNodeTest extends TestCase
         $this->logger->pushHandler(new NullHandler());
 
         $this->modifiedDatePredicate = "http://schema.org/dateModified";
-    }
 
-    /**
-     * @covers ::__construct
-     * @covers ::saveNode
-     */
-    public function testCreateNodeThrowsOnMintError()
-    {
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn([]);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
-            ->willThrow(
-                new RequestException(
-                    "Unauthorized",
-                    new Request('POST', 'http://localhost:8000/gemini'),
-                    new Response(403, [], "Unauthorized")
-                )
-            );
-        $gemini = $gemini->reveal();
+        $this->uuid = '9541c0c1-5bee-4973-a9d0-e55c1658bc8';
+        $this->fedoraBaseUrl = 'http://localhost:8080/fcrepo/rest';
 
-        $drupal = $this->prophesize(Client::class);
-        $drupal = $drupal->reveal();
+        $this->mapper = $this->prophesize(EntityMapperInterface::class);
+        $this->mapper->getFedoraPath($this->uuid)
+            ->willReturn("{$this->fedoraBaseUrl}/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8");
+        $this->mapper = $this->mapper->reveal();
 
-        $fedora = $this->prophesize(IFedoraApi::class);
-        $fedora = $fedora->reveal();
-
-        $milliner = new MillinerService(
-            $fedora,
-            $drupal,
-            $gemini,
-            $this->logger,
-            $this->modifiedDatePredicate,
-            false
+        $drupal_response = new Response(
+            200,
+            ['Content-Type' => 'application/ld+json'],
+            file_get_contents(__DIR__ . '/../../../../static/Content.jsonld')
         );
-
-        $this->expectException(\GuzzleHttp\Exception\RequestException::class, null, 403);
-
-        $milliner->saveNode(
-            "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
-            "http://localhost:8000/node/1?_format=jsonld",
-            "http://localhost:8080/fcrepo/rest/",
-            "Bearer islandora"
-        );
+        $this->drupal = $this->prophesize(Client::class);
+        $this->drupal->get(Argument::any(), Argument::any())
+            ->willReturn($drupal_response);
+        $this->drupal = $this->drupal->reveal();
     }
 
     /**
@@ -95,103 +92,32 @@ class SaveNodeTest extends TestCase
      */
     public function testCreateNodeThrowsOnFedoraError()
     {
-        $url = "http://localhost:8080/fcrepo/rest/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8";
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn([]);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($url);
-        $gemini = $gemini->reveal();
-
-        $drupal_response = new Response(
-            200,
-            ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/Content.jsonld')
-        );
-        $drupal = $this->prophesize(Client::class);
-        $drupal->get(Argument::any(), Argument::any())
-            ->willReturn($drupal_response);
-        $drupal = $drupal->reveal();
-
-        $fedora_response = new Response(403, [], null, '1.1', 'UNAUTHORIZED');
-        $fedora = $this->prophesize(IFedoraApi::class);
-        $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($fedora_response);
-        $fedora = $fedora->reveal();
-
-        $milliner = new MillinerService(
-            $fedora,
-            $drupal,
-            $gemini,
-            $this->logger,
-            $this->modifiedDatePredicate,
-            false
-        );
-
-        $this->expectException(\RuntimeException::class, null, 403);
-
-        $milliner->saveNode(
-            "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
-            "http://localhost:8000/node/1?_format=jsonld",
-            "http://localhost:8080/fcrepo/rest/",
-            "Bearer islandora"
-        );
-    }
-
-    /**
-     * @covers ::__construct
-     * @covers ::saveNode
-     * @covers ::createNode
-     * @covers ::processJsonld
-     */
-    public function testCreateNodeThrowsOnFedoraSaveError()
-    {
-        $url = "http://localhost:8080/fcrepo/rest/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8";
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn([]);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($url);
-        $gemini = $gemini->reveal();
-
-        $drupal_response = new Response(
-            200,
-            ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/Content.jsonld')
-        );
-        $drupal = $this->prophesize(Client::class);
-        $drupal->get(Argument::any(), Argument::any())
-            ->willReturn($drupal_response);
-        $drupal = $drupal->reveal();
-
-        $fedora_get_response = new Response(
-            200,
-            ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/ContentLDP-RS.jsonld')
-        );
+        $fedora_head_response = new Response(404);
         $fedora_save_response = new Response(403, [], null, '1.1', 'UNAUTHORIZED');
         $fedora = $this->prophesize(IFedoraApi::class);
-        $fedora->getResource(Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($fedora_get_response);
+        $fedora->getResourceHeaders(Argument::any(), Argument::any(), Argument::any())
+            ->willReturn($fedora_head_response);
         $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($fedora_save_response);
         $fedora = $fedora->reveal();
 
         $milliner = new MillinerService(
             $fedora,
-            $drupal,
-            $gemini,
+            $this->drupal,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
         $this->expectException(\RuntimeException::class, null, 403);
 
         $milliner->saveNode(
-            "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
+            $this->uuid,
             "http://localhost:8000/node/1?_format=jsonld",
-            $token = "Bearer islandora"
+            $this->fedoraBaseUrl,
+            "Bearer islandora"
         );
     }
 
@@ -203,45 +129,29 @@ class SaveNodeTest extends TestCase
      */
     public function testCreateNodeReturnsFedora201()
     {
-        $url = "http://localhost:8080/fcrepo/rest/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8";
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn([]);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($url);
-        $gemini->saveUrls(Argument::any(), Argument::any(), Argument::any(), Argument::any())
-            ->willReturn(true);
-        $gemini = $gemini->reveal();
-
-        $drupal_response = new Response(
-            200,
-            ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/Content.jsonld')
-        );
-        $drupal = $this->prophesize(Client::class);
-        $drupal->get(Argument::any(), Argument::any())
-            ->willReturn($drupal_response);
-        $drupal = $drupal->reveal();
-
-        $fedora_response = new Response(201);
+        $fedora_head_response = new Response(404);
+        $fedora_save_response = new Response(201);
         $fedora = $this->prophesize(IFedoraApi::class);
+        $fedora->getResourceHeaders(Argument::any(), Argument::any(), Argument::any())
+            ->willReturn($fedora_head_response);
         $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($fedora_response);
+            ->willReturn($fedora_save_response);
         $fedora = $fedora->reveal();
 
         $milliner = new MillinerService(
             $fedora,
-            $drupal,
-            $gemini,
+            $this->drupal,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
         $response = $milliner->saveNode(
-            "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
+            $this->uuid,
             "http://localhost:8000/node/1?_format=jsonld",
-            "http://localhost:8080/fcrepo/rest/",
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
 
@@ -260,45 +170,29 @@ class SaveNodeTest extends TestCase
      */
     public function testCreateNodeReturnsFedora204()
     {
-        $url = "http://localhost:8080/fcrepo/rest/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8";
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn([]);
-        $gemini->mintFedoraUrl(Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($url);
-        $gemini->saveUrls(Argument::any(), Argument::any(), Argument::any(), Argument::any())
-            ->willReturn(true);
-        $gemini = $gemini->reveal();
-
-        $drupal_response = new Response(
-            200,
-            ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/Content.jsonld')
-        );
-        $drupal = $this->prophesize(Client::class);
-        $drupal->get(Argument::any(), Argument::any())
-            ->willReturn($drupal_response);
-        $drupal = $drupal->reveal();
-
-        $fedora_response = new Response(204);
+        $fedora_head_response = new Response(404);
+        $fedora_save_response = new Response(204);
         $fedora = $this->prophesize(IFedoraApi::class);
+        $fedora->getResourceHeaders(Argument::any(), Argument::any(), Argument::any())
+            ->willReturn($fedora_head_response);
         $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($fedora_response);
+            ->willReturn($fedora_save_response);
         $fedora = $fedora->reveal();
 
         $milliner = new MillinerService(
             $fedora,
-            $drupal,
-            $gemini,
+            $this->drupal,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
         $response = $milliner->saveNode(
-            "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
+            $this->uuid,
             "http://localhost:8000/node/1?_format=jsonld",
-            "http://localhost:8080/fcrepo/rest/",
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
 
@@ -317,40 +211,40 @@ class SaveNodeTest extends TestCase
      * @covers ::getModifiedTimestamp
      * @covers ::getFirstPredicate
      */
-    public function testUpdateNodeThrowsOnFedoraGetError()
+    public function testUpdateNodeThrowsOnFedoraError()
     {
-        $mapping = [
-            'drupal' => '"http://localhost:8000/node/1?_format=jsonld"',
-            'fedora' => 'http://localhost:8080/fcrepo/rest/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8'
-        ];
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn($mapping);
-        $gemini = $gemini->reveal();
-
-        $drupal = $this->prophesize(Client::class)->reveal();
-
-        $fedora_response = new Response(403, [], null, '1.1', 'UNAUTHORIZED');
+        $fedora_head_response = new Response(200);
+        $fedora_get_response = new Response(
+            200,
+            ['Content-Type' => 'application/ld+json'],
+            file_get_contents(__DIR__ . '/../../../../static/ContentLDP-RS.jsonld')
+        );
+        $fedora_save_response = new Response(403, [], null, '1.1', 'UNAUTHORIZED');
         $fedora = $this->prophesize(IFedoraApi::class);
+        $fedora->getResourceHeaders(Argument::any())
+            ->willReturn($fedora_head_response);
         $fedora->getResource(Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($fedora_response);
+            ->willReturn($fedora_get_response);
+        $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
+            ->willReturn($fedora_save_response);
         $fedora = $fedora->reveal();
 
         $milliner = new MillinerService(
             $fedora,
-            $drupal,
-            $gemini,
+            $this->drupal,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
         $this->expectException(\RuntimeException::class, null, 403);
 
         $milliner->saveNode(
-            "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
+            $this->uuid,
             "http://localhost:8000/node/1?_format=jsonld",
-            "http://localhost:8080/fcrepo/rest/",
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
     }
@@ -365,15 +259,6 @@ class SaveNodeTest extends TestCase
      */
     public function testUpdateNodeThrows500OnBadDatePredicate()
     {
-        $mapping = [
-            'drupal' => '"http://localhost:8000/node/1?_format=jsonld"',
-            'fedora' => 'http://localhost:8080/fcrepo/rest/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8'
-        ];
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn($mapping);
-        $gemini = $gemini->reveal();
-
         $drupal_response = new Response(
             200,
             ['Content-Type' => 'application/ld+json'],
@@ -384,12 +269,15 @@ class SaveNodeTest extends TestCase
             ->willReturn($drupal_response);
         $drupal = $drupal->reveal();
 
+        $fedora_head_response = new Response(200);
         $fedora_get_response = new Response(
             200,
             ['Content-Type' => 'application/ld+json'],
             file_get_contents(__DIR__ . '/../../../../static/ContentLDP-RS.jsonld')
         );
         $fedora = $this->prophesize(IFedoraApi::class);
+        $fedora->getResourceHeaders(Argument::any())
+            ->willReturn($fedora_head_response);
         $fedora->getResource(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($fedora_get_response);
         $fedora = $fedora->reveal();
@@ -399,16 +287,17 @@ class SaveNodeTest extends TestCase
         $milliner = new MillinerService(
             $fedora,
             $drupal,
-            $gemini,
+            $this->mapper,
             $this->logger,
-            "total garbage",
+            $this->modifiedDatePredicate,
+            false,
             false
         );
 
         $milliner->saveNode(
-            "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
+            $this->uuid,
             "http://localhost:8000/node/1?_format=jsonld",
-            "http://localhost:8080/fcrepo/rest/",
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
     }
@@ -423,15 +312,6 @@ class SaveNodeTest extends TestCase
      */
     public function testUpdateNodeThrows412OnStaleContent()
     {
-        $mapping = [
-            'drupal' => '"http://localhost:8000/node/1?_format=jsonld"',
-            'fedora' => 'http://localhost:8080/fcrepo/rest/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8'
-        ];
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn($mapping);
-        $gemini = $gemini->reveal();
-
         $drupal_response = new Response(
             200,
             ['Content-Type' => 'application/ld+json'],
@@ -442,12 +322,15 @@ class SaveNodeTest extends TestCase
             ->willReturn($drupal_response);
         $drupal = $drupal->reveal();
 
+        $fedora_head_response = new Response(200);
         $fedora_get_response = new Response(
             200,
             ['Content-Type' => 'application/ld+json'],
             file_get_contents(__DIR__ . '/../../../../static/ContentLDP-RS.jsonld')
         );
         $fedora = $this->prophesize(IFedoraApi::class);
+        $fedora->getResourceHeaders(Argument::any())
+            ->willReturn($fedora_head_response);
         $fedora->getResource(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($fedora_get_response);
         $fedora = $fedora->reveal();
@@ -455,79 +338,19 @@ class SaveNodeTest extends TestCase
         $milliner = new MillinerService(
             $fedora,
             $drupal,
-            $gemini,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
         $this->expectException(\RuntimeException::class, null, 412);
 
         $milliner->saveNode(
-            "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
+            $this->uuid,
             "http://localhost:8000/node/1?_format=jsonld",
-            "http://localhost:8080/fcrepo/rest/",
-            "Bearer islandora"
-        );
-    }
-
-    /**
-     * @covers ::__construct
-     * @covers ::saveNode
-     * @covers ::updateNode
-     * @covers ::processJsonld
-     * @covers ::getModifiedTimestamp
-     * @covers ::getFirstPredicate
-     */
-    public function testUpdateNodeThrowsOnFedoraSaveError()
-    {
-        $mapping = [
-            'drupal' => '"http://localhost:8000/node/1?_format=jsonld"',
-            'fedora' => 'http://localhost:8080/fcrepo/rest/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8'
-        ];
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn($mapping);
-        $gemini = $gemini->reveal();
-
-        $drupal_response = new Response(
-            200,
-            ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/Content.jsonld')
-        );
-        $drupal = $this->prophesize(Client::class);
-        $drupal->get(Argument::any(), Argument::any())
-            ->willReturn($drupal_response);
-        $drupal = $drupal->reveal();
-
-        $fedora_get_response = new Response(
-            200,
-            ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/ContentLDP-RS.jsonld')
-        );
-        $fedora_save_response = new Response(403, [], null, '1.1', 'UNAUTHORIZED');
-        $fedora = $this->prophesize(IFedoraApi::class);
-        $fedora->getResource(Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($fedora_get_response);
-        $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($fedora_save_response);
-        $fedora = $fedora->reveal();
-
-        $milliner = new MillinerService(
-            $fedora,
-            $drupal,
-            $gemini,
-            $this->logger,
-            $this->modifiedDatePredicate,
-            false
-        );
-
-        $this->expectException(\RuntimeException::class, null, 403);
-
-        $milliner->saveNode(
-            "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
-            "http://localhost:8000/node/1?_format=jsonld",
-            "http://localhost:8080/fcrepo/rest/",
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
     }
@@ -542,27 +365,7 @@ class SaveNodeTest extends TestCase
      */
     public function testUpdateNodeReturnsFedora201()
     {
-        $mapping = [
-            'drupal' => '"http://localhost:8000/node/1?_format=jsonld"',
-            'fedora' => 'http://localhost:8080/fcrepo/rest/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8'
-        ];
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn($mapping);
-        $gemini->saveUrls(Argument::any(), Argument::any(), Argument::any(), Argument::any())
-            ->willReturn(true);
-        $gemini = $gemini->reveal();
-
-        $drupal_response = new Response(
-            200,
-            ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/Content.jsonld')
-        );
-        $drupal = $this->prophesize(Client::class);
-        $drupal->get(Argument::any(), Argument::any())
-            ->willReturn($drupal_response);
-        $drupal = $drupal->reveal();
-
+        $fedora_head_response = new Response(200);
         $fedora_get_response = new Response(
             200,
             ['Content-Type' => 'application/ld+json'],
@@ -570,6 +373,8 @@ class SaveNodeTest extends TestCase
         );
         $fedora_save_response = new Response(201);
         $fedora = $this->prophesize(IFedoraApi::class);
+        $fedora->getResourceHeaders(Argument::any())
+            ->willReturn($fedora_head_response);
         $fedora->getResource(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($fedora_get_response);
         $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
@@ -578,17 +383,18 @@ class SaveNodeTest extends TestCase
 
         $milliner = new MillinerService(
             $fedora,
-            $drupal,
-            $gemini,
+            $this->drupal,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
         $response = $milliner->saveNode(
-            "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
+            $this->uuid,
             "http://localhost:8000/node/1?_format=jsonld",
-            "http://localhost:8080/fcrepo/rest/",
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
 
@@ -609,27 +415,7 @@ class SaveNodeTest extends TestCase
      */
     public function testUpdateNodeReturnsFedora204()
     {
-        $mapping = [
-            'drupal' => '"http://localhost:8000/node/1?_format=jsonld"',
-            'fedora' => 'http://localhost:8080/fcrepo/rest/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8'
-        ];
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn($mapping);
-        $gemini->saveUrls(Argument::any(), Argument::any(), Argument::any(), Argument::any())
-            ->willReturn(true);
-        $gemini = $gemini->reveal();
-
-        $drupal_response = new Response(
-            200,
-            ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/Content.jsonld')
-        );
-        $drupal = $this->prophesize(Client::class);
-        $drupal->get(Argument::any(), Argument::any())
-            ->willReturn($drupal_response);
-        $drupal = $drupal->reveal();
-
+        $fedora_head_response = new Response(200);
         $fedora_get_response = new Response(
             200,
             ['Content-Type' => 'application/ld+json', 'ETag' => 'W\abc123'],
@@ -637,6 +423,8 @@ class SaveNodeTest extends TestCase
         );
         $fedora_save_response = new Response(204);
         $fedora = $this->prophesize(IFedoraApi::class);
+        $fedora->getResourceHeaders(Argument::any())
+            ->willReturn($fedora_head_response);
         $fedora->getResource(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($fedora_get_response);
         $fedora->saveResource(Argument::any(), Argument::any(), Argument::any())
@@ -645,17 +433,18 @@ class SaveNodeTest extends TestCase
 
         $milliner = new MillinerService(
             $fedora,
-            $drupal,
-            $gemini,
+            $this->drupal,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
         $response = $milliner->saveNode(
-            "9541c0c1-5bee-4973-a9d0-e55c1658bc81",
+            $this->uuid,
             "http://localhost:8000/node/1?_format=jsonld",
-            "http://localhost:8080/fcrepo/rest/",
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
 

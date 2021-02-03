@@ -5,12 +5,13 @@ namespace Islandora\Milliner\Tests;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Islandora\Chullo\IFedoraApi;
-use Islandora\Crayfish\Commons\Client\GeminiClient;
+use Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface;
 use Islandora\Milliner\Service\MillinerService;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;
 use Prophecy\Argument;
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * Class MillinerServiceTest
@@ -19,6 +20,8 @@ use PHPUnit\Framework\TestCase;
  */
 class SaveMediaTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @var LoggerInterface
      */
@@ -28,6 +31,21 @@ class SaveMediaTest extends TestCase
      * @var string
      */
     protected $modifiedDatePredicate;
+
+    /**
+     * @var string
+     */
+    protected $uuid;
+
+    /**
+     * @var string
+     */
+    protected $fedoraBaseUrl;
+
+    /**
+     * @var Islandora\Crayfish\Commons\EntityMapper\EntityMapper
+     */
+    protected $mapper;
 
     /**
      * {@inheritdoc}
@@ -40,6 +58,14 @@ class SaveMediaTest extends TestCase
         $this->logger->pushHandler(new NullHandler());
 
         $this->modifiedDatePredicate = "http://schema.org/dateModified";
+
+        $this->uuid = 'ffb15b4f-54db-44ce-ad0b-3588889a3c9b';
+        $this->fedoraBaseUrl = 'http://localhost:8080/fcrepo/rest';
+
+        $this->mapper = $this->prophesize(EntityMapperInterface::class);
+        $this->mapper->getFedoraPath($this->uuid)
+            ->willReturn("{$this->fedoraBaseUrl}/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b");
+        $this->mapper = $this->mapper->reveal();
     }
 
     /**
@@ -64,14 +90,13 @@ class SaveMediaTest extends TestCase
 
         $fedora = $this->prophesize(IFedoraApi::class)->reveal();
 
-        $gemini = $this->prophesize(GeminiClient::class)->reveal();
-
         $milliner = new MillinerService(
             $fedora,
             $drupal,
-            $gemini,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
@@ -80,6 +105,7 @@ class SaveMediaTest extends TestCase
         $milliner->saveMedia(
             "field_image",
             "http://localhost:8000/media/6?_format=json",
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
     }
@@ -106,14 +132,13 @@ class SaveMediaTest extends TestCase
 
         $fedora = $this->prophesize(IFedoraApi::class)->reveal();
 
-        $gemini = $this->prophesize(GeminiClient::class)->reveal();
-
         $milliner = new MillinerService(
             $fedora,
             $drupal,
-            $gemini,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
@@ -122,6 +147,7 @@ class SaveMediaTest extends TestCase
         $milliner->saveMedia(
             "field_image",
             "http://localhost:8000/media/6?_format=json",
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
     }
@@ -148,17 +174,13 @@ class SaveMediaTest extends TestCase
 
         $fedora = $this->prophesize(IFedoraApi::class)->reveal();
 
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn([]);
-        $gemini = $gemini->reveal();
-
         $milliner = new MillinerService(
             $fedora,
             $drupal,
-            $gemini,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
@@ -167,6 +189,7 @@ class SaveMediaTest extends TestCase
         $milliner->saveMedia(
             "field_image",
             "http://localhost:8000/media/6?_format=json",
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
     }
@@ -198,29 +221,22 @@ class SaveMediaTest extends TestCase
         $fedora = $this->prophesize(IFedoraApi::class);
         $fedora = $fedora->reveal();
 
-        $mapping = [
-            'drupal' => 'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
-            'fedora' => 'http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b',
-        ];
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn($mapping);
-        $gemini = $gemini->reveal();
-
         $this->expectException(\RuntimeException::class, null, 404);
 
         $milliner = new MillinerService(
             $fedora,
             $drupal,
-            $gemini,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
         $milliner->saveMedia(
             "field_image",
             "http://localhost:8000/media/6?_format=json",
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
     }
@@ -252,21 +268,13 @@ class SaveMediaTest extends TestCase
         $fedora = $this->prophesize(IFedoraApi::class);
         $fedora = $fedora->reveal();
 
-        $mapping = [
-            'drupal' => 'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
-            'fedora' => 'http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b',
-        ];
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn($mapping);
-        $gemini = $gemini->reveal();
-
         $milliner = new MillinerService(
             $fedora,
             $drupal,
-            $gemini,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
@@ -275,6 +283,7 @@ class SaveMediaTest extends TestCase
         $milliner->saveMedia(
             "field_image",
             "http://localhost:8000/media/6?_format=json",
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
     }
@@ -316,21 +325,13 @@ class SaveMediaTest extends TestCase
             ->willReturn($fedora_get_response);
         $fedora = $fedora->reveal();
 
-        $mapping = [
-            'drupal' => 'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
-            'fedora' => 'http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b',
-        ];
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn($mapping);
-        $gemini = $gemini->reveal();
-
         $milliner = new MillinerService(
             $fedora,
             $drupal,
-            $gemini,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
@@ -339,6 +340,7 @@ class SaveMediaTest extends TestCase
         $milliner->saveMedia(
             "field_image",
             "http://localhost:8000/media/6?_format=json",
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
     }
@@ -392,21 +394,13 @@ class SaveMediaTest extends TestCase
             ->willReturn($fedora_get_response);
         $fedora = $fedora->reveal();
 
-        $mapping = [
-            'drupal' => 'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
-            'fedora' => 'http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b',
-        ];
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn($mapping);
-        $gemini = $gemini->reveal();
-
         $milliner = new MillinerService(
             $fedora,
             $drupal,
-            $gemini,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
@@ -415,6 +409,7 @@ class SaveMediaTest extends TestCase
         $milliner->saveMedia(
             "field_image",
             "http://localhost:8000/media/6?_format=json",
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
     }
@@ -473,21 +468,13 @@ class SaveMediaTest extends TestCase
             ->willReturn($fedora_put_response);
         $fedora = $fedora->reveal();
 
-        $mapping = [
-            'drupal' => 'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
-            'fedora' => 'http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b',
-        ];
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn($mapping);
-        $gemini = $gemini->reveal();
-
         $milliner = new MillinerService(
             $fedora,
             $drupal,
-            $gemini,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
@@ -496,6 +483,7 @@ class SaveMediaTest extends TestCase
         $milliner->saveMedia(
             "field_image",
             "http://localhost:8000/media/6?_format=json",
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
     }
@@ -510,17 +498,21 @@ class SaveMediaTest extends TestCase
      */
     public function testSaveMediaReturnsFedoraSuccess()
     {
+        $link = '<http://localhost:8000/media/6?_format=jsonld>; rel="alternate"; type="application/ld+json"';
+        $link .= ',<http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg>; rel="describes"';
         $drupal_json_response = new Response(
             200,
             [
                 'Content-Type' => 'application/json',
-                "Link" => '<http://localhost:8000/media/6?_format=jsonld>; rel="alternate"; type="application/ld+json"',
+                "Link" => $link,
             ],
             file_get_contents(__DIR__ . '/../../../../static/Media.json')
         );
         $drupal_jsonld_response = new Response(
             200,
-            ['Content-Type' => 'application/ld+json'],
+            [
+                'Content-Type' => 'application/ld+json',
+            ],
             file_get_contents(__DIR__ . '/../../../../static/Media.jsonld')
         );
         $drupal = $this->prophesize(Client::class);
@@ -554,27 +546,25 @@ class SaveMediaTest extends TestCase
             ->willReturn($fedora_put_response);
         $fedora = $fedora->reveal();
 
-        $mapping = [
-            'drupal' => 'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
-            'fedora' => 'http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b',
-        ];
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn($mapping);
-        $gemini = $gemini->reveal();
+        $this->mapper = $this->prophesize(EntityMapperInterface::class);
+        $this->mapper->getFedoraPath('f0fd71b3-1fab-45e1-a5e9-78d50e0d7174')
+            ->willReturn("{$this->fedoraBaseUrl}/f0/fd/71/b3/f0fd71b3-1fab-45e1-a5e9-78d50e0d7174");
+        $this->mapper = $this->mapper->reveal();
 
         $milliner = new MillinerService(
             $fedora,
             $drupal,
-            $gemini,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
         $response = $milliner->saveMedia(
             "field_image",
             "http://localhost:8000/media/6?_format=json",
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
 
@@ -595,17 +585,21 @@ class SaveMediaTest extends TestCase
      */
     public function testSaveMediaReturnsNoModifiedDate()
     {
+        $link = '<http://localhost:8000/media/6?_format=jsonld>; rel="alternate"; type="application/ld+json"';
+        $link .= ',<http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg>; rel="describes"';
         $drupal_json_response = new Response(
             200,
             [
                 'Content-Type' => 'application/json',
-                "Link" => '<http://localhost:8000/media/6?_format=jsonld>; rel="alternate"; type="application/ld+json"',
+                "Link" => $link,
             ],
             file_get_contents(__DIR__ . '/../../../../static/Media.json')
         );
         $drupal_jsonld_response = new Response(
             200,
-            ['Content-Type' => 'application/ld+json'],
+            [
+                'Content-Type' => 'application/ld+json',
+            ],
             file_get_contents(__DIR__ . '/../../../../static/Media.jsonld')
         );
         $drupal = $this->prophesize(Client::class);
@@ -622,7 +616,6 @@ class SaveMediaTest extends TestCase
         );
         $drupal->head(Argument::any(), Argument::any())
             ->willReturn($head_response);
-
         $drupal = $drupal->reveal();
 
         $fedora_get_response = new Response(
@@ -640,27 +633,25 @@ class SaveMediaTest extends TestCase
             ->willReturn($fedora_put_response);
         $fedora = $fedora->reveal();
 
-        $mapping = [
-            'drupal' => 'http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg',
-            'fedora' => 'http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b',
-        ];
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn($mapping);
-        $gemini = $gemini->reveal();
+        $this->mapper = $this->prophesize(EntityMapperInterface::class);
+        $this->mapper->getFedoraPath('f0fd71b3-1fab-45e1-a5e9-78d50e0d7174')
+            ->willReturn("{$this->fedoraBaseUrl}/f0/fd/71/b3/f0fd71b3-1fab-45e1-a5e9-78d50e0d7174");
+        $this->mapper = $this->mapper->reveal();
 
         $milliner = new MillinerService(
             $fedora,
             $drupal,
-            $gemini,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
         $response = $milliner->saveMedia(
             "field_image",
             "http://localhost:8000/media/6?_format=json",
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
 
