@@ -46,6 +46,9 @@
     "config": {
         "sort-packages": true
     },
+    "require": {
+        "islandora/crayfish-commons": "dev-no-gemini"
+    },
     "require-dev": {
         "symfony/browser-kit": "^3.0",
         "symfony/css-selector": "^3.0",
