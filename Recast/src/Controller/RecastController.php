@@ -2,7 +2,7 @@
 
 namespace Islandora\Recast\Controller;
 
-use Islandora\Crayfish\Commons\Client\GeminiClient;
+use Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface;
 use Psr\Log\LoggerInterface;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -36,9 +36,9 @@ class RecastController
     private $log;
 
   /**
-   * @var \Islandora\Crayfish\Commons\Client\GeminiClient
+   * @var \Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface
    */
-    private $geminiClient;
+    private $entityMapper;
 
   /**
    * @var array
@@ -51,14 +51,14 @@ class RecastController
   /**
    * RecastController constructor.
    *
-   * @param \Islandora\Crayfish\Commons\Client\GeminiClient $geminiClient
+   * @param \Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface $entityMapper
    * @param \Psr\Log\LoggerInterface $log
    */
     public function __construct(
-        GeminiClient $geminiClient,
+        EntityMapperInterface $entityMapper,
         LoggerInterface $log
     ) {
-        $this->geminiClient = $geminiClient;
+        $this->entityMapper = $entityMapper;
         $this->log = $log;
     }
 
@@ -148,6 +148,7 @@ class RecastController
                 $this->log->debug("Checking resource ", [
                 'uri' => $uri,
                 ]);
+                /*
                 $reverse_uri = $this->geminiClient->findByUri($uri, $token);
                 if (!is_null($reverse_uri)) {
                     if (is_array($reverse_uri)) {
@@ -176,6 +177,7 @@ class RecastController
                         }
                     }
                 }
+                */
             }
         }
         if ($request->headers->has('Accept')) {
