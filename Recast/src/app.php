@@ -2,6 +2,7 @@
 
 require_once __DIR__.'/../vendor/autoload.php';
 
+use GuzzleHttp\Client;
 use Islandora\Crayfish\Commons\Provider\IslandoraServiceProvider;
 use Islandora\Crayfish\Commons\Provider\YamlConfigServiceProvider;
 use Islandora\Crayfish\Commons\EntityMapper\EntityMapper;
@@ -16,6 +17,7 @@ $app->register(new YamlConfigServiceProvider(__DIR__ . '/../cfg/config.yaml'));
 
 $test = new RecastController(
     new EntityMapper(),
+    new Client(),
     $app['monolog']
 );
 

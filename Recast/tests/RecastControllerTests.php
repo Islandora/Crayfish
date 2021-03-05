@@ -2,11 +2,14 @@
 
 namespace Islandora\Recast\Tests;
 
-use Islandora\Crayfish\Commons\Client\GeminiClient;
+use Islandora\Crayfish\Commons\EntityMapper\EntityMapper;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use Islandora\Recast\Controller\RecastController;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Silex\Application;
@@ -26,8 +29,9 @@ if (class_exists('\EasyRdf_Graph')) {
  */
 class RecastControllerTest extends TestCase
 {
+    use ProphecyTrait;
 
-    private $gemini_prophecy;
+    private $http_prophecy;
 
     private $logger_prophecy;
 
@@ -43,7 +47,7 @@ class RecastControllerTest extends TestCase
    */
     public function setUp(): void
     {
-        $this->gemini_prophecy = $this->prophesize(GeminiClient::class);
+        $this->http_prophecy = $this->prophesize(Client::class);
         $this->logger_prophecy = $this->prophesize(Logger::class);
     }
 
@@ -53,7 +57,8 @@ class RecastControllerTest extends TestCase
     public function testOptions()
     {
         $controller = new RecastController(
-            $this->gemini_prophecy->reveal(),
+            new EntityMapper(),
+            $this->http_prophecy->reveal(),
             $this->logger_prophecy->reveal()
         );
 
@@ -75,21 +80,32 @@ class RecastControllerTest extends TestCase
 
         $output_add = realpath(__DIR__ . '/resources/drupal_image_add.json');
         $output_replace = realpath(__DIR__ . '/resources/drupal_image_replace.json');
+        $node_1 = realpath(__DIR__ . '/resources/node1.json');
 
-        $this->gemini_prophecy->findByUri('http://localhost:8000/user/1?_format=jsonld', Argument::any())
-        ->willReturn(null);
-        $this->gemini_prophecy->findByUri('http://localhost:8000/media/1?_format=jsonld', Argument::any())
-        ->willReturn(null);
-        $this->gemini_prophecy->findByUri('http://localhost:8000/node/1?_format=jsonld', Argument::any())
-        ->willReturn('http://localhost:8080/fcrepo/rest/collection1');
+        $this->http_prophecy->get('http://localhost:8000/user/1?_format=json', Argument::any())
+            ->willThrow(
+                new RequestException(
+                    "NOT FOUND",
+                    new \GuzzleHttp\Psr7\Request('GET', 'http://localhost:8000/user/1?_format=json')
+                )
+            );
+        $this->http_prophecy->get('http://localhost:8000/media/1?_format=json', Argument::any())
+            ->willThrow(new RequestException(
+                "NOT FOUND",
+                new \GuzzleHttp\Psr7\Request('GET', 'http://localhost:8000/media/1?_format=json')
+            ));
+        $this->http_prophecy->get('http://localhost:8000/node/1?_format=json', Argument::any())
+            ->willReturn(new \GuzzleHttp\Psr7\Response(200, [], file_get_contents($node_1)));
 
         $mock_silex_app = new Application();
-        $mock_silex_app['crayfish.drupal_base_url'] = 'http://localhost:8000';
+        $mock_silex_app['crayfish.drupal_base_url'] = 'localhost:8000';
+        $mock_silex_app['crayfish.fedora_resource.base_url'] = 'localhost:8080/fcrepo/rest';
 
         $mock_fedora_response = $this->getMockFedoraStream();
 
         $controller = new RecastController(
-            $this->gemini_prophecy->reveal(),
+            new EntityMapper(),
+            $this->http_prophecy->reveal(),
             $this->logger_prophecy->reveal()
         );
 
@@ -129,7 +145,8 @@ class RecastControllerTest extends TestCase
         $mock_silex_app['crayfish.drupal_base_url'] = 'http://localhost:8000';
 
         $controller = new RecastController(
-            $this->gemini_prophecy->reveal(),
+            new EntityMapper(),
+            $this->http_prophecy->reveal(),
             $this->logger_prophecy->reveal()
         );
 
@@ -156,13 +173,21 @@ class RecastControllerTest extends TestCase
     {
         $resource_id = 'http://localhost:8080/fcrepo/rest/object1';
 
-        $this->gemini_prophecy->findByUri('http://localhost:8000/user/1?_format=jsonld', Argument::any())
-            ->willReturn(null);
-        $this->gemini_prophecy->findByUri('http://localhost:8000/node/1?_format=jsonld', Argument::any())
-            ->willReturn('http://localhost:8080/fcrepo/rest/collection99');
+        $node_1 = realpath(__DIR__ . '/resources/node1.json');
+
+        $this->http_prophecy->get('http://localhost:8000/user/1?_format=json', Argument::any())
+            ->willThrow(
+                new RequestException(
+                    "NOT FOUND",
+                    new \GuzzleHttp\Psr7\Request('GET', 'http://localhost:8000/user/1?_format=json')
+                )
+            );
+        $this->http_prophecy->get('http://localhost:8000/node/1?_format=json', Argument::any())
+            ->willReturn(new \GuzzleHttp\Psr7\Response(200, [], file_get_contents($node_1)));
 
         $mock_silex_app = new Application();
-        $mock_silex_app['crayfish.drupal_base_url'] = 'http://localhost:8000';
+        $mock_silex_app['crayfish.drupal_base_url'] = 'localhost:8000';
+        $mock_silex_app['crayfish.fedora_resource.base_url'] = 'localhost:8080/fcrepo/rest';
         $mock_silex_app['crayfish.namespaces'] = $this->namespaces;
 
         $mock_fedora_response = $this->getMockFedoraStream(
@@ -171,7 +196,8 @@ class RecastControllerTest extends TestCase
         );
 
         $controller = new RecastController(
-            $this->gemini_prophecy->reveal(),
+            new EntityMapper(),
+            $this->http_prophecy->reveal(),
             $this->logger_prophecy->reveal()
         );
 

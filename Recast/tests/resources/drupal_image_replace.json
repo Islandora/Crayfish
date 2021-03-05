@@ -70,7 +70,7 @@
     ],
     "http://pcdm.org/models#memberOf": [
       {
-        "@id": "http://localhost:8080/fcrepo/rest/collection1"
+        "@id": "http://localhost:8080/fcrepo/rest/b5/5d/ce/b8/b55dceb8-d070-49ce-b37f-f64b1aadb871"
       }
     ]
   }

@@ -8,6 +8,8 @@ use Silex\Application;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 
 // phpcs:disable
 if (class_exists('\EasyRdf_Graph')) {
@@ -41,6 +43,11 @@ class RecastController
     private $entityMapper;
 
   /**
+   * @var \GuzzleHttp\Client
+   */
+    private $http;
+
+  /**
    * @var array
    */
     protected $availableMethods = [
@@ -52,13 +59,16 @@ class RecastController
    * RecastController constructor.
    *
    * @param \Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface $entityMapper
+   * @param \GuzzleHttp\Client $http
    * @param \Psr\Log\LoggerInterface $log
    */
     public function __construct(
         EntityMapperInterface $entityMapper,
+        Client $http,
         LoggerInterface $log
     ) {
         $this->entityMapper = $entityMapper;
+        $this->http = $http;
         $this->log = $log;
     }
 
@@ -144,16 +154,25 @@ class RecastController
 
         $resources = $graph->resources();
         foreach ($resources as $uri => $data) {
-            if (strpos($uri, $app['crayfish.drupal_base_url']) === 0) {
-                $this->log->debug("Checking resource ", [
-                'uri' => $uri,
-                ]);
-                /*
-                $reverse_uri = $this->geminiClient->findByUri($uri, $token);
-                if (!is_null($reverse_uri)) {
-                    if (is_array($reverse_uri)) {
-                        $reverse_uri = reset($reverse_uri);
-                    }
+            // Ignore http vs https
+            $exploded = explode('://', $uri);
+            if (count($exploded) > 1) {
+                $protocol = $exploded[0];
+                $without_protocol = $exploded[1];
+            }
+
+            // Check for Drupal urls, making sure to ignore Fedora urls.
+            // They may share a domain so false positives can happen.
+            $drupal_base_url = $app['crayfish.drupal_base_url'];
+            $fcrepo_base_url = $app['crayfish.fedora_resource.base_url'];
+            $is_drupal_url = strpos($without_protocol, $drupal_base_url) === 0 &&
+                strpos($without_protocol, $fcrepo_base_url) !== 0;
+            if ($is_drupal_url) {
+                $reverse_uri = $this->getFedoraUrl($uri, $fcrepo_base_url, $token);
+
+                if (!empty($reverse_uri)) {
+                    // Add the protocol back in.
+                    $reverse_uri = "http://$reverse_uri";
                     // Don't rewrite the current URI (in-case of sameAs)
                     if ($reverse_uri !== $fedora_uri) {
                         $predicate = $this->findPredicateForObject($graph, $uri);
@@ -177,7 +196,6 @@ class RecastController
                         }
                     }
                 }
-                */
             }
         }
         if ($request->headers->has('Accept')) {
@@ -234,6 +252,51 @@ class RecastController
         ];
 
         return new Response($new_body, 200, $headers);
+    }
+
+    private function getFedoraUrl($drupal_url, $fcrepo_base_url, $token)
+    {
+        try {
+            // Strip off the ld from jsonld.
+            $drupal_url = rtrim($drupal_url, 'ld');
+            $response = $this->http->get($drupal_url, ['Authorization' => $token]);
+            $json_str = $response->getBody();
+            $json = json_decode($json_str, true);
+
+            $is_media = isset($json['bundle']) &&
+                !empty($json['bundle']) &&
+                $json['bundle'][0]['target_type'] == 'media_type';
+
+            if ($is_media) {
+                $link_headers = $response->getHeader('Link');
+                $describes = $this->describeUri($link_headers);
+                $this->log->debug("DESCRIBES $describes");
+                foreach ($json as $field => $value) {
+                    $is_file = $field != "thumbnail" &&
+                        !empty($json[$field]) &&
+                        isset($json[$field][0]["url"]) &&
+                        $json[$field][0]["url"] == $describes;
+
+                    if ($is_file) {
+                        $exploded = explode("_flysystem/fedora", $json[$field][0]["url"]);
+                        $in_fedora = count($exploded) > 1;
+                        if ($in_fedora) {
+                            return rtrim($fcrepo_base_url, '/') . $exploded[1] . "/fcr:metadata";
+                        } else {
+                            $uuid = $json[$field][0]['target_uuid'];
+                            return rtrim($fcrepo_base_url, '/') .
+                                "/{$this->entityMapper->getFedoraPath($uuid)}/fcr:metadata";
+                        }
+                    }
+                }
+            } else {
+                $uuid = $json['uuid'][0]['value'];
+                return rtrim($fcrepo_base_url, '/') . '/' . $this->entityMapper->getFedoraPath($uuid);
+            }
+        } catch (RequestException $e) {
+            $this->log->warn($e->getMessage());
+            return null;
+        }
     }
 
   /**
