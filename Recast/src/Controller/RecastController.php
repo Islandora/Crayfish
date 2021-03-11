@@ -167,6 +167,10 @@ class RecastController
             $fcrepo_base_url = $app['crayfish.fedora_resource.base_url'];
             $is_drupal_url = strpos($without_protocol, $drupal_base_url) === 0 &&
                 strpos($without_protocol, $fcrepo_base_url) !== 0;
+
+            $this->log->debug("Looking for reverse URI for: $uri");
+            $this->log->debug("$uri ". $is_drupal_url ? 'is a Drupal URL' : 'is not a Drupal URL');
+
             if ($is_drupal_url) {
                 $reverse_uri = $this->getFedoraUrl($uri, $fcrepo_base_url, $token);
 
@@ -257,11 +261,14 @@ class RecastController
     private function getFedoraUrl($drupal_url, $fcrepo_base_url, $token)
     {
         try {
-            // Strip off the ld from jsonld.
-            $drupal_url = rtrim($drupal_url, 'ld');
+            // Strip off any query params and force the json format.
+            $exploded = explode('?', $drupal_url);
+            $drupal_url = $exploded[0] . '?_format=json';
+
             $response = $this->http->get($drupal_url, ['Authorization' => $token]);
             $json_str = $response->getBody();
             $json = json_decode($json_str, true);
+                        $this->log->debug("GOT THIS JSON: $json_str");
 
             $is_media = isset($json['bundle']) &&
                 !empty($json['bundle']) &&
