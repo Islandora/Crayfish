@@ -50,6 +50,8 @@ class MillinerController
             return new Response("Expected JSONLD url in Content-Location header", 400);
         }
 
+        $this->log->debug("JSONLD URL: $jsonld_url");
+        $this->log->debug("FEDORA ENDPOINT: $islandora_fedora_endpoint");
         try {
             $response = $this->milliner->saveNode(
                 $uuid,
@@ -77,10 +79,12 @@ class MillinerController
     public function deleteNode($uuid, Request $request)
     {
         $token = $request->headers->get("Authorization", null);
+        $islandora_fedora_endpoint = $request->headers->get("X-Islandora-Fedora-Endpoint");
 
         try {
             $response = $this->milliner->deleteNode(
                 $uuid,
+                $islandora_fedora_endpoint,
                 $token
             );
 
@@ -104,6 +108,7 @@ class MillinerController
     {
         $token = $request->headers->get("Authorization", null);
         $json_url = $request->headers->get("Content-Location");
+        $islandora_fedora_endpoint = $request->headers->get("X-Islandora-Fedora-Endpoint");
 
         if (empty($json_url)) {
             return new Response("Expected JSON url in Content-Location header", 400);
@@ -113,6 +118,7 @@ class MillinerController
             $response = $this->milliner->saveMedia(
                 $source_field,
                 $json_url,
+                $islandora_fedora_endpoint,
                 $token
             );
 
@@ -169,21 +175,18 @@ class MillinerController
     public function createNodeVersion($uuid, Request $request)
     {
         $token = $request->headers->get("Authorization", null);
+        $islandora_fedora_endpoint = $request->headers->get("X-Islandora-Fedora-Endpoint");
+    
         try {
-            $urls = $this->milliner->getGeminiUrls($uuid, $token);
-            if (!empty($urls)) {
-                $fedora_url = $urls['fedora'];
-                $response = $this->milliner->createVersion(
-                    $fedora_url,
-                    $token
-                );
-                return new Response(
-                    $response->getBody(),
-                    $response->getStatusCode()
-                );
-            } else {
-                return new Response(404);
-            }
+            $response = $this->milliner->createVersion(
+                $uuid,
+                $islandora_fedora_endpoint,
+                $token
+            );
+            return new Response(
+                $response->getBody(),
+                $response->getStatusCode()
+            );
         } catch (\Exception $e) {
             $this->log->error("", ['Exception' => $e]);
             $code = $e->getCode() == 0 ? 500 : $e->getCode();
@@ -200,16 +203,13 @@ class MillinerController
     {
         $token = $request->headers->get("Authorization", null);
         $json_url = $request->headers->get("Content-Location");
+        $islandora_fedora_endpoint = $request->headers->get("X-Islandora-Fedora-Endpoint");
 
-        if (empty($json_url)) {
-            $this->log->error("json url is EMPTY");
-            return new Response("Expected JSON url in Content-Location header", 400);
-        }
         try {
-            $urls = $this->milliner->getFileFromMedia($source_field, $json_url, $token);
-            $fedora_file_url = $urls['fedora'];
-            $response = $this->milliner->createVersion(
-                $fedora_file_url,
+            $response = $this->milliner->createMediaVersion(
+                $source_field,
+                $json_url,
+                $islandora_fedora_endpoint,
                 $token
             );
             return new Response(

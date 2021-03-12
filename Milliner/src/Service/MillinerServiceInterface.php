@@ -26,8 +26,9 @@ interface MillinerServiceInterface
     );
 
     /**
+     * @param $source_field
      * @param $json_url
-     * @param $jsonld_url
+     * @param $islandora_fedora_endpoint
      * @param $token
      *
      * @throws \Exception
@@ -37,11 +38,13 @@ interface MillinerServiceInterface
     public function saveMedia(
         $source_field,
         $json_url,
+        $islandora_fedora_endpoint,
         $token = null
     );
 
     /**
      * @param $uuid
+     * @param $islandora_fedora_endpoint
      * @param $token
      *
      * @throws \Exception
@@ -50,6 +53,7 @@ interface MillinerServiceInterface
      */
     public function deleteNode(
         $uuid,
+        $islandora_fedora_endpoint,
         $token = null
     );
 
@@ -71,7 +75,8 @@ interface MillinerServiceInterface
     );
 
     /**
-     * @param $fedora_url
+     * @param $uuid
+     * @param $islandora_fedora_endpoint
      * @param $token
      *
      * @throws \Exception
@@ -79,35 +84,25 @@ interface MillinerServiceInterface
      * @return \GuzzleHttp\Psr7\Response
      */
     public function createVersion(
-        $fedora_url,
+        $uuid,
+        $islandora_fedora_endpoint,
         $token = null
     );
 
     /**
+     * @param $source_field
      * @param $json_url
-     * @param $jsonld_url
+     * @param $islandora_fedora_endpoint
      * @param $token
      *
      * @throws \Exception
      *
      * @return array
      */
-    public function getFileFromMedia(
+    public function createMediaVersion(
         $source_field,
         $json_url,
-        $token = null
-    );
-
-        /**
-     * @param $uuid
-     * @param $token
-     *
-     * @throws \Exception
-     *
-     * @return array
-     */
-    public function getGeminiUrls(
-        $uuid,
+        $islandora_fedora_endpoint,
         $token = null
     );
 }

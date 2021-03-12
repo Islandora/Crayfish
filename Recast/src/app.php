@@ -2,9 +2,10 @@
 
 require_once __DIR__.'/../vendor/autoload.php';
 
+use GuzzleHttp\Client;
 use Islandora\Crayfish\Commons\Provider\IslandoraServiceProvider;
 use Islandora\Crayfish\Commons\Provider\YamlConfigServiceProvider;
-use Islandora\Crayfish\Commons\Client\GeminiClient;
+use Islandora\Crayfish\Commons\EntityMapper\EntityMapper;
 use Islandora\Recast\Controller\RecastController;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,13 +15,9 @@ $app = new Application();
 $app->register(new IslandoraServiceProvider());
 $app->register(new YamlConfigServiceProvider(__DIR__ . '/../cfg/config.yaml'));
 
-$gc = GeminiClient::create(
-    $app['crayfish.gemini_base_url'],
-    $app['monolog']
-);
-
 $test = new RecastController(
-    $gc,
+    new EntityMapper(),
+    new Client(),
     $app['monolog']
 );
 

@@ -1,0 +1,185 @@
+{
+  "nid": [
+    {
+      "value": 1
+    }
+  ],
+  "uuid": [
+    {
+      "value": "b55dceb8-d070-49ce-b37f-f64b1aadb871"
+    }
+  ],
+  "vid": [
+    {
+      "value": 48
+    }
+  ],
+  "langcode": [
+    {
+      "value": "en"
+    }
+  ],
+  "type": [
+    {
+      "target_id": "islandora_object",
+      "target_type": "node_type",
+      "target_uuid": "4d81109d-ded5-4e96-8143-18f6534ea270"
+    }
+  ],
+  "revision_timestamp": [
+    {
+      "value": "2019-06-05T04:05:52+00:00",
+      "format": "Y-m-d\\TH:i:sP"
+    }
+  ],
+  "revision_uid": [
+    {
+      "target_id": 3,
+      "target_type": "user",
+      "target_uuid": "f86dc23f-9850-49ad-8d9c-bafb6e93c8bf",
+      "url": "/user/3"
+    }
+  ],
+  "revision_log": [],
+  "status": [
+    {
+      "value": true
+    }
+  ],
+  "uid": [
+    {
+      "target_id": 1,
+      "target_type": "user",
+      "target_uuid": "f77beca6-3b12-4f61-ae83-947bd848b28a",
+      "url": "/user/1"
+    }
+  ],
+  "title": [
+    {
+      "value": "Grey and White Tabby Kitten"
+    }
+  ],
+  "created": [
+    {
+      "value": "2019-06-04T14:46:17+00:00",
+      "format": "Y-m-d\\TH:i:sP"
+    }
+  ],
+  "changed": [
+    {
+      "value": "2019-06-05T04:05:52+00:00",
+      "format": "Y-m-d\\TH:i:sP"
+    }
+  ],
+  "promote": [
+    {
+      "value": true
+    }
+  ],
+  "sticky": [
+    {
+      "value": false
+    }
+  ],
+  "default_langcode": [
+    {
+      "value": true
+    }
+  ],
+  "revision_translation_affected": [
+    {
+      "value": true
+    }
+  ],
+  "content_translation_source": [
+    {
+      "value": "und"
+    }
+  ],
+  "content_translation_outdated": [
+    {
+      "value": false
+    }
+  ],
+  "field_alternative_title": [],
+  "field_classification": [],
+  "field_coordinates": [],
+  "field_coordinates_text": [],
+  "field_description": [
+    {
+      "value": "A worried-looking kitten. "
+    }
+  ],
+  "field_dewey_classification": [],
+  "field_display_hints": [
+    {
+      "target_id": 1,
+      "target_type": "taxonomy_term",
+      "target_uuid": "7638c297-e3c3-46c5-ad5d-fb56ee2d915b",
+      "url": "/taxonomy/term/1"
+    }
+  ],
+  "field_edition": [],
+  "field_edtf_date": [],
+  "field_edtf_date_created": [
+    {
+      "value": "2019-04-19"
+    }
+  ],
+  "field_edtf_date_issued": [],
+  "field_extent": [
+    {
+      "value": "1 item"
+    }
+  ],
+  "field_genre": [],
+  "field_geographic_subject": [],
+  "field_identifier": [],
+  "field_isbn": [],
+  "field_language": [],
+  "field_lcc_classification": [],
+  "field_linked_agent": [],
+  "field_local_identifier": [],
+  "field_member_of": [
+    {
+      "target_id": 7,
+      "target_type": "node",
+      "target_uuid": "c0bdeca7-7ecc-4745-9e62-224d889d6b74",
+      "url": "/node/7"
+    }
+  ],
+  "field_model": [
+    {
+      "target_id": 24,
+      "target_type": "taxonomy_term",
+      "target_uuid": "d1d40b4e-b608-4604-a4a4-e4fec9e88c38",
+      "url": "/taxonomy/term/24"
+    }
+  ],
+  "field_note": [],
+  "field_oclc_number": [],
+  "field_physical_form": [],
+  "field_pid": [],
+  "field_place_published": [],
+  "field_resource_type": [
+    {
+      "target_id": 5,
+      "target_type": "taxonomy_term",
+      "target_uuid": "c785e833-f0f9-489a-b024-a5e7c9258826",
+      "url": "/taxonomy/term/5"
+    }
+  ],
+  "field_rights": [],
+  "field_subject": [
+    {
+      "target_id": 27,
+      "target_type": "taxonomy_term",
+      "target_uuid": "6f645854-a0ec-4690-a7da-70f7df7bf195",
+      "url": "/cats"
+    }
+  ],
+  "field_subjects_name": [],
+  "field_table_of_contents": [],
+  "field_temporal_subject": [],
+  "field_weight": []
+}

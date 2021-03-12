@@ -7,6 +7,7 @@ use Islandora\Milliner\Service\MillinerServiceInterface;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use GuzzleHttp\Psr7\Response;
@@ -19,6 +20,8 @@ use PHPUnit\Framework\TestCase;
  */
 class MillinerControllerTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @var LoggerInterface
      */
@@ -48,24 +51,22 @@ class MillinerControllerTest extends TestCase
         $milliner = $this->prophesize(MillinerServiceInterface::class);
         $milliner->saveNode(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
-        $milliner->getFileFromMedia(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveMedia(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
-        $milliner->saveMedia(Argument::any(), Argument::any(), Argument::any())
-            ->willThrow(new \Exception("Forbidden", 403));
-        $milliner->deleteNode(Argument::any(), Argument::any())
+        $milliner->deleteNode(Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner->saveExternal(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
-        $milliner->getGeminiUrls(Argument::any(), Argument::any())
+        $milliner->createVersion(Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
-        $milliner->createVersion(Argument::any(), Argument::any())
+        $milliner->createMediaVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willThrow(new \Exception("Forbidden", 403));
         $milliner = $milliner->reveal();
 
         $controller = new MillinerController($milliner, $this->logger);
 
         // Route parameters.
-        $uuid = 'abc123';
+        $uuid = '630e0c1d-1a38-4e3b-84f9-68d519bdc026';
         $source_field = 'field_image';
 
         // Nodes.
@@ -189,7 +190,7 @@ class MillinerControllerTest extends TestCase
         $milliner = $this->prophesize(MillinerServiceInterface::class)->reveal();
         $controller = new MillinerController($milliner, $this->logger);
 
-        $uuid = "abc123";
+        $uuid = '630e0c1d-1a38-4e3b-84f9-68d519bdc026';
         $request = Request::create(
             "http://localhost:8000/milliner/node/$uuid",
             "POST",
@@ -246,7 +247,7 @@ class MillinerControllerTest extends TestCase
         $milliner = $this->prophesize(MillinerServiceInterface::class)->reveal();
         $controller = new MillinerController($milliner, $this->logger);
 
-        $uuid = "abc123";
+        $uuid = '630e0c1d-1a38-4e3b-84f9-68d519bdc026';
         $request = Request::create(
             "http://localhost:8000/milliner/external/$uuid",
             "POST",
@@ -279,7 +280,7 @@ class MillinerControllerTest extends TestCase
         $controller = new MillinerController($milliner, $this->logger);
 
         // Nodes.
-        $uuid = "abc123";
+        $uuid = '630e0c1d-1a38-4e3b-84f9-68d519bdc026';
         $request = Request::create(
             "http://localhost:8000/milliner/node/$uuid",
             "POST",
@@ -332,7 +333,7 @@ class MillinerControllerTest extends TestCase
     public function testSaveMediaReturnsSuccessOnSuccess()
     {
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveMedia(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveMedia(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(201));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
@@ -346,6 +347,7 @@ class MillinerControllerTest extends TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/media/6?_format=json',
             ]
         );
@@ -357,7 +359,7 @@ class MillinerControllerTest extends TestCase
         );
 
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->saveMedia(Argument::any(), Argument::any(), Argument::any())
+        $milliner->saveMedia(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(204));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
@@ -370,6 +372,7 @@ class MillinerControllerTest extends TestCase
             [],
             [
                 'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'X-Islandora-Fedora-Endpoint' => 'http://localhost:8080/fcrepo/rest/',
                 'HTTP_CONTENT_LOCATION' => 'http://localhost:8000/media/6?_format=json',
             ]
         );
@@ -394,7 +397,7 @@ class MillinerControllerTest extends TestCase
         $controller = new MillinerController($milliner, $this->logger);
 
         // Nodes.
-        $uuid = "abc123";
+        $uuid = '630e0c1d-1a38-4e3b-84f9-68d519bdc026';
         $request = Request::create(
             "http://localhost:8000/milliner/external/$uuid",
             "POST",
@@ -447,12 +450,12 @@ class MillinerControllerTest extends TestCase
     public function testDeleteReturnsSuccessOnSuccess()
     {
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->deleteNode(Argument::any(), Argument::any())
+        $milliner->deleteNode(Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(204));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
 
-        $uuid = "abc123";
+        $uuid = '630e0c1d-1a38-4e3b-84f9-68d519bdc026';
         $request = Request::create(
             "http://localhost:8000/milliner/resource/$uuid",
             "DELETE",
@@ -477,15 +480,13 @@ class MillinerControllerTest extends TestCase
     public function testCreateNodeVersionReturnsSuccessOnSuccess()
     {
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->getGeminiUrls(Argument::any(), Argument::any())
-            ->willReturn(['fedora' => "http://example.org/fcrepo/abc123", "drupal" => "http://example.org/node/1"]);
         $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(201));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
 
         // Nodes.
-        $uuid = "abc123";
+        $uuid = '630e0c1d-1a38-4e3b-84f9-68d519bdc026';
         $request = Request::create(
             "http://localhost:8000/milliner/node/$uuid/version",
             "POST",
@@ -505,8 +506,6 @@ class MillinerControllerTest extends TestCase
         );
 
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->getGeminiUrls(Argument::any(), Argument::any())
-            ->willReturn(['fedora' => "http://example.org/fcrepo/abc123", "drupal" => "http://example.org/node/1"]);
         $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(204));
         $milliner = $milliner->reveal();
@@ -538,15 +537,13 @@ class MillinerControllerTest extends TestCase
     public function testCreateMediaVersionReturnsSuccessOnSuccess()
     {
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+        $milliner->createMediaVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(201));
-        $milliner->getFileFromMedia(Argument::any(), Argument::any(), Argument::any())
-            ->willReturn(array('fedora'=>'', 'drupal'=>'', 'jsonld'=>''));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
 
         // Nodes.
-        $uuid = "abc123";
+        $uuid = '630e0c1d-1a38-4e3b-84f9-68d519bdc026';
         $source_field = 'field_image';
         $request = Request::create(
             "http://localhost:8000/milliner/media/$source_field/version",
@@ -567,10 +564,8 @@ class MillinerControllerTest extends TestCase
         );
 
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+        $milliner->createMediaVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(204));
-        $milliner->getFileFromMedia(Argument::any(), Argument::any(), Argument::any())
-            ->willReturn(array('fedora'=>'', 'drupal'=>'', 'jsonld'=>''));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
 

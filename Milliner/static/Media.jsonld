@@ -1,7 +1,7 @@
 {
   "@graph":[
     {
-      "@id":"http:\/\/localhost:8000\/media\/6?_format=jsonld",
+      "@id":"http:\/\/localhost:8000\/media\/6",
       "@type":[
         "http:\/\/pcdm.org\/use#ServiceFile"
       ],

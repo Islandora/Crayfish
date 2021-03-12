@@ -4,9 +4,9 @@ require_once __DIR__.'/../vendor/autoload.php';
 
 use GuzzleHttp\Client;
 use Islandora\Chullo\FedoraApi;
+use Islandora\Crayfish\Commons\EntityMapper\EntityMapper;
 use Islandora\Crayfish\Commons\Provider\IslandoraServiceProvider;
 use Islandora\Crayfish\Commons\Provider\YamlConfigServiceProvider;
-use Islandora\Crayfish\Commons\Client\GeminiClient;
 use Islandora\Milliner\Controller\MillinerController;
 use Islandora\Milliner\Service\MillinerService;
 use Pimple\Exception\UnknownIdentifierException;
@@ -29,17 +29,24 @@ $app['milliner.controller'] = function () use ($app) {
         $strip_format_jsonld = false;
     }
 
+    try {
+        $fedora6 = filter_var(
+            $app['crayfish.fedora6'],
+            FILTER_VALIDATE_BOOLEAN
+        );
+    } catch (UnknownIdentifierException $e) {
+        $fedora6 = false;
+    }
+
     return new MillinerController(
         new MillinerService(
             FedoraApi::create($app['crayfish.fedora_base_url']),
             new Client(),
-            GeminiClient::create(
-                $app['crayfish.gemini_base_url'],
-                $app['monolog']
-            ),
+            new EntityMapper(),
             $app['monolog'],
             $app['crayfish.modified_date_predicate'],
-            $strip_format_jsonld
+            $strip_format_jsonld,
+            $fedora6
         ),
         $app['monolog']
     );

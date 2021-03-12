@@ -4,21 +4,12 @@ fedora_base_url: http://localhost:8080/fcrepo/rest
 # if drupal_base_url contains a path, be sure to include trailing slash
 # or relative paths will not resolve correctly.
 drupal_base_url: http://localhost:8000
-gemini_base_url: http://localhost:8000/gemini
 
 modified_date_predicate: http://schema.org/dateModified
 
 strip_format_jsonld: true 
 
 debug: false
-
-db.options:
-  driver: pdo_mysql
-  host: 127.0.0.1
-  port: 3306
-  dbname: gemini
-  user: changeme
-  password: changeme
 
 log:
   # Valid log levels are:

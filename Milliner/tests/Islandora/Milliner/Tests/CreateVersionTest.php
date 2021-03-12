@@ -7,12 +7,13 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\RequestException;
 use Islandora\Chullo\IFedoraApi;
-use Islandora\Crayfish\Commons\Client\GeminiClient;
+use Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface;
 use Islandora\Milliner\Service\MillinerService;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 
 /**
  * Class MillinerServiceTest
@@ -21,6 +22,8 @@ use Prophecy\Argument;
  */
 class CreateVersionTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @var LoggerInterface
      */
@@ -30,6 +33,26 @@ class CreateVersionTest extends TestCase
      * @var string
      */
     protected $modifiedDatePredicate;
+
+    /**
+     * @var string
+     */
+    protected $uuid;
+
+    /**
+     * @var string
+     */
+    protected $fedoraBaseUrl;
+
+    /**
+     * @var Islandora\Crayfish\Commons\EntityMapper\EntityMapper
+     */
+    protected $mapper;
+
+    /**
+     * @var Islandora\Crayfish\Commons\EntityMapper\EntityMapper
+     */
+    protected $drupal;
 
     /**
      * {@inheritdoc}
@@ -42,6 +65,17 @@ class CreateVersionTest extends TestCase
         $this->logger->pushHandler(new NullHandler());
 
         $this->modifiedDatePredicate = "http://schema.org/dateModified";
+
+        $this->uuid = '9541c0c1-5bee-4973-a9d0-e55c1658bc8';
+        $this->fedoraBaseUrl = 'http://localhost:8080/fcrepo/rest';
+
+        $this->mapper = $this->prophesize(EntityMapperInterface::class);
+        $this->mapper->getFedoraPath($this->uuid)
+            ->willReturn("{$this->fedoraBaseUrl}/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8");
+        $this->mapper = $this->mapper->reveal();
+
+        $this->drupal = $this->prophesize(Client::class);
+        $this->drupal = $this->drupal->reveal();
     }
 
 
@@ -51,27 +85,6 @@ class CreateVersionTest extends TestCase
      */
     public function testCreateVersionReturnsFedora201()
     {
-        $mapping = [
-            'drupal' => '"http://localhost:8000/node/1?_format=jsonld"',
-            'fedora' => 'http://localhost:8080/fcrepo/rest/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8'
-        ];
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn($mapping);
-        $gemini->saveUrls(Argument::any(), Argument::any(), Argument::any(), Argument::any())
-            ->willReturn(true);
-        $gemini = $gemini->reveal();
-
-        $drupal_response = new Response(
-            200,
-            ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/Content.jsonld')
-        );
-        $drupal = $this->prophesize(Client::class);
-        $drupal->get(Argument::any(), Argument::any())
-            ->willReturn($drupal_response);
-        $drupal = $drupal->reveal();
-
         $fedora_response = new Response(201);
         $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
@@ -80,15 +93,17 @@ class CreateVersionTest extends TestCase
 
         $milliner = new MillinerService(
             $fedora,
-            $drupal,
-            $gemini,
+            $this->drupal,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
         $response = $milliner->createVersion(
-            $mapping['fedora'],
+            $this->uuid,
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
 
@@ -106,27 +121,6 @@ class CreateVersionTest extends TestCase
 
     public function testCreateVersionReturnsFedora404()
     {
-        $mapping = [
-            'drupal' => '"http://localhost:8000/node/1?_format=jsonld"',
-            'fedora' => 'http://localhost:8080/fcrepo/rest/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-9998'
-        ];
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn($mapping);
-        $gemini->saveUrls(Argument::any(), Argument::any(), Argument::any(), Argument::any())
-            ->willReturn(true);
-        $gemini = $gemini->reveal();
-
-        $drupal_response = new Response(
-            200,
-            ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/Content.jsonld')
-        );
-        $drupal = $this->prophesize(Client::class);
-        $drupal->get(Argument::any(), Argument::any())
-            ->willReturn($drupal_response);
-        $drupal = $drupal->reveal();
-
         $fedora_response = new Response(404);
         $fedora = $this->prophesize(IFedoraApi::class);
         $fedora->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
@@ -137,15 +131,17 @@ class CreateVersionTest extends TestCase
 
         $milliner = new MillinerService(
             $fedora,
-            $drupal,
-            $gemini,
+            $this->drupal,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
         $response = $milliner->createVersion(
-            $mapping['fedora'],
+            $this->uuid,
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
 
@@ -163,25 +159,6 @@ class CreateVersionTest extends TestCase
      */
     public function testcreateVersionThrowsOnFedoraSaveError()
     {
-        $mapping = [
-            'drupal' => '"http://localhost:8000/node/1?_format=jsonld"',
-            'fedora' => 'http://localhost:8080/fcrepo/rest/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8'
-        ];
-        $gemini = $this->prophesize(GeminiClient::class);
-        $gemini->getUrls(Argument::any(), Argument::any())
-            ->willReturn($mapping);
-        $gemini = $gemini->reveal();
-
-        $drupal_response = new Response(
-            200,
-            ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/../../../../static/Content.jsonld')
-        );
-        $drupal = $this->prophesize(Client::class);
-        $drupal->get(Argument::any(), Argument::any())
-            ->willReturn($drupal_response);
-        $drupal = $drupal->reveal();
-
         $fedora_get_response = new Response(
             200,
             ['Content-Type' => 'application/ld+json'],
@@ -197,15 +174,17 @@ class CreateVersionTest extends TestCase
 
         $milliner = new MillinerService(
             $fedora,
-            $drupal,
-            $gemini,
+            $this->drupal,
+            $this->mapper,
             $this->logger,
             $this->modifiedDatePredicate,
+            false,
             false
         );
 
         $response = $milliner->createVersion(
-            $mapping['fedora'],
+            $this->uuid,
+            $this->fedoraBaseUrl,
             "Bearer islandora"
         );
 
