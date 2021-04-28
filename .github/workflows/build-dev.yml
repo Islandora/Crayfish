@@ -58,6 +58,7 @@ jobs:
 
       - name: composer install
         run: |
+          cd $GITHUB_WORKSPACE
           for D in */; do (cd $D; composer install) done
 
       - name: line endings
