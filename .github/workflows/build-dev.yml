@@ -59,14 +59,16 @@ jobs:
       - name: composer install
         run: |
           cd $GITHUB_WORKSPACE/build_dir
-          ls -alh
           for D in */; do (cd $D; composer install) done
 
       - name: line endings
         run: $SCRIPT_DIR/line_endings.sh $GITHUB_WORKSPACE
 
       - name: test scripts
-        run: .scripts/tester
+        run: |
+          cd $GITHUB_WORKSPACE/build_dir
+          .scripts/tester
+
 
           #- name: Setup composer paths
           #run: |
