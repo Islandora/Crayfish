@@ -3,7 +3,7 @@
     "description": "FFmpeg as a web service",
     "type": "project",
     "require": {
-        "islandora/crayfish-commons": "dev-dev",
+        "islandora/crayfish-commons": "2.0.0",
         "php": "^7.3 || ^7.4"
     },
     "minimum-stability": "dev",
