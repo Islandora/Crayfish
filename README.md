@@ -23,7 +23,6 @@ Many microservices have extra installation requirements.  Please see the README 
 
 Crayfish contains the following services
 
-* [Gemini](./Gemini): A path mapping micro service to align resources in Drupal and Fedora.
 * [Homarus](./Homarus): FFmpeg as a microservice.
 * [Houdini](./Houdini): ImageMagick as a microservice.
 * [Hypercube](./Hypercube): Tesseract as a microservice.
