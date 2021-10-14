@@ -43,7 +43,8 @@ class MillinerControllerTest extends TestCase
      * @covers ::saveNode
      * @covers ::saveMedia
      * @covers ::deleteNode
-     * @covers ::createVersion
+     * @covers ::createNodeVersion
+     * @covers ::createMediaVersion
      */
     public function testMethodsReturnMillinerErrors()
     {

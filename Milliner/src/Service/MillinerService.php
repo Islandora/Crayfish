@@ -93,7 +93,7 @@ class MillinerService implements MillinerServiceInterface
         $fedora_url  = "$islandora_fedora_endpoint/$path";
 
         $response = $this->fedora->getResourceHeaders($fedora_url);
-        if ($response->getStatusCode() == "404") {
+        if ($response->getStatusCode() == 404) {
             $this->log->debug("GOT A 404");
             return $this->createNode(
                 $jsonld_url,
@@ -324,7 +324,7 @@ class MillinerService implements MillinerServiceInterface
         // Put in an fedora url for the resource.
         $resource[0]['@id'] = $fedora_url;
 
-    
+
         $this->log->debug("AFTER: " . json_encode($resource));
         return $resource;
     }
@@ -481,6 +481,9 @@ class MillinerService implements MillinerServiceInterface
             );
         }
         $mimetype = $drupal_response->getHeader('Content-Type')[0];
+        if (preg_match("/^([^;]+);/", $mimetype, $matches)) {
+            $mimetype = $matches[1];
+        }
 
         // Save it in Fedora as external content.
         $external_rel = "http://fedora.info/definitions/fcrepo#ExternalContent";
@@ -556,6 +559,7 @@ class MillinerService implements MillinerServiceInterface
         $urls = $this->getMediaUrls($source_field, $json_url, $islandora_fedora_endpoint, $token);
         $fedora_url = $urls['fedora'];
 
+        $headers = empty($token) ? [] : ['Authorization' => $token];
         $date = new DateTime();
         $timestamp = $date->format("D, d M Y H:i:s O");
         // create version in Fedora.
