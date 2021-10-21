@@ -4,7 +4,7 @@ If you are reading this document then you are interested in contributing to Isla
 
 ## Workflows
 
-The Islandora 8 Tech Call meets each Wednesday at 1:00 PM Eastern, and the Islandora 8 User Call meets every second Thursday at 1:00 PM Eastern. Meeting notes and announcements are posted to the [Islandora community list](https://groups.google.com/forum/#!forum/islandora) and the [Islandora developers list](https://groups.google.com/forum/#!forum/islandora-dev). You can view meeting agendas, notes, and call-in information [here](https://github.com/Islandora/documentation/wiki#islandora-8-tech-calls). Anybody is welcome to join the calls, and add items to the agenda.
+The Islandora Tech Call meets each Wednesday at 1:00 PM Eastern, and the Islandora 8 User Call meets every second Thursday at 1:00 PM Eastern. Meeting notes and announcements are posted to the [Islandora community list](https://groups.google.com/forum/#!forum/islandora) and the [Islandora developers list](https://groups.google.com/forum/#!forum/islandora-dev). You can view meeting agendas, notes, and call-in information [here](https://github.com/Islandora/documentation/wiki#islandora-8-tech-calls). Anybody is welcome to join the calls, and add items to the agenda.
 
 ### Use cases
 
@@ -58,7 +58,7 @@ Contributions to the Islandora codebase should be sent as GitHub pull requests. 
 
 Take a look at [Creating a pull request](https://help.github.com/articles/creating-a-pull-request). In a nutshell you need to:
 
-1. [Fork](https://help.github.com/articles/fork-a-repo) this repository to your personal or institutional GitHub account (depending on the CLA you are working under). Be cautious of which branches you work from though (you'll want to base your work off main, or for Drupal modules use the most recent version branch). See [Fork a repo](https://help.github.com/articles/fork-a-repo) for detailed instructions.
+1. [Fork](https://help.github.com/articles/fork-a-repo) this repository to your personal or institutional GitHub account (depending on the CLA you are working under). Be cautious of which branches you work from though (you'll want to base your work off the default branch). See [Fork a repo](https://help.github.com/articles/fork-a-repo) for detailed instructions.
 2. Commit any changes to your fork.
 3. Send a [pull request](https://help.github.com/articles/creating-a-pull-request) using the [pull request template](https://github.com/Islandora/documentation/blob/main/.github/PULL_REQUEST_TEMPLATE.md) to the Islandora GitHub repository that you forked in step 1.  If your pull request is related to an existing issue -- for instance, because you reported a [bug/issue](https://github.com/Islandora/documentation/issues) earlier -- prefix the title of your pull request with the corresponding issue number (e.g. `issue-123: ...`). Please also include a reference to the issue in the description of the pull. This can be done by using '#' plus the issue number like so '#123', also try to pick an appropriate name for the branch in which you're issuing the pull request from.
 
