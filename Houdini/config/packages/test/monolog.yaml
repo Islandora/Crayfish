@@ -5,3 +5,8 @@ monolog:
             path: "%kernel.logs_dir%/%kernel.environment%.log"
             level: debug
             channels: ["!event"]
+        houdini:
+          type: rotating_file
+          path: /tmp/Houdini.log
+          level: INFO
+          max_files: 1

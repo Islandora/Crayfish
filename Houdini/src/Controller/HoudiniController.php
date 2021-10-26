@@ -18,7 +18,7 @@ class HoudiniController
 {
 
     /**
-     * @var App\Islandora\Crayfish\Commons\CmdExecuteService
+     * @var \Islandora\Crayfish\Commons\CmdExecuteService
      */
     protected $cmd;
 
@@ -52,9 +52,9 @@ class HoudiniController
      */
     public function __construct(
         CmdExecuteService $cmd,
-        $formats,
-        $default_format,
-        $executable,
+        array $formats,
+        string $default_format,
+        string $executable,
         LoggerInterface $log
     ) {
         $this->cmd = $cmd;
@@ -67,7 +67,7 @@ class HoudiniController
     /**
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
-    public function convertOptions()
+    public function convertOptions(): BinaryFileResponse
     {
         return new BinaryFileResponse(
             __DIR__ . "/../../public/static/convert.ttl",

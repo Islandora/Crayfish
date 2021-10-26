@@ -4,13 +4,27 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    app.executable: /usr/local/bin/convert
+    app.executable: ffmpeg
     app.formats.valid:
-        - image/jpeg
-        - image/png
-        - image/tiff
-        - image/jp2
-    app.formats.default: image/jpeg
+        - mimetype: video/mp4
+          format: mp4
+        - mimetype: video/x-msvideo
+          format: avi
+        - mimetype: video/ogg
+          format: ogg
+        - mimetype: audio/x-wav
+          format: wav
+        - mimetype: audio/mpeg
+          format: mp3
+        - mimetype: audio/aac
+          format: m4a
+        - mimetype: image/jpeg
+          format: image2pipe
+        - mimetype: image/png
+          format: image2pipe
+    app.formats.defaults:
+        mimetype: video/mp4
+        format: mp4
 
 services:
     # default configuration for services in *this* file
@@ -20,8 +34,8 @@ services:
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
-    App\Islandora\Houdini\:
-        resource: '../src/'
+    App\Islandora\Homarus\:
+        resource: '../src/*'
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
@@ -30,13 +44,10 @@ services:
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
-    App\Islandora\Houdini\Controller\HoudiniController:
+    App\Islandora\Homarus\Controller\HomarusController:
         public: false
         bind:
             $formats: '%app.formats.valid%'
-            $default_format: '%app.formats.default%'
+            $defaults: '%app.formats.defaults%'
             $executable: '%app.executable%'
         tags: ['controller.service_arguments']
-
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones

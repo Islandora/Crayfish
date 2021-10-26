@@ -6,6 +6,7 @@ use Islandora\Crayfish\Commons\CmdExecuteService;
 use App\Islandora\Houdini\Controller\HoudiniController;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +17,8 @@ use Monolog\Logger;
  */
 class HoudiniControllerTest extends TestCase
 {
+
+    use ProphecyTrait;
 
     /**
      * @covers ::__construct

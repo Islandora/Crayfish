@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Islandora\Houdini;
+namespace App\Islandora\Homarus;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
