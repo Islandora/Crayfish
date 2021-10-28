@@ -10,3 +10,8 @@ monolog:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.log"
             level: debug
+        hypercube:
+            type: rotating_file
+            path: /tmp/Hypercube.log
+            level: DEBUG
+            max_files: 1

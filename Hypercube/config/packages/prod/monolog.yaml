@@ -15,3 +15,8 @@ monolog:
             type: console
             process_psr_3_messages: false
             channels: ["!event", "!doctrine"]
+        hypercube:
+            type: rotating_file
+            path: /tmp/Hypercube.log
+            level: INFO
+            max_files: 1
