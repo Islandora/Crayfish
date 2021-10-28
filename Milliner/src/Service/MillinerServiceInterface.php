@@ -1,108 +1,132 @@
 <?php
 
-namespace Islandora\Milliner\Service;
+namespace App\Islandora\Milliner\Service;
+
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Interface MillinerServiceInterface
- * @package Islandora\Milliner\Service
+ * @package App\Islandora\Milliner\Service
  */
 interface MillinerServiceInterface
 {
     /**
-     * @param $uuid
-     * @param $jsonld_url
-     * @param $islandora_fedora_endpoint
-     * @param $token
+     * @param string $uuid
+     *   UUID of the Drupal resource.
+     * @param string $jsonld_url
+     *   URL of the Drupal resource in JSON-LD format.
+     * @param string $islandora_fedora_endpoint
+     *   Base URL of Fedora.
+     * @param string|null $token
+     *   The authorization token or null if no auth.
      *
      * @throws \Exception
      *
-     * @return \GuzzleHttp\Psr7\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function saveNode(
-        $uuid,
-        $jsonld_url,
-        $islandora_fedora_endpoint,
-        $token = null
-    );
+        string $uuid,
+        string $jsonld_url,
+        string $islandora_fedora_endpoint,
+        string $token = null
+    ): ResponseInterface;
 
     /**
-     * @param $source_field
-     * @param $json_url
-     * @param $islandora_fedora_endpoint
-     * @param $token
+     * @param string $source_field
+     *   The source field of the media being saved.
+     * @param string $json_url
+     *   The URL to the Drupal media resource in JSON format.
+     * @param string $islandora_fedora_endpoint
+     *   The Fedora base URL.
+     * @param string|null $token
+     *   The authorization token or null if no auth.
      *
      * @throws \Exception
      *
-     * @return \GuzzleHttp\Psr7\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function saveMedia(
-        $source_field,
-        $json_url,
-        $islandora_fedora_endpoint,
-        $token = null
-    );
+        string $source_field,
+        string $json_url,
+        string $islandora_fedora_endpoint,
+        string $token = null
+    ): ResponseInterface;
 
     /**
-     * @param $uuid
-     * @param $islandora_fedora_endpoint
-     * @param $token
+     * @param string $uuid
+     *   The UUID of the Drupal resource to delete from Fedora.
+     * @param string $islandora_fedora_endpoint
+     *   The Fedora base URL.
+     * @param string|null $token
+     *   The authorization token or null if no auth.
      *
      * @throws \Exception
      *
-     * @return \GuzzleHttp\Psr7\Response|null
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function deleteNode(
-        $uuid,
-        $islandora_fedora_endpoint,
-        $token = null
-    );
+        string $uuid,
+        string $islandora_fedora_endpoint,
+        string $token = null
+    ): ResponseInterface;
 
     /**
-     * @param $uuid
-     * @param $external_url
-     * @param $islandora_fedora_endpoint
-     * @param $token
+     * @param string $uuid
+     *   The UUID of the Drupal resource to save.
+     * @param string $external_url
+     *   The external URL Fedora will redirect to.
+     * @param string $islandora_fedora_endpoint
+     *   The Fedora base URL.
+     * @param string|null $token
+     *   The authorization token or null if no auth.
      *
      * @throws \Exception
      *
-     * @return \GuzzleHttp\Psr7\Response|null
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function saveExternal(
-        $uuid,
-        $external_url,
-        $islandora_fedora_endpoint,
-        $token = null
-    );
+        string $uuid,
+        string $external_url,
+        string $islandora_fedora_endpoint,
+        string $token = null
+    ): ResponseInterface;
 
     /**
-     * @param $uuid
-     * @param $islandora_fedora_endpoint
-     * @param $token
+     * @param string $uuid
+     *   The UUID of the Drupal resource to create a version of.
+     * @param string $islandora_fedora_endpoint
+     *   The Fedora base URL.
+     * @param string|null $token
+     *   The authorization token or null if no auth.
      *
      * @throws \Exception
      *
-     * @return \GuzzleHttp\Psr7\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function createVersion(
-        $uuid,
-        $islandora_fedora_endpoint,
-        $token = null
-    );
+        string $uuid,
+        string $islandora_fedora_endpoint,
+        string $token = null
+    ): ResponseInterface;
 
     /**
-     * @param $source_field
-     * @param $json_url
-     * @param $islandora_fedora_endpoint
-     * @param $token
+     * @param string $source_field
+     *   The source field of the media to create a version of.
+     * @param string $json_url
+     *   The URL to the Drupal media resource in JSON format.
+     * @param string $islandora_fedora_endpoint
+     *   The Fedora base URL.
+     * @param string|null $token
+     *   The authorization token or null if no auth.
      *
      * @throws \Exception
      *
-     * @return array
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function createMediaVersion(
-        $source_field,
-        $json_url,
-        $islandora_fedora_endpoint,
-        $token = null
-    );
+        string $source_field,
+        string $json_url,
+        string $islandora_fedora_endpoint,
+        string $token = null
+    ): ResponseInterface;
 }

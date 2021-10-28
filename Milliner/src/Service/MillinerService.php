@@ -1,74 +1,98 @@
 <?php
 
-namespace Islandora\Milliner\Service;
+namespace App\Islandora\Milliner\Service;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Psr7;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Psr7\Header;
 use GuzzleHttp\Psr7\Response;
 use Islandora\Chullo\IFedoraApi;
 use Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use \DateTime;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Class MillinerService
- * @package Islandora\Milliner\Service */
+ * @package App\Islandora\Milliner\Service
+ */
 class MillinerService implements MillinerServiceInterface
 {
     /**
+     * Configured Chullo client for Fedora.
      * @var \Islandora\Chullo\IFedoraApi
      */
     protected $fedora;
 
     /**
+     * A Guzzle client for working with Drupal.
      * @var \GuzzleHttp\Client
      */
     protected $drupal;
 
     /**
+     * Entity path mapper instance.
      * @var \Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface
      */
     protected $mapper;
 
     /**
+     * Logger instance.
      * @var \Psr\Log\LoggerInterface
      */
     protected $log;
 
     /**
+     * The modified date predicate to use for comparing last altered datetimes.
      * @var string
      */
     protected $modifiedDatePredicate;
 
     /**
-     * @var string
+     * Whether to remove the ?_format=jsonld from URLs being indexed.
+     * @var bool
      */
     protected $stripFormatJsonld;
 
     /**
+     * Whether the Fedora we are pointing at is Fedora 6.
      * @var bool
      */
-    protected $fedora6;
+    protected $isFedora6;
 
     /**
      * MillinerService constructor.
      *
      * @param \Islandora\Chullo\IFedoraApi $fedora
-     * @param \GuzzleHttp\Client
-     * @param \Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface
+     *   Fedora client.
+     * @param \GuzzleHttp\Client $drupal
+     *   Http client for Drupal.
+     * @param \Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface $mapper
+     *   Entity mapper.
      * @param \Psr\Log\LoggerInterface $log
+     *   Logger
      * @param string $modifiedDatePredicate
-     * @param string $stripFormatJsonld
+     *   The modified date predicate to use for comparing last altered datetimes.
+     * @param bool $stripFormatJsonld
+     *   Whether to remove the ?_format=jsonld from URLs being indexed.
+     * @param bool $isFedora6
+     *   Whether the Fedora we are pointing at is Fedora 6.
      */
     public function __construct(
         IFedoraApi $fedora,
         Client $drupal,
         EntityMapperInterface $mapper,
         LoggerInterface $log,
-        $modifiedDatePredicate,
-        $stripFormatJsonld,
-        $fedora6
+        string $modifiedDatePredicate,
+        bool $stripFormatJsonld,
+        bool $isFedora6
     ) {
         $this->fedora = $fedora;
         $this->drupal = $drupal;
@@ -76,18 +100,18 @@ class MillinerService implements MillinerServiceInterface
         $this->log = $log;
         $this->modifiedDatePredicate = $modifiedDatePredicate;
         $this->stripFormatJsonld = $stripFormatJsonld;
-        $this->fedora6 = $fedora6;
+        $this->isFedora6 = $isFedora6;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function saveNode(
-        $uuid,
-        $jsonld_url,
-        $islandora_fedora_endpoint,
-        $token = null
-    ) {
+        string $uuid,
+        string $jsonld_url,
+        string $islandora_fedora_endpoint,
+        string $token = null
+    ): ResponseInterface {
         $path = $this->mapper->getFedoraPath($uuid);
         $islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
         $fedora_url  = "$islandora_fedora_endpoint/$path";
@@ -115,17 +139,17 @@ class MillinerService implements MillinerServiceInterface
      *
      * @param string $jsonld_url
      * @param string $fedora_url
-     * @param string $token
+     * @param string|null $token
      *
-     * @return \GuzzleHttp\Psr7\Response
+     * @return \Psr\Http\Message\ResponseInterface
      *
      * @throws \RuntimeException
      * @throws \GuzzleHttp\Exception\RequestException
      */
     protected function createNode(
-        $jsonld_url,
-        $fedora_url,
-        $token = null
+        string $jsonld_url,
+        string $fedora_url,
+        string $token = null
     ) {
         // Get the jsonld from Drupal.
         $headers = empty($token) ? [] : ['Authorization' => $token];
@@ -179,20 +203,20 @@ class MillinerService implements MillinerServiceInterface
      * @param string $fedora_url
      * @param string $token
      *
-     * @return \GuzzleHttp\Psr7\Response
+     * @return \Psr\Http\Message\ResponseInterface
      *
      * @throws \RuntimeException
      * @throws \GuzzleHttp\Exception\RequestException
      */
     protected function updateNode(
-        $jsonld_url,
-        $fedora_url,
-        $token = null
+        string $jsonld_url,
+        string $fedora_url,
+        string $token = null
     ) {
         // Get the RDF from Fedora.
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $headers['Accept'] = 'application/ld+json';
-        if ($this->fedora6) {
+        if ($this->isFedora6) {
             $prefer = 'return=representation; omit="http://fedora.info/definitions/v4/repository#ServerManaged"';
             $headers['Prefer'] = $prefer;
         }
@@ -271,7 +295,7 @@ class MillinerService implements MillinerServiceInterface
         // Conditionally save it in Fedora.
         $headers['Content-Type'] = 'application/ld+json';
         $headers['Prefer'] = 'handling=lenient';
-        if (!$this->fedora6) {
+        if (!$this->isFedora6) {
               $headers['Prefer'] .= ';received=minimal';
         }
         $headers['X-If-State-Match'] = $state_token;
@@ -392,7 +416,7 @@ class MillinerService implements MillinerServiceInterface
         $json_url,
         $islandora_fedora_endpoint,
         $token = null
-    ) {
+    ): ResponseInterface {
         $urls = $this->getMediaUrls($source_field, $json_url, $islandora_fedora_endpoint, $token);
         return $this->updateNode(
             $urls['jsonld'],
@@ -404,17 +428,22 @@ class MillinerService implements MillinerServiceInterface
     /**
      * Gets a Link header with the supplied rel name.
      *
-     * @param $response
-     * @param $rel_name
+     * @param ResponseInterface $response
+     *   The response to get headers from.
+     * @param string $rel_name
+     *   The rel property to match.
+     * @param string|null $type
+     *   A type to match if provided.
      *
      * @return null|string
+     *   The first matching header or null if none match.
      */
-    protected function getLinkHeader($response, $rel_name, $type = null)
+    protected function getLinkHeader(ResponseInterface $response, string $rel_name, string $type = null): ?string
     {
-        $parsed = Psr7\parse_header($response->getHeader("Link"));
+        $parsed = Header::parse($response->getHeader("Link"));
         foreach ($parsed as $header) {
             $has_relation = isset($header['rel']) && $header['rel'] == $rel_name;
-            $has_type = $type ? isset($header['type']) && $header['type'] == $type : true;
+            $has_type = is_null($type) || isset($header['type']) && $header['type'] == $type;
             if ($has_type && $has_relation) {
                 return trim($header[0], '<>');
             }
@@ -429,7 +458,7 @@ class MillinerService implements MillinerServiceInterface
         $uuid,
         $islandora_fedora_endpoint,
         $token = null
-    ) {
+    ): ResponseInterface {
         $path = $this->mapper->getFedoraPath($uuid);
         $islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
         $fedora_url  = "$islandora_fedora_endpoint/$path";
@@ -461,26 +490,28 @@ class MillinerService implements MillinerServiceInterface
         $external_url,
         $islandora_fedora_endpoint,
         $token = null
-    ) {
+    ): ResponseInterface {
         $path = $this->mapper->getFedoraPath($uuid);
         $islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
         $fedora_url  = "$islandora_fedora_endpoint/$path";
 
         $headers = empty($token) ? [] : ['Authorization' => $token];
-    // Try it with an without auth b/c files can be public or private.
+        // Try it with an without auth b/c files can be public or private.
         try {
             $drupal_response = $this->drupal->head(
                 $external_url,
                 ['headers' => $headers]
             );
         } catch (ClientException $e) {
-            $this->log->debug("GOT {$e->getCode()}, TRYING WIHTOUT AUTH HEADER");
+            $this->log->debug("GOT {$e->getCode()}, TRYING WITHOUT AUTH HEADER");
             $drupal_response = $this->drupal->head(
                 $external_url,
                 ['headers' => []]
             );
         }
+
         $mimetype = $drupal_response->getHeader('Content-Type')[0];
+
         if (preg_match("/^([^;]+);/", $mimetype, $matches)) {
             $mimetype = $matches[1];
         }
@@ -515,7 +546,7 @@ class MillinerService implements MillinerServiceInterface
         $uuid,
         $islandora_fedora_endpoint,
         $token = null
-    ) {
+    ): ResponseInterface {
         $path = $this->mapper->getFedoraPath($uuid);
         $islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
         $fedora_url  = "$islandora_fedora_endpoint/$path";
@@ -524,27 +555,23 @@ class MillinerService implements MillinerServiceInterface
         $date = new DateTime();
         $timestamp = $date->format("D, d M Y H:i:s O");
         // create version in Fedora.
-        try {
-            $response = $this->fedora->createVersion(
-                $fedora_url,
-                $timestamp,
-                null,
-                $headers
+        $response = $this->fedora->createVersion(
+            $fedora_url,
+            $timestamp,
+            null,
+            $headers
+        );
+        $status = $response->getStatusCode();
+        if (!in_array($status, [201])) {
+            $reason = $response->getReasonPhrase();
+            throw new \RuntimeException(
+                "Client error: `POST $fedora_url` resulted in `$status $reason` response: " .
+                $response->getBody(),
+                $status
             );
-            $status = $response->getStatusCode();
-            if (!in_array($status, [201])) {
-                $reason = $response->getReasonPhrase();
-                throw new \RuntimeException(
-                    "Client error: `POST $fedora_url` resulted in `$status $reason` response: " .
-                    $response->getBody(),
-                    $status
-                );
-            }
-            // Return the response from Fedora.
-            return $response;
-        } catch (Exception $e) {
-            $this->log->error('Caught exception when creating version: ', $e->getMessage(), "\n");
         }
+        // Return the response from Fedora.
+        return $response;
     }
 
     /**
@@ -555,7 +582,7 @@ class MillinerService implements MillinerServiceInterface
         $json_url,
         $islandora_fedora_endpoint,
         $token = null
-    ) {
+    ): ResponseInterface {
         $urls = $this->getMediaUrls($source_field, $json_url, $islandora_fedora_endpoint, $token);
         $fedora_url = $urls['fedora'];
 
@@ -563,31 +590,45 @@ class MillinerService implements MillinerServiceInterface
         $date = new DateTime();
         $timestamp = $date->format("D, d M Y H:i:s O");
         // create version in Fedora.
-        try {
-            $response = $this->fedora->createVersion(
-                $fedora_url,
-                $timestamp,
-                null,
-                $headers
+        $response = $this->fedora->createVersion(
+            $fedora_url,
+            $timestamp,
+            null,
+            $headers
+        );
+        $status = $response->getStatusCode();
+        if (!in_array($status, [201])) {
+            $reason = $response->getReasonPhrase();
+            throw new \RuntimeException(
+                "Client error: `POST $fedora_url` resulted in `$status $reason` response: " .
+                $response->getBody(),
+                $status
             );
-            $status = $response->getStatusCode();
-            if (!in_array($status, [201])) {
-                $reason = $response->getReasonPhrase();
-                throw new \RuntimeException(
-                    "Client error: `POST $fedora_url` resulted in `$status $reason` response: " .
-                    $response->getBody(),
-                    $status
-                );
-            }
-            // Return the response from Fedora.
-            return $response;
-        } catch (Exception $e) {
-            $this->log->error('Caught exception when creating version: ', $e->getMessage(), "\n");
         }
+        // Return the response from Fedora.
+        return $response;
     }
 
-    protected function getMediaUrls($source_field, $json_url, $islandora_fedora_endpoint, $token = null)
-    {
+    /**
+     * Utility function to get media urls.
+     *
+     * @param string $source_field
+     *   The source field to get media urls for.
+     * @param string $json_url
+     *   The drupal media resource's JSON format URL.
+     * @param string $islandora_fedora_endpoint
+     *   The Fedora Base URL.
+     * @param string|null $token
+     *   The authorization token or null for no auth.
+     * @return array
+     *   Associative array with keys 'drupal', 'fedora' and 'jsonld' with the various URLs.
+     */
+    protected function getMediaUrls(
+        string $source_field,
+        string $json_url,
+        string $islandora_fedora_endpoint,
+        string $token = null
+    ): array {
         // GET request for link headers and file UUID.
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $drupal_response = $this->drupal->get(
@@ -624,8 +665,8 @@ class MillinerService implements MillinerServiceInterface
         }
         $file_uuid = $media_json[$source_field][0]['target_uuid'];
 
-    // Construct the fedora url.
-    // Try to handle flysystem files first.
+        // Construct the fedora url.
+        // Try to handle flysystem files first.
         $islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
         $pieces = explode("_flysystem/fedora/", $drupal_url);
         if (count($pieces) > 1) {
