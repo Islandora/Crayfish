@@ -1,0 +1,4 @@
+crayfish_commons:
+  fedora_base_uri: '%app.fedora_base_url%'
+  syn_config: '../syn-settings.xml'
+  syn_enabled: true

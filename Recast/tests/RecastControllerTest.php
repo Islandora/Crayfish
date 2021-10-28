@@ -1,31 +1,26 @@
 <?php
 
-namespace Islandora\Recast\Tests;
+namespace App\Islandora\Recast\Tests;
 
 use Islandora\Crayfish\Commons\EntityMapper\EntityMapper;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-use Islandora\Recast\Controller\RecastController;
+use GuzzleHttp\Psr7\Request as GuzzleRequest;
+use GuzzleHttp\Psr7\Response as GuzzleResponse;
+use App\Islandora\Recast\Controller\RecastController;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
-
-// phpcs:disable
-if (class_exists('\EasyRdf_Graph')) {
-    class_alias('\EasyRdf_Graph', ' \EasyRdf\Graph');
-}
-// phpcs:enable
 
 /**
  * Class RecastControllerTest
  *
- * @package Islandora\Recast\Tests
- * @coversDefaultClass \Islandora\Recast\Controller\RecastController
+ * @package App\Islandora\Recast\Tests
+ * @coversDefaultClass \App\Islandora\Recast\Controller\RecastController
  */
 class RecastControllerTest extends TestCase
 {
@@ -35,12 +30,14 @@ class RecastControllerTest extends TestCase
 
     private $logger_prophecy;
 
-    private $namespaces = array(
-        array(
-            "fedora" => "http://fedora.info/definitions/v4/repository#",
-            "pcdm" => "http://pcdm.org/models#",
-        ),
-    );
+    private $drupal_base_url = 'localhost:8000';
+
+    private $fedora_base_url = 'localhost:8080/fcrepo/rest';
+
+    private $namespaces = [
+        "fedora" => "http://fedora.info/definitions/v4/repository#",
+        "pcdm" => "http://pcdm.org/models#",
+    ];
 
   /**
    * {@inheritdoc}
@@ -56,11 +53,7 @@ class RecastControllerTest extends TestCase
    */
     public function testOptions()
     {
-        $controller = new RecastController(
-            new EntityMapper(),
-            $this->http_prophecy->reveal(),
-            $this->logger_prophecy->reveal()
-        );
+        $controller = $this->getController();
 
         $response = $controller->recastOptions();
         $this->assertTrue($response->getStatusCode() == 200, 'Identify OPTIONS should return 200');
@@ -86,28 +79,20 @@ class RecastControllerTest extends TestCase
             ->willThrow(
                 new RequestException(
                     "NOT FOUND",
-                    new \GuzzleHttp\Psr7\Request('GET', 'http://localhost:8000/user/1?_format=json')
+                    new GuzzleRequest('GET', 'http://localhost:8000/user/1?_format=json')
                 )
             );
         $this->http_prophecy->get('http://localhost:8000/media/1?_format=json', Argument::any())
             ->willThrow(new RequestException(
                 "NOT FOUND",
-                new \GuzzleHttp\Psr7\Request('GET', 'http://localhost:8000/media/1?_format=json')
+                new GuzzleRequest('GET', 'http://localhost:8000/media/1?_format=json')
             ));
         $this->http_prophecy->get('http://localhost:8000/node/1?_format=json', Argument::any())
-            ->willReturn(new \GuzzleHttp\Psr7\Response(200, [], file_get_contents($node_1)));
-
-        $mock_silex_app = new Application();
-        $mock_silex_app['crayfish.drupal_base_url'] = 'localhost:8000';
-        $mock_silex_app['crayfish.fedora_resource.base_url'] = 'localhost:8080/fcrepo/rest';
+            ->willReturn(new GuzzleResponse(200, [], file_get_contents($node_1)));
 
         $mock_fedora_response = $this->getMockFedoraStream();
 
-        $controller = new RecastController(
-            new EntityMapper(),
-            $this->http_prophecy->reveal(),
-            $this->logger_prophecy->reveal()
-        );
+        $controller = $this->getController();
 
         $request = Request::create(
             "/add",
@@ -119,7 +104,7 @@ class RecastControllerTest extends TestCase
         $request->attributes->set('fedora_resource', $mock_fedora_response);
 
         // Do with add
-        $response = $controller->recast($request, $mock_silex_app, 'add');
+        $response = $controller->recast($request, 'add');
         $this->assertEquals(200, $response->getStatusCode(), "Invalid status code");
         $json = json_decode($response->getContent(), true);
 
@@ -127,7 +112,7 @@ class RecastControllerTest extends TestCase
         $this->assertEquals($expected, $json, "Response does not match expected additions.");
 
         // Do with replace
-        $response = $controller->recast($request, $mock_silex_app, 'replace');
+        $response = $controller->recast($request, 'replace');
         $this->assertEquals(200, $response->getStatusCode(), "Invalid status code");
         $json = json_decode($response->getContent(), true);
 
@@ -141,14 +126,8 @@ class RecastControllerTest extends TestCase
     public function testInvalidType()
     {
         $resource_id = 'http://localhost:8080/fcrepo/rest/object1';
-        $mock_silex_app = new Application();
-        $mock_silex_app['crayfish.drupal_base_url'] = 'http://localhost:8000';
 
-        $controller = new RecastController(
-            new EntityMapper(),
-            $this->http_prophecy->reveal(),
-            $this->logger_prophecy->reveal()
-        );
+        $controller = $this->getController();
 
         $mock_fedora_response = $this->getMockFedoraStream();
 
@@ -162,7 +141,7 @@ class RecastControllerTest extends TestCase
         $request->attributes->set('fedora_resource', $mock_fedora_response);
 
         // Do with add
-        $response = $controller->recast($request, $mock_silex_app, 'oops');
+        $response = $controller->recast($request, 'oops');
         $this->assertEquals($response->getStatusCode(), 400, "Invalid status code");
     }
 
@@ -179,27 +158,18 @@ class RecastControllerTest extends TestCase
             ->willThrow(
                 new RequestException(
                     "NOT FOUND",
-                    new \GuzzleHttp\Psr7\Request('GET', 'http://localhost:8000/user/1?_format=json')
+                    new GuzzleRequest('GET', 'http://localhost:8000/user/1?_format=json')
                 )
             );
         $this->http_prophecy->get('http://localhost:8000/node/1?_format=json', Argument::any())
-            ->willReturn(new \GuzzleHttp\Psr7\Response(200, [], file_get_contents($node_1)));
-
-        $mock_silex_app = new Application();
-        $mock_silex_app['crayfish.drupal_base_url'] = 'localhost:8000';
-        $mock_silex_app['crayfish.fedora_resource.base_url'] = 'localhost:8080/fcrepo/rest';
-        $mock_silex_app['crayfish.namespaces'] = $this->namespaces;
+            ->willReturn(new GuzzleResponse(200, [], file_get_contents($node_1)));
 
         $mock_fedora_response = $this->getMockFedoraStream(
             realpath(__DIR__ . '/resources/drupal_image.ttl'),
             'text/turtle'
         );
 
-        $controller = new RecastController(
-            new EntityMapper(),
-            $this->http_prophecy->reveal(),
-            $this->logger_prophecy->reveal()
-        );
+        $controller = $this->getController();
 
         $request = Request::create(
             "/add",
@@ -210,15 +180,11 @@ class RecastControllerTest extends TestCase
         $request->headers->set('Accept', 'text/turtle');
         $request->attributes->set('fedora_resource', $mock_fedora_response);
 
-        $response = $controller->recast($request, $mock_silex_app, 'add');
+        $response = $controller->recast($request, 'add');
         $body = $response->getContent();
         $this->assertStringContainsString('fedora:', $body, "Did not find fedora: prefix");
-        // These two assertions are failing with the EasyRdf update to 1.1.1 in Chullo.
-        // It could be the resolution of:
-        //   Fixes for format guessing, so it works with SPARQL-style PREFIX and BASE
-        //   https://github.com/easyrdf/easyrdf/blob/master/CHANGELOG.md#bug-fixes
-        //$this->assertStringNotContainsString('ldp:', $body, "Found ldp: prefix");
-        //$this->assertStringContainsString('<http://www.w3.org/ns/ldp#RDFSource>', $body, "Did not find full LDP uri");
+        // EasyRdf added a bunch of W3C prefixes, which included ldp: which made the assumption it would not be
+        // converted incorrect. https://github.com/easyrdf/easyrdf/commit/23a17720aedc6bea32dc7803327a3a1420a5d90c
         $this->assertStringContainsString('pcdm:', $body, "Did not find pcdm: prefix");
     }
 
@@ -255,5 +221,21 @@ class RecastControllerTest extends TestCase
         $prophecy->hasHeader('Link')->willReturn(false);
         $mock_fedora_response = $prophecy->reveal();
         return $mock_fedora_response;
+    }
+
+    /**
+     * Utility to get the controller.
+     * @return \App\Islandora\Recast\Controller\RecastController
+     */
+    private function getController(): RecastController
+    {
+        return new RecastController(
+            new EntityMapper(),
+            $this->http_prophecy->reveal(),
+            $this->logger_prophecy->reveal(),
+            $this->drupal_base_url,
+            $this->fedora_base_url,
+            $this->namespaces
+        );
     }
 }
