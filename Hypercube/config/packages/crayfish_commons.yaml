@@ -1,4 +1,3 @@
 crayfish_commons:
-  fedora_base_uri: 'http://localhost:8080/fcrepo6/rest'
-  syn_config: '/Users/whikloj/www/DAM2/Crayfish-shift/syn-settings.xml'
-  syn_enabled: true
+  fedora_base_uri: 'http://localhost:8080/fcrepo/rest'
+  #syn_config: '/path/to/syn-settings.xml'

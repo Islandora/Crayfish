@@ -46,9 +46,3 @@ services:
 
     # A guzzle instance as a service
     GuzzleHttp\Client: ~
-
-    # An entitymapper instance as a service.
-    Islandora\Crayfish\Commons\EntityMapper\EntityMapper: ~
-
-    # Mapping the interface to a class.
-    Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface: '@Islandora\Crayfish\Commons\EntityMapper\EntityMapper'

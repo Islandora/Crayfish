@@ -4,9 +4,9 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    app.fedora_base_url: http://localhost:8080/fcrepo/rest
-    app.drupal_base_url: http://localhost:8000
-    app.modified_date_predicate: http://schema.org/dateModified
+    app.fedora_base_url: "http://localhost:8080/fcrepo/rest"
+    app.drupal_base_url: "http://localhost:8000"
+    app.modified_date_predicate: "http://schema.org/dateModified"
     app.strip_format_jsonld: true
     app.isFedora6: true
 

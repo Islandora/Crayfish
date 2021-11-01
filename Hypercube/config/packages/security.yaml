@@ -9,14 +9,16 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
-            anonymous: false
+            # To enable Syn, change anonymous to false and uncomment the lines further below
+            anonymous: true
             # Need stateless or it reloads the User based on a token.
             stateless: true
 
-            provider: jwt_user_provider
-            guard:
-                authenticators:
-                    - Islandora\Crayfish\Commons\Syn\JwtAuthenticator
+            # To enable Syn, uncomment the below 4 lines and change anonymous to false above.
+            #provider: jwt_user_provider
+            #guard:
+            #    authenticators:
+            #        - Islandora\Crayfish\Commons\Syn\JwtAuthenticator
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
