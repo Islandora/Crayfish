@@ -28,15 +28,12 @@ There are various configurable parameters located in the [`/path/to/Milliner/con
 ```
 parameters:
     app.fedora_base_url: "http://localhost:8080/fcrepo/rest"
-    app.drupal_base_url: "http://localhost:8000"
     app.modified_date_predicate: "http://schema.org/dateModified"
     app.strip_format_jsonld: true
     app.isFedora6: true
 ```
 
 `app.fedora_base_url` defines the base URL of your Fedora repository.
-
-`app.drupal_base_url` define the base URL of your Drupal 8/9 instance.
 
 `app.modified_date_predicate` defines the predicate which will be compared to determine which of the Fedora or Drupal
 resource has been updated more recently.

@@ -5,7 +5,6 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     app.fedora_base_url: "http://localhost:8080/fcrepo/rest"
-    app.drupal_base_url: "http://localhost:8000"
     app.modified_date_predicate: "http://schema.org/dateModified"
     app.strip_format_jsonld: true
     app.isFedora6: true
@@ -44,9 +43,3 @@ services:
 
     # A guzzle instance as a service
     GuzzleHttp\Client: ~
-
-    # An entitymapper instance as a service.
-    Islandora\Crayfish\Commons\EntityMapper\EntityMapper: ~
-
-    # Mapping the interface to a class.
-    Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface: '@Islandora\Crayfish\Commons\EntityMapper\EntityMapper'
