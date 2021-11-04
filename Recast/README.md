@@ -1,4 +1,4 @@
-# ![Recast Mascot](https://user-images.githubusercontent.com/2371345/67399869-3ded6600-f583-11e9-8fec-8e82d57a6d4d.png) 
+# ![Recast Mascot](https://user-images.githubusercontent.com/2371345/67399869-3ded6600-f583-11e9-8fec-8e82d57a6d4d.png)
 # Recast
 [![Contribution Guidelines][2]](./CONTRIBUTING.md)
 [![LICENSE][3]](./LICENSE)
@@ -10,26 +10,55 @@ Microservice that remaps Drupal URIs to add Fedora to Fedora links based on asso
 ## Installation
 
 Recast requires a functioning LDP server to provide RDF (like a [Fedora](http://fedorarepository.org/) repository).
-You will also need a working [Gemini](../Gemini) system to use for looking up the URI mappings.
 
 - Clone this repository.
 - Install `composer`.  [Install instructions here.][4]
 - `$ cd /path/to/Recast` and run `$ composer install`
-- Then either
-  - For production, configure your web server appropriately (e.g. add a VirtualHost for Recast in Apache) OR
-  - For development, run the PHP built-in web server `$ php -S localhost:8888 -t src` from Recast root.
+- For production, configure your web server appropriately (e.g. add a VirtualHost for Recast in Apache)
 
 ## Configuration
 
-Make a copy of the [config file](cfg/config.example.yaml) and name it `config.yaml` in the `cfg` directory.
+Symfony uses `.dotenv` to set environment variables. You can check the [.env](./.env) in the root of the Homarus directory.
+To alter any settings, create a file called `.env.local` to store your specific changes. You can also set an actual environment
+variable.
 
-You will need to set the `fedora_base_url` entry to point to your Fedora installation.
+For production use make sure to set the add `APP_ENV=prod` environment variable.
 
-You will also need to set up the `drupal_base_url` entry to point to your Drupal 8 installation.
+There are various configurable parameters located in the [`/path/to/Recast/config/services.yaml`](./config/services.yaml).
+```
+parameters:
+    app.drupal_base_url: "http://localhost:8000"
+    app.fedora_base_url: "http://localhost:8080/fcrepo/rest"
+    app.namespaces:
+        acl: "http://www.w3.org/ns/auth/acl#"
+        fedora: "http://fedora.info/definitions/v4/repository#"
+        ...
+```
 
-You will also need to set up the `gemini_base_url` entry to point to you Gemini instance.
+`app.fedora_base_url` defines the base URL of your Fedora repository.
 
-You can also configure namespace prefixes, logging level and file and JWT security.
+`app.drupal_base_url` define the base URL of your Drupal 8/9 instance.
+
+`app.namespaces` is an array of prefix to URIs that can be used when rewriting the RDF.
+
+You do NOT need to edit the `fedora_base_url` inside `/path/to/Recast/config/packages/crayfish_commons.yaml` as this
+re-uses the above setting. However in the same file you can point to the location of your `syn-settings.xml`.
+If you don't have a `syn-settings.xml` look at the [Syn](http://github.com/Islandora/Syn) documentation.
+
+### Logging
+
+To change your log settings, edit the `/path/to/Recast/config/packages/monolog.yaml` file.
+
+You can also copy the file into one of the `/path/to/Recast/config/packages/<environment>` directories.
+Where `<environment>` is `dev`, `test`, or `prod` based on the `APP_ENV` variable (see above). The files in the specific
+environment directory will take precedence over those in the `/path/to/Recast/config/packages` directory.
+
+The location specified in the configuration file for the log must be writable by the web server.
+
+### Disabling Syn
+
+There are instructions in the `/path/to/Recast/config/packages/security.yaml` file describing what to change and what lines
+to comment out to disable Syn.
 
 ## Usage
 
@@ -42,7 +71,7 @@ By default the `add` action is assumed if no `action` is provided.
 
 The Recast service looks to the `Apix-Ldp-Resource` header for the resource to map.
 
-The Recast service will provide RDF in the format directed by the `Accept` header sent, or `text/turtle` if 
+The Recast service will provide RDF in the format directed by the `Accept` header sent, or `text/turtle` if
 the `Accept` header is not provided or the system is unable to provide the requested format.
 
 If requests are successful, they return the response from the Fedora server.  If the Drupal entity cannot be requested,
@@ -132,7 +161,7 @@ You can also explicitly specify the **add** action by using the Recast URI `http
 
 #### Replace
 
-If you provide the **replace** action, the original Drupal URI will be removed for any URI that can be mapped. 
+If you provide the **replace** action, the original Drupal URI will be removed for any URI that can be mapped.
 
 ```
 > curl -H"Authorization: Bearer islandora" -H"Accept: text/turtle" -H"Apix-Ldp-Resource: http://localhost:8080/fcrepo/rest/82/67/81/b2/826781b2-327d-47b2-9de0-18f85ccfa29b" http://localhost:8000/recast/replace
@@ -181,8 +210,6 @@ Current maintainers:
 If you would like to contribute, please get involved by attending our weekly [Tech Call](https://github.com/Islandora/docuentation/wiki). We love to hear from you!
 
 If you would like to contribute code to the project, you need to be covered by an Islandora Foundation [Contributor License Agreement](http://islandora.ca/sites/default/files/islandora_cla.pdf) or [Corporate Contributor License Agreement](http://islandora.ca/sites/default/files/islandora_ccla.pdf). Please see the [Contributors](http://islandora.ca/resources/contributors) pages on Islandora.ca for more information.
-
-We recommend using the [islandora-playbook](https://github.com/Islandora-Devops/islandora-playbook) to get started. 
 
 ## License
 
