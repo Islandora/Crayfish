@@ -31,6 +31,10 @@ Alias "/homarus" "/var/www/html/Crayfish/Homarus/public"
 
 This will put the Homarus at the /homarus endpoint on the web server.
 
+## Upgrading
+
+Steps for upgrading Homarus can be found in [UPGRADE.md](UPGRADE.md)
+
 ## Configuration
 
 Symfony uses `.dotenv` to set environment variables. You can check the [.env](./.env) in the root of the Homarus directory.

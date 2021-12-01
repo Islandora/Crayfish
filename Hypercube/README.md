@@ -34,6 +34,10 @@ Here is an example configuration for Apache 2.4:
 
 This will put the Hypercube at the /hypercube endpoint on the web server.
 
+## Upgrading
+
+Steps for upgrading Hypercube can be found in [UPGRADE.md](UPGRADE.md)
+
 ## Configuration
 
 Symfony uses `.dotenv` to set environment variables. You can check the [.env](./.env) in the root of the Homarus directory.

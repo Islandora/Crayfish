@@ -16,6 +16,10 @@ It also requires a functioning [Fedora](http://fedorarepository.org/) repository
 - `$ cd /path/to/Milliner` and run `$ composer install`
 - For production, configure your web server appropriately (e.g. add a VirtualHost for Milliner in Apache)
 
+## Upgrading
+
+Steps for upgrading Milliner can be found in [UPGRADE.md](UPGRADE.md)
+
 ## Configuration
 
 Symfony uses `.dotenv` to set environment variables. You can check the [.env](./.env) in the root of the Homarus directory.
