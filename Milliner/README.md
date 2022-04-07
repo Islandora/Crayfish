@@ -21,7 +21,7 @@ You will also need an SQL database as needed for [Gemini](../Gemini)
 
 Make a copy of the [config file](cfg/config.example.yaml) and name it `config.yaml` in the `cfg` directory.
 You will need to set the `fedora_base_url` entry to point to your Fedora installation.
-You will also need to set up the `drupal_base_url` entry to point to your Drupal 8 installation.
+You will also need to set up the `drupal_base_url` entry to point to your Drupal 8 installation. Finally, if you are using Fedora 6, you will need to uncomment the `fcrepo6` configuration variable and make sure it is set to `true`.
 The SQL db can be configured by following [Gemini's instructions](../Gemini).
 
 ## Usage
@@ -74,7 +74,7 @@ If you would like to contribute, please get involved by attending our weekly [Te
 
 If you would like to contribute code to the project, you need to be covered by an Islandora Foundation [Contributor License Agreement](http://islandora.ca/sites/default/files/islandora_cla.pdf) or [Corporate Contributor License Agreement](http://islandora.ca/sites/default/files/islandora_ccla.pdf). Please see the [Contributors](http://islandora.ca/resources/contributors) pages on Islandora.ca for more information.
 
-We recommend using the [islandora-playbook](https://github.com/Islandora-Devops/islandora-playbook) to get started. 
+We recommend using the [islandora-playbook](https://github.com/Islandora-Devops/islandora-playbook) to get started.
 
 ## License
 
