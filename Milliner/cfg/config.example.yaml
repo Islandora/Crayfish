@@ -5,9 +5,12 @@ fedora_base_url: http://localhost:8080/fcrepo/rest
 # or relative paths will not resolve correctly.
 drupal_base_url: http://localhost:8000
 
+# Uncomment "fcrepo6: true" to use with Fedora 6+.
+# fcrepo6: true
+
 modified_date_predicate: http://schema.org/dateModified
 
-strip_format_jsonld: true 
+strip_format_jsonld: true
 
 debug: false
 
