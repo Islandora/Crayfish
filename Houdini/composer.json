@@ -19,14 +19,14 @@
         "php": "^7.3 || ^7.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "islandora/crayfish-commons": "dev-symfony-flex",
         "symfony/console": "^4.3",
         "symfony/dotenv": "^4.3",
-        "symfony/flex": "^1.9",
+        "symfony/flex": "^1.17",
         "symfony/framework-bundle": "^4.3",
-        "symfony/yaml": "^4.3",
-        "symfony/web-server-bundle": "^4.3",
         "symfony/monolog-bundle": "^3.4",
-        "islandora/crayfish-commons": "dev-symfony-flex"
+        "symfony/web-server-bundle": "^4.3",
+        "symfony/yaml": "^4.3"
     },
     "require-dev": {
         "symfony/var-dumper": "^4.3",
@@ -40,7 +40,10 @@
         "preferred-install": {
             "*": "dist"
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "symfony/flex": true
+        }
     },
     "autoload": {
         "psr-4": {
