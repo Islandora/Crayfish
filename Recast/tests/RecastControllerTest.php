@@ -183,8 +183,6 @@ class RecastControllerTest extends TestCase
         $response = $controller->recast($request, 'add');
         $body = $response->getContent();
         $this->assertStringContainsString('fedora:', $body, "Did not find fedora: prefix");
-        // EasyRdf added a bunch of W3C prefixes, which included ldp: which made the assumption it would not be
-        // converted incorrect. https://github.com/easyrdf/easyrdf/commit/23a17720aedc6bea32dc7803327a3a1420a5d90c
         $this->assertStringContainsString('pcdm:', $body, "Did not find pcdm: prefix");
     }
 
