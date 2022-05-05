@@ -119,7 +119,8 @@ class RecastController
                     'Valid methods for recast are [%s] received "%s".',
                     implode(', ', $this->availableMethods),
                     $operation
-                ), 400
+                ),
+                400
             );
         }
         $this->log->info("Request to {$operation} resource.");
