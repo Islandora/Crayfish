@@ -15,10 +15,10 @@
         "version": "1.8.3"
     },
     "islandora/chullo": {
-        "version": "dev-dev"
+        "version": "1.3.0"
     },
     "islandora/crayfish-commons": {
-        "version": "dev-symfony-flex"
+        "version": "3.0.0"
     },
     "ml/iri": {
         "version": "1.1.4"

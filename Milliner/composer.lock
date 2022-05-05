@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b740093cc6a3f682f2989cb2f1d106c6",
+    "content-hash": "84ee77bd904b8e9a4d5600dfe37035df",
     "packages": [
         {
             "name": "easyrdf/easyrdf",
@@ -409,16 +409,16 @@
         },
         {
             "name": "islandora/crayfish-commons",
-            "version": "dev-issue-1224",
+            "version": "3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Islandora/Crayfish-Commons.git",
-                "reference": "b17d19e5868e5e66fc701c45f01dda7b027430da"
+                "reference": "e7b8cbd5951286897507f6cfd3e6356201d24f48"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Islandora/Crayfish-Commons/zipball/b17d19e5868e5e66fc701c45f01dda7b027430da",
-                "reference": "b17d19e5868e5e66fc701c45f01dda7b027430da",
+                "url": "https://api.github.com/repos/Islandora/Crayfish-Commons/zipball/e7b8cbd5951286897507f6cfd3e6356201d24f48",
+                "reference": "e7b8cbd5951286897507f6cfd3e6356201d24f48",
                 "shasum": ""
             },
             "require": {
@@ -476,9 +476,9 @@
             "homepage": "https://github.com/Islandora/Crayfish-Commons",
             "support": {
                 "issues": "https://github.com/Islandora/documentation/issues",
-                "source": "https://github.com/Islandora/Crayfish-Commons/tree/issue-1224"
+                "source": "https://github.com/Islandora/Crayfish-Commons/tree/3.0.0"
             },
-            "time": "2022-01-19T16:35:57+00:00"
+            "time": "2022-05-05T15:46:41+00:00"
         },
         {
             "name": "ml/iri",
@@ -6589,9 +6589,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "islandora/crayfish-commons": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
