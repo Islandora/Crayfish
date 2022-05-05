@@ -172,7 +172,7 @@ crayfish_commons:
 ```
 
 ##### Enable/Disable Syn
-To enable/disable Syn look in the `/path/to/Homarus/config/packages/security.yaml`. By default Syn is disabled, to enable look the below lines and follow the included instructions
+To enable/disable Syn look in the [`./config/packages/security.yaml`](config/packages/security.yaml). By default Syn is disabled, to enable look the below lines and follow the included instructions
 
 ```
 security:

@@ -15,7 +15,7 @@ class MillinerController
 {
 
     /**
-     * @var \Islandora\Milliner\Service\MillinerServiceInterface
+     * @var \App\Islandora\Milliner\Service\MillinerServiceInterface
      */
     protected $milliner;
 

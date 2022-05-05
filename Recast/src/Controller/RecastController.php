@@ -6,13 +6,13 @@ use EasyRdf\Exception;
 use EasyRdf\Format;
 use EasyRdf\Graph;
 use EasyRdf\RdfNamespace;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 
 /**
  * Recast Controller
@@ -20,27 +20,27 @@ use GuzzleHttp\Exception\RequestException;
 class RecastController
 {
 
-  /**
-   * @var \Monolog\Logger
-   */
+    /**
+     * @var \Monolog\Logger
+     */
     private $log;
 
-  /**
-   * @var \Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface
-   */
+    /**
+     * @var \Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface
+     */
     private $entityMapper;
 
-  /**
-   * @var \GuzzleHttp\Client
-   */
+    /**
+     * @var \GuzzleHttp\Client
+     */
     private $http;
 
-  /**
-   * @var array
-   */
+    /**
+     * @var array
+     */
     protected $availableMethods = [
-    'add',
-    'replace',
+        'add',
+        'replace',
     ];
 
     /**
@@ -87,12 +87,12 @@ class RecastController
         $this->namespaces = $namespaces;
     }
 
-  /**
-   * Send API-X Options information.
-   *
-   * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
-   *   The turtle file of the options response.
-   */
+    /**
+     * Send API-X Options information.
+     *
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     *   The turtle file of the options response.
+     */
     public function recastOptions(): BinaryFileResponse
     {
         return new BinaryFileResponse(
@@ -102,23 +102,25 @@ class RecastController
         );
     }
 
-  /**
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   *   The incoming request.
-   * @param string $operation
-   *   Whether to add or
-   *
-   * @return \Symfony\Component\HttpFoundation\Response
-   *   The response.
-   */
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *   The incoming request.
+     * @param string $operation
+     *   Whether to add or
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     *   The response.
+     */
     public function recast(Request $request, string $operation): Response
     {
         if (!in_array($operation, $this->availableMethods)) {
-            return new Response(sprintf(
-                'Valid methods for recast are [%s] received "%s".',
-                implode(', ', $this->availableMethods),
-                $operation
-            ), 400);
+            return new Response(
+                sprintf(
+                    'Valid methods for recast are [%s] received "%s".',
+                    implode(', ', $this->availableMethods),
+                    $operation
+                ), 400
+            );
         }
         $this->log->info("Request to {$operation} resource.");
 
@@ -132,13 +134,13 @@ class RecastController
 
         // Look for a describes Link header.
         $describe_uri = $fedora_resource->hasHeader('Link') ? self::describeUri($fedora_resource->getheader('Link'))
-          : false;
+            : false;
         if ($describe_uri !== false) {
             // We found a describes URI so use that for the subject of the graph.
             $fedora_uri = $describe_uri;
         }
 
-        $body = (string) $fedora_resource->getBody();
+        $body = (string)$fedora_resource->getBody();
         $mimeType = $fedora_resource->getHeader('Content-type');
         if (is_array($mimeType)) {
             $mimeType = reset($mimeType);
@@ -182,7 +184,7 @@ class RecastController
                 strpos($without_protocol, $this->fcrepo_base_url) !== 0;
 
             $this->log->debug("Looking for reverse URI for: $uri");
-            $this->log->debug("$uri ". $is_drupal_url ? 'is a Drupal URL' : 'is not a Drupal URL');
+            $this->log->debug("$uri " . $is_drupal_url ? 'is a Drupal URL' : 'is not a Drupal URL');
 
             if ($is_drupal_url) {
                 $reverse_uri = $this->getFedoraUrl($uri, $this->fcrepo_base_url, $token);
@@ -260,8 +262,8 @@ class RecastController
             $new_body = json_encode(array_values($temp));
         }
         $headers = [
-        'Content-type' => $output_type,
-        'Content-length' => strlen($new_body),
+            'Content-type' => $output_type,
+            'Content-length' => strlen($new_body),
         ];
 
         return new Response($new_body, 200, $headers);
@@ -277,7 +279,7 @@ class RecastController
             $response = $this->http->get($drupal_url, ['Authorization' => $token]);
             $json_str = $response->getBody();
             $json = json_decode($json_str, true);
-                        $this->log->debug("GOT THIS JSON: $json_str");
+            $this->log->debug("GOT THIS JSON: $json_str");
 
             $is_media = isset($json['bundle']) &&
                 !empty($json['bundle']) &&
@@ -315,17 +317,17 @@ class RecastController
         }
     }
 
-  /**
-   * Locate the predicate for an object in a graph.
-   *
-   * @param \EasyRdf\Graph $graph
-   *   The graph to look in.
-   * @param string $object
-   *   The object to look for.
-   *
-   * @return string|null
-   *   Return the predicate or null.
-   */
+    /**
+     * Locate the predicate for an object in a graph.
+     *
+     * @param \EasyRdf\Graph $graph
+     *   The graph to look in.
+     * @param string $object
+     *   The object to look for.
+     *
+     * @return string|null
+     *   Return the predicate or null.
+     */
     private function findPredicateForObject(Graph $graph, $object): ?string
     {
         $properties = $graph->reversePropertyUris($object);
@@ -335,14 +337,14 @@ class RecastController
         return null;
     }
 
-  /**
-   * Return any found describes link headers or FALSE.
-   *
-   * @param array $link_header
-   *   The array of Link headers.
-   * @return false|string
-   *   The URI described or false if not found.
-   */
+    /**
+     * Return any found describes link headers or FALSE.
+     *
+     * @param array $link_header
+     *   The array of Link headers.
+     * @return false|string
+     *   The URI described or false if not found.
+     */
     private static function describeUri(array $link_header)
     {
         array_walk($link_header, ['self', 'parseLinkHeaders']);
@@ -353,17 +355,17 @@ class RecastController
         return $match;
     }
 
-  /**
-   * Parse an array of string link headers in to associative arrays.
-   *
-   * Format is [
-   *   'uri' => 'the uri',
-   *   'rel' => 'the rel parameter',
-   * ]
-   *
-   * @param $o
-   *   The input array of link headers.
-   */
+    /**
+     * Parse an array of string link headers in to associative arrays.
+     *
+     * Format is [
+     *   'uri' => 'the uri',
+     *   'rel' => 'the rel parameter',
+     * ]
+     *
+     * @param $o
+     *   The input array of link headers.
+     */
     private static function parseLinkHeaders(&$o)
     {
         $part = trim($o);

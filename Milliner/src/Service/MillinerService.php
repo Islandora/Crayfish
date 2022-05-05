@@ -2,22 +2,16 @@
 
 namespace App\Islandora\Milliner\Service;
 
+use DateTime;
+use DateTimeInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Header;
 use GuzzleHttp\Psr7\Response;
 use Islandora\Chullo\IFedoraApi;
 use Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
-use \DateTime;
-use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Class MillinerService
@@ -114,7 +108,7 @@ class MillinerService implements MillinerServiceInterface
     ): ResponseInterface {
         $path = $this->mapper->getFedoraPath($uuid);
         $islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
-        $fedora_url  = "$islandora_fedora_endpoint/$path";
+        $fedora_url = "$islandora_fedora_endpoint/$path";
 
         $response = $this->fedora->getResourceHeaders($fedora_url);
         if ($response->getStatusCode() == 404) {
@@ -230,7 +224,7 @@ class MillinerService implements MillinerServiceInterface
             $reason = $fedora_response->getReasonPhrase();
             throw new \RuntimeException(
                 "Client error: `GET $fedora_url` resulted in a `$status $reason` response: " .
-                    $fedora_response->getBody(),
+                $fedora_response->getBody(),
                 $status
             );
         }
@@ -296,7 +290,7 @@ class MillinerService implements MillinerServiceInterface
         $headers['Content-Type'] = 'application/ld+json';
         $headers['Prefer'] = 'handling=lenient';
         if (!$this->isFedora6) {
-              $headers['Prefer'] .= ';received=minimal';
+            $headers['Prefer'] .= ';received=minimal';
         }
         $headers['X-If-State-Match'] = $state_token;
         $response = $this->fedora->saveResource(
@@ -333,7 +327,7 @@ class MillinerService implements MillinerServiceInterface
         $this->log->debug("FEDORA URL: $fedora_url");
         $this->log->debug("BEFORE: " . json_encode($jsonld));
         // Strip out everything other than the resource in question.
-    // Ignore http/https.
+        // Ignore http/https.
         $parts = parse_url($drupal_url);
         $subject_url = $parts['host'] . $parts['path'];
         $resource = array_filter(
@@ -401,7 +395,7 @@ class MillinerService implements MillinerServiceInterface
         }
 
         $date = \DateTime::createFromFormat(
-            \DateTime::W3C,
+            DateTimeInterface::W3C,
             $modified
         );
 
@@ -461,7 +455,7 @@ class MillinerService implements MillinerServiceInterface
     ): ResponseInterface {
         $path = $this->mapper->getFedoraPath($uuid);
         $islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
-        $fedora_url  = "$islandora_fedora_endpoint/$path";
+        $fedora_url = "$islandora_fedora_endpoint/$path";
 
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $response = $this->fedora->deleteResource(
@@ -474,7 +468,7 @@ class MillinerService implements MillinerServiceInterface
             $reason = $response->getReasonPhrase();
             throw new \RuntimeException(
                 "Client error: `DELETE $fedora_url` resulted in a `$status $reason` response: " .
-                    $response->getBody(),
+                $response->getBody(),
                 $status
             );
         }
@@ -493,7 +487,7 @@ class MillinerService implements MillinerServiceInterface
     ): ResponseInterface {
         $path = $this->mapper->getFedoraPath($uuid);
         $islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
-        $fedora_url  = "$islandora_fedora_endpoint/$path";
+        $fedora_url = "$islandora_fedora_endpoint/$path";
 
         $headers = empty($token) ? [] : ['Authorization' => $token];
         // Try it with an without auth b/c files can be public or private.
@@ -549,7 +543,7 @@ class MillinerService implements MillinerServiceInterface
     ): ResponseInterface {
         $path = $this->mapper->getFedoraPath($uuid);
         $islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
-        $fedora_url  = "$islandora_fedora_endpoint/$path";
+        $fedora_url = "$islandora_fedora_endpoint/$path";
 
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $date = new DateTime();
@@ -674,7 +668,7 @@ class MillinerService implements MillinerServiceInterface
         } else {
             $fedora_file_path = $this->mapper->getFedoraPath($file_uuid);
         }
-        $fedora_file_url  = "$islandora_fedora_endpoint/$fedora_file_path";
+        $fedora_file_url = "$islandora_fedora_endpoint/$fedora_file_path";
 
         // Now look for the 'describedby' link header on the file in Fedora.
         // I'm using the drupal http client because I have the full
@@ -689,7 +683,7 @@ class MillinerService implements MillinerServiceInterface
             $reason = $fedora_response->getReasonPhrase();
             throw new \RuntimeException(
                 "Client error: `HEAD $fedora_file_url` resulted in a `$status $reason` response: " .
-                    $fedora_response->getBody(),
+                $fedora_response->getBody(),
                 $status
             );
         }

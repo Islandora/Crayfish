@@ -96,10 +96,10 @@ class HypercubeController
         }
     }
 
-  /**
-   * Return Options response.
-   * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
-   */
+    /**
+     * Return Options response.
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function options(): BinaryFileResponse
     {
         return new BinaryFileResponse(

@@ -17,51 +17,51 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class HomarusController
 {
 
-  /**
-   * @var \Islandora\Crayfish\Commons\CmdExecuteService
-   */
+    /**
+     * @var \Islandora\Crayfish\Commons\CmdExecuteService
+     */
     protected $cmd;
 
-  /**
-   * @var \Monolog\Logger
-   */
+    /**
+     * @var \Monolog\Logger
+     */
     protected $log;
 
-  /**
-   * Array of associative arrays with keys mimetype and format.
-   *
-   * @var array
-   */
+    /**
+     * Array of associative arrays with keys mimetype and format.
+     *
+     * @var array
+     */
     private $formats;
 
-  /**
-   * The default format and mimetype.
-   *
-   * @var array
-   */
+    /**
+     * The default format and mimetype.
+     *
+     * @var array
+     */
     private $defaults;
 
-  /**
-   * The executable.
-   *
-   * @var string
-   */
+    /**
+     * The executable.
+     *
+     * @var string
+     */
     private $executable;
 
-  /**
-   * Controller constructor.
-   *
-   * @param \Islandora\Crayfish\Commons\CmdExecuteService $cmd
-   *   The command execute service.
-   * @param array $formats
-   *   The various valid mimetypes to format mapping.
-   * @param array $defaults
-   *   The default mimetype and format.
-   * @param string $executable
-   *   The path to the programs executable.
-   * @param \Psr\Log\LoggerInterface $log
-   *   The logger.
-   */
+    /**
+     * Controller constructor.
+     *
+     * @param \Islandora\Crayfish\Commons\CmdExecuteService $cmd
+     *   The command execute service.
+     * @param array $formats
+     *   The various valid mimetypes to format mapping.
+     * @param array $defaults
+     *   The default mimetype and format.
+     * @param string $executable
+     *   The path to the programs executable.
+     * @param \Psr\Log\LoggerInterface $log
+     *   The logger.
+     */
     public function __construct(
         CmdExecuteService $cmd,
         array $formats,
@@ -76,15 +76,15 @@ class HomarusController
         $this->log = $log;
     }
 
-  /**
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\StreamedResponse
-   */
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\StreamedResponse
+     */
     public function convert(Request $request)
     {
         $this->log->info('Ffmpeg Convert request.');
 
-      // Short circuit if there's no Apix-Ldp-Resource header.
+        // Short circuit if there's no Apix-Ldp-Resource header.
         if (!$request->headers->has("Apix-Ldp-Resource")) {
             $this->log->error("Malformed request, no Apix-Ldp-Resource header present");
             return new Response(
@@ -95,23 +95,23 @@ class HomarusController
             $source = $request->headers->get('Apix-Ldp-Resource');
         }
 
-      // Find the format
+        // Find the format
         $content_types = $request->getAcceptableContentTypes();
         list($content_type, $format) = $this->getFfmpegFormat($content_types);
 
         $cmd_params = "";
         if ($format == "mp4") {
             $cmd_params = " -vcodec libx264 -preset medium -acodec aac " .
-            "-strict -2 -ab 128k -ac 2 -async 1 -movflags " .
-            "frag_keyframe+empty_moov ";
+                "-strict -2 -ab 128k -ac 2 -async 1 -movflags " .
+                "frag_keyframe+empty_moov ";
         }
 
-      // Arguments to ffmpeg command are sent as a custom header.
+        // Arguments to ffmpeg command are sent as a custom header.
         $args = $request->headers->get('X-Islandora-Args');
 
-      // Reject messages that try to set loglevel. We have to force
-      // it to be '-loglevel error'. Anything more verbose caues
-      // issues with large files.
+        // Reject messages that try to set loglevel. We have to force
+        // it to be '-loglevel error'. Anything more verbose caues
+        // issues with large files.
         if (strpos($args, '-loglevel') !== false) {
             $this->log->error("Malformed request, don't try to set loglevel in X-Islandora-Args");
             return new Response(
@@ -120,7 +120,7 @@ class HomarusController
             );
         }
 
-      // Add -loglevel error so large files can be processed.
+        // Add -loglevel error so large files can be processed.
         $args .= ' -loglevel error';
         $this->log->debug("X-Islandora-Args:", ['args' => $args]);
         $token = $request->headers->get('Authorization');
@@ -128,7 +128,7 @@ class HomarusController
         $cmd_string = "$this->executable -headers $headers -i $source  $args $cmd_params -f $format -";
         $this->log->debug('Ffmpeg Command:', ['cmd' => $cmd_string]);
 
-      // Return response.
+        // Return response.
         try {
             return new StreamedResponse(
                 $this->cmd->execute($cmd_string, $source),
@@ -141,15 +141,15 @@ class HomarusController
         }
     }
 
-  /**
-   * Filters through an array of acceptable content-types and returns a FFmpeg format.
-   *
-   * @param array $content_types
-   *   The Accept content-types.
-   *
-   * @return array
-   *   Array with [ $content-type, $format ], falls back to defaults.
-   */
+    /**
+     * Filters through an array of acceptable content-types and returns a FFmpeg format.
+     *
+     * @param array $content_types
+     *   The Accept content-types.
+     *
+     * @return array
+     *   Array with [ $content-type, $format ], falls back to defaults.
+     */
     private function getFfmpegFormat(array $content_types): array
     {
         foreach ($content_types as $type) {
@@ -158,8 +158,8 @@ class HomarusController
                 array_column($this->formats, "mimetype")
             );
             if ($key !== false) {
-                  $format = $this->formats[$key]['format'];
-                  return [$type, $format];
+                $format = $this->formats[$key]['format'];
+                return [$type, $format];
             }
         }
 
@@ -167,9 +167,9 @@ class HomarusController
         return [$this->defaults["mimetype"], $this->defaults["format"]];
     }
 
-  /**
-   * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
-   */
+    /**
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function convertOptions(): BinaryFileResponse
     {
         return new BinaryFileResponse(
