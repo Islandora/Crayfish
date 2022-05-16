@@ -85,7 +85,12 @@ class HoudiniController
         $this->log->info('Convert request.');
 
         $fedora_resource = $request->attributes->get('fedora_resource');
-
+        $source_content_type = array_key_exists('Content-Type', $fedora_resource->getHeaders()) ?
+          $fedora_resource->getHeaders()['Content-Type'] : '';
+        if (is_array($source_content_type)) {
+            $source_content_type = array_pop($source_content_type);
+        }
+        $this->log->debug('source content type:', ['source_content_type' => $source_content_type]);
         // Get image as a resource.
         $body = StreamWrapper::getResource($fedora_resource->getBody());
 
@@ -112,7 +117,13 @@ class HoudiniController
         // Build arguments
         $exploded = explode('/', $content_type, 2);
         $format = count($exploded) == 2 ? $exploded[1] : $exploded[0];
-        $cmd_string = "$this->executable - $args $format:-";
+        // If the source is a PDF, must add the  pdf:-[0] to the $cmd_string.
+        if ($source_content_type == "application/pdf") {
+            $cmd_string = "$this->executable pdf:-[0] $args $format:-";
+        }
+        else {
+            $cmd_string = "$this->executable - $args $format:-";
+        }
         $this->log->info('Imagemagick Command:', ['cmd' => $cmd_string]);
 
         // Return response.
