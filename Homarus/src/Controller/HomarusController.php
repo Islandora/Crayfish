@@ -1,14 +1,11 @@
 <?php
 namespace Islandora\Homarus\Controller;
 
-use GuzzleHttp\Psr7\StreamWrapper;
 use Islandora\Crayfish\Commons\CmdExecuteService;
 use Islandora\Crayfish\Commons\ApixFedoraResourceRetriever;
-use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Class HomarusController
@@ -117,8 +114,11 @@ class HomarusController
         if ($format == "mp4") {
             $cmd_params = " -vcodec libx264 -preset medium -acodec aac " .
                 "-strict -2 -ab 128k -ac 2 -async 1 -movflags " .
-                "frag_keyframe+empty_moov ";
+                "faststart ";
         }
+
+        $temp_file_path = __DIR__ . "/../../static/" . basename($source) . $format;
+        $this->log->debug('Tempfile: ' . $temp_file_path);
 
         // Arguments to ffmpeg command are sent as a custom header.
         $args = $request->headers->get('X-Islandora-Args');
@@ -139,16 +139,18 @@ class HomarusController
         $this->log->debug("X-Islandora-Args:", ['args' => $args]);
         $token = $request->headers->get('Authorization');
         $headers = "'Authorization:  $token'";
-        $cmd_string = "$this->executable -headers $headers -i $source  $args $cmd_params -f $format -";
+        $cmd_string = "$this->executable -headers $headers -i $source  $args $cmd_params -f $format $temp_file_path";
         $this->log->debug('Ffmpeg Command:', ['cmd' => $cmd_string]);
 
         // Return response.
         try {
-            return new StreamedResponse(
-                $this->cmd->execute($cmd_string, $source),
-                200,
-                ['Content-Type' => $content_type]
-            );
+            $this->cmd->execute($cmd_string, $source);
+            return (new BinaryFileResponse(
+              $temp_file_path,
+              200,
+              ['Content-Type' => $content_type]
+            ))->deleteFileAfterSend(true);
+
         } catch (\RuntimeException $e) {
             $this->log->error("RuntimeException:", ['exception' => $e]);
             return new Response($e->getMessage(), 500);
