@@ -146,11 +146,10 @@ class HomarusController
         try {
             $this->cmd->execute($cmd_string, $source);
             return (new BinaryFileResponse(
-              $temp_file_path,
-              200,
-              ['Content-Type' => $content_type]
+                $temp_file_path,
+                200,
+                ['Content-Type' => $content_type]
             ))->deleteFileAfterSend(true);
-
         } catch (\RuntimeException $e) {
             $this->log->error("RuntimeException:", ['exception' => $e]);
             return new Response($e->getMessage(), 500);
