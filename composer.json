@@ -18,5 +18,8 @@
             "email": "Jonathan.Green@lyrasis.org",
             "role": "Maintainer"
         }
-    ]
+    ],
+    "require-dev": {
+        "phpspec/prophecy": "^1.15"
+    }
 }
