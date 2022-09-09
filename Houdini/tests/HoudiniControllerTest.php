@@ -56,7 +56,22 @@ class HoudiniControllerTest extends TestCase
      * @covers ::identify
      * @covers ::convert
      */
-    public function testErrorReturns500()
+    public function testErrorReturns500Image()
+    {
+        $this->errorReturns500('image/tiff');
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::identify
+     * @covers ::convert
+     */
+    public function testErrorReturns500PDF()
+    {
+        $this->errorReturns500('image/tiff');
+    }
+
+    protected function errorReturns500($content_type)
     {
         // Mock a CmdExecuteService to create a controller.
         $prophecy = $this->prophesize(CmdExecuteService::class);
@@ -79,6 +94,7 @@ class HoudiniControllerTest extends TestCase
         // Mock a Fedora response.
         $prophecy = $this->prophesize(ResponseInterface::class);
         $prophecy->getStatusCode()->willReturn(200);
+        $prophecy->getHeaders()->willReturn(['Content-Type' => $content_type]);
         $prophecy->getBody()->willReturn($mock_stream);
         $mock_fedora_response = $prophecy->reveal();
 
@@ -107,19 +123,25 @@ class HoudiniControllerTest extends TestCase
      * @covers ::identify
      * @covers ::convert
      */
-    public function testSuccessReturns200()
+    public function testSuccessReturns200Image()
+    {
+        $this->successReturns200('image/tiff');
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::identify
+     * @covers ::convert
+     */
+    public function testSuccessReturns200PDF()
+    {
+        $this->successReturns200('application/pdf');
+    }
+
+    protected function successReturns200($content_type)
     {
         // Mock a stream body for a Fedora response.
-        $prophecy = $this->prophesize(StreamInterface::class);
-        $prophecy->isReadable()->willReturn(true);
-        $prophecy->isWritable()->willReturn(false);
-        $mock_stream = $prophecy->reveal();
-
-        // Mock a Fedora response.
-        $prophecy = $this->prophesize(ResponseInterface::class);
-        $prophecy->getStatusCode()->willReturn(200);
-        $prophecy->getBody()->willReturn($mock_stream);
-        $mock_fedora_response = $prophecy->reveal();
+        $mock_fedora_response = $this->mockFedoraResponse($content_type);
 
         // Mock a CmdExecuteService.
         $prophecy = $this->prophesize(CmdExecuteService::class);
@@ -155,19 +177,25 @@ class HoudiniControllerTest extends TestCase
      * @covers ::identify
      * @covers ::convert
      */
-    public function testSuccessReturns200Fallback()
+    public function testSuccessReturns200FallbackImage()
+    {
+        $this->successReturns200Fallback('image/tiff');
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::identify
+     * @covers ::convert
+     */
+    public function testSuccessReturns200FallbackPDF()
+    {
+        $this->successReturns200Fallback('application/pdf');
+    }
+
+    protected function successReturns200Fallback($content_type)
     {
         // Mock a stream body for a Fedora response.
-        $prophecy = $this->prophesize(StreamInterface::class);
-        $prophecy->isReadable()->willReturn(true);
-        $prophecy->isWritable()->willReturn(false);
-        $mock_stream = $prophecy->reveal();
-
-        // Mock a Fedora response.
-        $prophecy = $this->prophesize(ResponseInterface::class);
-        $prophecy->getStatusCode()->willReturn(200);
-        $prophecy->getBody()->willReturn($mock_stream);
-        $mock_fedora_response = $prophecy->reveal();
+        $mock_fedora_response = $this->mockFedoraResponse($content_type);
 
         // Mock a CmdExecuteService.
         $prophecy = $this->prophesize(CmdExecuteService::class);
@@ -195,5 +223,22 @@ class HoudiniControllerTest extends TestCase
 
         $response = $controller->convert($request);
         $this->assertTrue($response->getStatusCode() == 200, "Response must return 200");
+    }
+
+    protected function mockFedoraResponse($content_type)
+    {
+        // Mock a stream body for a Fedora response.
+        $prophecy = $this->prophesize(StreamInterface::class);
+        $prophecy->isReadable()->willReturn(true);
+        $prophecy->isWritable()->willReturn(false);
+        $mock_stream = $prophecy->reveal();
+
+        // Mock a Fedora response.
+        $prophecy = $this->prophesize(ResponseInterface::class);
+        $prophecy->getStatusCode()->willReturn(200);
+        $prophecy->getHeaders()->willReturn(['Content-Type' => $content_type]);
+        $prophecy->getBody()->willReturn($mock_stream);
+        $mock_fedora_response = $prophecy->reveal();
+        return $mock_fedora_response;
     }
 }
