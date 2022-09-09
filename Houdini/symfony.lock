@@ -1,15 +1,6 @@
 {
-    "doctrine/cache": {
-        "version": "1.9.x-dev"
-    },
-    "doctrine/dbal": {
-        "version": "2.9.x-dev"
-    },
-    "doctrine/event-manager": {
-        "version": "1.0.x-dev"
-    },
     "doctrine/instantiator": {
-        "version": "1.4.0"
+        "version": "1.4.1"
     },
     "easyrdf/easyrdf": {
         "version": "0.9.x-dev"
@@ -39,37 +30,37 @@
         "version": "1.x-dev"
     },
     "myclabs/deep-copy": {
-        "version": "1.10.2"
+        "version": "1.11.0"
     },
     "namshi/jose": {
         "version": "7.2.3"
     },
     "nikic/php-parser": {
-        "version": "v4.10.3"
+        "version": "v4.15.1"
     },
     "phar-io/manifest": {
-        "version": "2.0.1"
+        "version": "2.0.3"
     },
     "phar-io/version": {
-        "version": "3.0.3"
-    },
-    "php": {
-        "version": "7.2"
+        "version": "3.2.1"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
     },
     "phpdocumentor/reflection-docblock": {
-        "version": "5.2.2"
+        "version": "5.3.0"
     },
     "phpdocumentor/type-resolver": {
-        "version": "1.4.0"
+        "version": "1.6.1"
     },
     "phpspec/prophecy": {
-        "version": "1.12.1"
+        "version": "v1.15.0"
+    },
+    "phpspec/prophecy-phpunit": {
+        "version": "v2.0.1"
     },
     "phpunit/php-code-coverage": {
-        "version": "9.2.5"
+        "version": "9.2.17"
     },
     "phpunit/php-file-iterator": {
         "version": "3.0.5"
@@ -84,12 +75,12 @@
         "version": "1.0.x-dev"
     },
     "phpunit/phpunit": {
-        "version": "4.7",
+        "version": "9.5",
         "recipe": {
             "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "4.7",
-            "ref": "477e1387616f39505ba79715f43f124836020d71"
+            "branch": "main",
+            "version": "9.3",
+            "ref": "a6249a6c4392e9169b87abf93225f7f9f59025e6"
         },
         "files": [
             ".env.test",
@@ -131,16 +122,13 @@
         "version": "4.0.4"
     },
     "sebastian/environment": {
-        "version": "5.1.3"
+        "version": "5.1.4"
     },
     "sebastian/exporter": {
-        "version": "4.0.3"
-    },
-    "sebastian/finder-facade": {
-        "version": "1.2.2"
+        "version": "4.0.4"
     },
     "sebastian/global-state": {
-        "version": "5.0.2"
+        "version": "5.0.5"
     },
     "sebastian/lines-of-code": {
         "version": "1.0.3"
@@ -161,7 +149,7 @@
         "version": "3.0.3"
     },
     "sebastian/type": {
-        "version": "2.3.1"
+        "version": "3.1.0"
     },
     "sebastian/version": {
         "version": "2.0.1"
@@ -197,8 +185,14 @@
     "symfony/dependency-injection": {
         "version": "v4.3.1"
     },
+    "symfony/deprecation-contracts": {
+        "version": "v2.5.0"
+    },
     "symfony/dotenv": {
         "version": "v4.3.1"
+    },
+    "symfony/error-handler": {
+        "version": "v4.4.37"
     },
     "symfony/event-dispatcher": {
         "version": "v4.3.1"
@@ -242,6 +236,9 @@
             "src/Controller/.gitignore",
             "src/Kernel.php"
         ]
+    },
+    "symfony/http-client-contracts": {
+        "version": "v2.5.0"
     },
     "symfony/http-foundation": {
         "version": "v4.3.1"
@@ -288,6 +285,9 @@
             "tests/.gitignore"
         ]
     },
+    "symfony/polyfill-intl-grapheme": {
+        "version": "v1.25.0"
+    },
     "symfony/polyfill-intl-idn": {
         "version": "v1.11.0"
     },
@@ -302,6 +302,9 @@
     },
     "symfony/polyfill-php73": {
         "version": "v1.11.0"
+    },
+    "symfony/polyfill-php80": {
+        "version": "v1.25.0"
     },
     "symfony/process": {
         "version": "4.3.x-dev"
@@ -351,6 +354,9 @@
     "symfony/service-contracts": {
         "version": "v1.1.5"
     },
+    "symfony/string": {
+        "version": "v5.4.3"
+    },
     "symfony/var-dumper": {
         "version": "4.3.x-dev"
     },
@@ -369,13 +375,10 @@
     "symfony/yaml": {
         "version": "v4.3.1"
     },
-    "theseer/fdomdocument": {
-        "version": "1.6.6"
-    },
     "theseer/tokenizer": {
-        "version": "1.2.0"
+        "version": "1.2.1"
     },
     "webmozart/assert": {
-        "version": "1.9.1"
+        "version": "1.11.0"
     }
 }
