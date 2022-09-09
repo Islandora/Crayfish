@@ -225,7 +225,8 @@ class HoudiniControllerTest extends TestCase
         $this->assertTrue($response->getStatusCode() == 200, "Response must return 200");
     }
 
-    protected function mockFedoraResponse($content_type) {
+    protected function mockFedoraResponse($content_type)
+    {
         // Mock a stream body for a Fedora response.
         $prophecy = $this->prophesize(StreamInterface::class);
         $prophecy->isReadable()->willReturn(true);
@@ -238,6 +239,6 @@ class HoudiniControllerTest extends TestCase
         $prophecy->getHeaders()->willReturn(['Content-Type' => $content_type]);
         $prophecy->getBody()->willReturn($mock_stream);
         $mock_fedora_response = $prophecy->reveal();
-	return $mock_fedora_response;
+        return $mock_fedora_response;
     }
 }
