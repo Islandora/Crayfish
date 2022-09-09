@@ -86,7 +86,7 @@ class HoudiniController
 
         $fedora_resource = $request->attributes->get('fedora_resource');
         $source_content_type = array_key_exists('Content-Type', $fedora_resource->getHeaders()) ?
-          $fedora_resource->getHeaders()['Content-Type'] : [];
+          $fedora_resource->getHeaders()['Content-Type'] : '';
         if (is_array($source_content_type)) {
             $source_content_type = array_pop($source_content_type);
         }

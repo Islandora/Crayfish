@@ -89,6 +89,7 @@ class HoudiniControllerTest extends TestCase
         );
         $request->headers->set('Authorization', 'some_token');
         $request->headers->set('Apix-Ldp-Resource', 'http://localhost:8080/fcrepo/rest/foo');
+        $request->headers->set('Content-Type', 'image/tiff');
         $request->attributes->set('fedora_resource', $mock_fedora_response);
 
         // Test convert
@@ -140,6 +141,7 @@ class HoudiniControllerTest extends TestCase
         );
         $request->headers->set('Authorization', 'some_token');
         $request->headers->set('Apix-Ldp-Resource', 'http://localhost:8080/fcrepo/rest/foo');
+        $request->headers->set('Content-Type', 'image/tiff');
         $request->headers->set('Accept', 'image/png');
         $request->attributes->set('fedora_resource', $mock_fedora_response);
 
@@ -188,6 +190,7 @@ class HoudiniControllerTest extends TestCase
         );
         $request->headers->set('Authorization', 'some_token');
         $request->headers->set('Apix-Ldp-Resource', 'http://localhost:8080/fcrepo/rest/foo');
+        $request->headers->set('Content-Type', 'image/tiff');
         $request->attributes->set('fedora_resource', $mock_fedora_response);
 
         $response = $controller->identify($request);
