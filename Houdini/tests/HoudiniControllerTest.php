@@ -123,7 +123,7 @@ class HoudiniControllerTest extends TestCase
      * @covers ::identify
      * @covers ::convert
      */
-    public function testSuccessReturns200Image($content_type)
+    public function testSuccessReturns200Image()
     {
         $this->successReturns200('image/tiff');
     }
@@ -133,7 +133,7 @@ class HoudiniControllerTest extends TestCase
      * @covers ::identify
      * @covers ::convert
      */
-    public function testSuccessReturns200PDF($content_type)
+    public function testSuccessReturns200PDF()
     {
         $this->successReturns200('application/pdf');
     }
