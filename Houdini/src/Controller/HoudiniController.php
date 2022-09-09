@@ -120,8 +120,7 @@ class HoudiniController
         // If the source is a PDF, must add the  pdf:-[0] to the $cmd_string.
         if ($source_content_type == "application/pdf") {
             $cmd_string = "$this->executable pdf:-[0] $args $format:-";
-        }
-        else {
+        } else {
             $cmd_string = "$this->executable - $args $format:-";
         }
         $this->log->info('Imagemagick Command:', ['cmd' => $cmd_string]);
