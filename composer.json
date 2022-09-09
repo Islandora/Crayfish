@@ -19,7 +19,7 @@
             "role": "Maintainer"
         }
     ],
-    "require-dev": {
+    "require": {
         "phpspec/prophecy": "^1.15"
     }
 }
