@@ -1,6 +1,6 @@
 codecov:
   # Default branch for CodeCov information
-  branch: main
+  branch: 2.x
 
 coverage:
   status:
@@ -8,4 +8,4 @@ coverage:
       default:
         # Only against main
         branches:
-        - main
+        - 2.x
