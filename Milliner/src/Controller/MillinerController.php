@@ -1,8 +1,8 @@
 <?php
 
-namespace Islandora\Milliner\Controller;
+namespace App\Islandora\Milliner\Controller;
 
-use Islandora\Milliner\Service\MillinerServiceInterface;
+use App\Islandora\Milliner\Service\MillinerServiceInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,7 +15,7 @@ class MillinerController
 {
 
     /**
-     * @var \Islandora\Milliner\Service\MillinerServiceInterface
+     * @var \App\Islandora\Milliner\Service\MillinerServiceInterface
      */
     protected $milliner;
 
@@ -26,7 +26,7 @@ class MillinerController
 
     /**
      * MillinerController constructor.
-     * @param \Islandora\Milliner\Service\MillinerServiceInterface $milliner
+     * @param \App\Islandora\Milliner\Service\MillinerServiceInterface $milliner
      * @param \Psr\Log\LoggerInterface $log
      */
     public function __construct(MillinerServiceInterface $milliner, LoggerInterface $log)
@@ -37,10 +37,13 @@ class MillinerController
 
     /**
      * @param string $uuid
+     *   The UUID of the Drupal resource to save.
      * @param \Symfony\Component\HttpFoundation\Request $request
+     *   The request.
      * @return \Symfony\Component\HttpFoundation\Response
+     *   A response
      */
-    public function saveNode($uuid, Request $request)
+    public function saveNode($uuid, Request $request): Response
     {
         $token = $request->headers->get("Authorization", null);
         $jsonld_url = $request->headers->get("Content-Location");
@@ -65,7 +68,7 @@ class MillinerController
                 $response->getStatusCode()
             );
         } catch (\Exception $e) {
-            $this->log->error("", ['Exception' => $e]);
+            $this->log->error("Caught exception creating node resource.", ['Exception' => $e]);
             $code = $e->getCode() == 0 ? 500 : $e->getCode();
             return new Response($e->getMessage(), $code);
         }
@@ -93,7 +96,7 @@ class MillinerController
                 $response->getStatusCode()
             );
         } catch (\Exception $e) {
-            $this->log->error("", ['Exception' => $e]);
+            $this->log->error("Caught exception deleting resource.", ['Exception' => $e]);
             $code = $e->getCode() == 0 ? 500 : $e->getCode();
             return new Response($e->getMessage(), $code);
         }
@@ -127,7 +130,7 @@ class MillinerController
                 $response->getStatusCode()
             );
         } catch (\Exception $e) {
-            $this->log->error("", ['Exception' => $e]);
+            $this->log->error("Caught exception saving media resource.", ['Exception' => $e]);
             $code = $e->getCode() == 0 ? 500 : $e->getCode();
             return new Response($e->getMessage(), $code);
         }
@@ -161,7 +164,7 @@ class MillinerController
                 $response->getStatusCode()
             );
         } catch (\Exception $e) {
-            $this->log->error("", ['Exception' => $e]);
+            $this->log->error("Caught exception saving external content resource.", ['Exception' => $e]);
             $code = $e->getCode() == 0 ? 500 : $e->getCode();
             return new Response($e->getMessage(), $code);
         }
@@ -176,7 +179,7 @@ class MillinerController
     {
         $token = $request->headers->get("Authorization", null);
         $islandora_fedora_endpoint = $request->headers->get("X-Islandora-Fedora-Endpoint");
-    
+
         try {
             $response = $this->milliner->createVersion(
                 $uuid,
@@ -188,7 +191,7 @@ class MillinerController
                 $response->getStatusCode()
             );
         } catch (\Exception $e) {
-            $this->log->error("", ['Exception' => $e]);
+            $this->log->error("Caught exception creating node version", ['Exception' => $e]);
             $code = $e->getCode() == 0 ? 500 : $e->getCode();
             return new Response($e->getMessage(), $code);
         }
@@ -217,7 +220,7 @@ class MillinerController
                 $response->getStatusCode()
             );
         } catch (\Exception $e) {
-            $this->log->error("", ['Exception' => $e]);
+            $this->log->error("Caught exception when creating media version", ['Exception' => $e]);
             $code = $e->getCode() == 0 ? 500 : $e->getCode();
             return new Response($e->getMessage(), $code);
         }

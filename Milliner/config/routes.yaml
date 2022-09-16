@@ -1,0 +1,24 @@
+node_save:
+    path: /node/{uuid}
+    methods: POST
+    controller: App\Islandora\Milliner\Controller\MillinerController::saveNode
+node_delete:
+    path: /node/{uuid}
+    methods: DELETE
+    controller: App\Islandora\Milliner\Controller\MillinerController::deleteNode
+node_version:
+    path: /node/{uuid}/version
+    methods: POST
+    controller: App\Islandora\Milliner\Controller\MillinerController::createNodeVersion
+media_save:
+    path: /media/{source_field}
+    methods: POST
+    controller: App\Islandora\Milliner\Controller\MillinerController::saveMedia
+media_version:
+    path: /media/{source_field}/version
+    methods: POST
+    controller: App\Islandora\Milliner\Controller\MillinerController::createMediaVersion
+external_save:
+    path: /external/{uuid}
+    methods: POST
+    controller: App\Islandora\Milliner\Controller\MillinerController::saveExternal

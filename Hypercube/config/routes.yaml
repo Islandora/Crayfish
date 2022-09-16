@@ -1,0 +1,8 @@
+hypercube_options:
+  path: /
+  methods: OPTIONS
+  controller: App\Islandora\Hypercube\Controller\HypercubeController::options
+hypercube_convert:
+  path: /
+  methods: GET
+  controller: App\Islandora\Hypercube\Controller\HypercubeController::ocr

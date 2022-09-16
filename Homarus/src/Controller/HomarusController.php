@@ -1,10 +1,9 @@
 <?php
-namespace Islandora\Homarus\Controller;
 
-use GuzzleHttp\Psr7\StreamWrapper;
+namespace App\Islandora\Homarus\Controller;
+
 use Islandora\Crayfish\Commons\CmdExecuteService;
-use Islandora\Crayfish\Commons\ApixFedoraResourceRetriever;
-use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,88 +11,75 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Class HomarusController
- * @package Islandora\Homarus\Controller
  * @param $log
+ * @package Islandora\Homarus\Controller
  */
 class HomarusController
 {
 
-  /**
-   * @var \Islandora\Crayfish\Commons\CmdExecuteService
-   */
+    /**
+     * @var \Islandora\Crayfish\Commons\CmdExecuteService
+     */
     protected $cmd;
 
-  /**
-   * @var \Monolog\Logger
-   */
+    /**
+     * @var \Monolog\Logger
+     */
     protected $log;
 
-  /**
-   * Not used I think.
-   *
-   * @var array
-   */
-    private $mimetypes;
-
-  /**
-   * Default FFmpeg format
-   *
-   * @var string
-   */
-    private $default_mimetype;
-
-  /**
-   * Mapping of mime-type to ffmpeg formats.
-   *
-   * @var array
-   */
-    private $mime_to_format;
+    /**
+     * Array of associative arrays with keys mimetype and format.
+     *
+     * @var array
+     */
+    private $formats;
 
     /**
-     * The default format.
+     * The default format and mimetype.
+     *
+     * @var array
+     */
+    private $defaults;
+
+    /**
+     * The executable.
      *
      * @var string
      */
-    private $default_format;
-
-  /**
-   * The executable.
-   *
-   * @var string
-   */
     private $executable;
 
-  /**
-   * Controller constructor.
-   * @param \Islandora\Crayfish\Commons\CmdExecuteService $cmd
-   * @param array $mimetypes
-   * @param string $default_mimetype
-   * @param string $executable
-   * @param $log
-   * @param array $mime_to_format
-   */
+    /**
+     * Controller constructor.
+     *
+     * @param \Islandora\Crayfish\Commons\CmdExecuteService $cmd
+     *   The command execute service.
+     * @param array $formats
+     *   The various valid mimetypes to format mapping.
+     * @param array $defaults
+     *   The default mimetype and format.
+     * @param string $executable
+     *   The path to the programs executable.
+     * @param \Psr\Log\LoggerInterface $log
+     *   The logger.
+     */
     public function __construct(
         CmdExecuteService $cmd,
-        $mimetypes,
-        $default_mimetype,
-        $executable,
-        $log,
-        $mime_to_format,
-        $default_format
+        array $formats,
+        array $defaults,
+        string $executable,
+        LoggerInterface $log
     ) {
         $this->cmd = $cmd;
-        $this->mimetypes = $mimetypes;
-        $this->default_mimetype = $default_mimetype;
+        $this->formats = $formats;
+        $this->defaults = $defaults;
         $this->executable = $executable;
         $this->log = $log;
-        $this->mime_to_format = $mime_to_format;
-        $this->default_format = $default_format;
     }
 
-  /**
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\StreamedResponse
-   */
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\StreamedResponse
+     */
     public function convert(Request $request)
     {
         $this->log->info('Ffmpeg Convert request.');
@@ -133,7 +119,7 @@ class HomarusController
                 400
             );
         }
-      
+
         // Add -loglevel error so large files can be processed.
         $args .= ' -loglevel error';
         $this->log->debug("X-Islandora-Args:", ['args' => $args]);
@@ -164,38 +150,30 @@ class HomarusController
      * @return array
      *   Array with [ $content-type, $format ], falls back to defaults.
      */
-    private function getFfmpegFormat(array $content_types)
+    private function getFfmpegFormat(array $content_types): array
     {
-        $content_type = null;
         foreach ($content_types as $type) {
-            if (in_array($type, $this->mimetypes)) {
-                $content_type = $type;
-                break;
+            $key = array_search(
+                $type,
+                array_column($this->formats, "mimetype")
+            );
+            if ($key !== false) {
+                $format = $this->formats[$key]['format'];
+                return [$type, $format];
             }
         }
 
-        if ($content_type === null) {
-            $this->log->info('No matching content-type, falling back to default.');
-            return [$this->default_mimetype, $this->default_format];
-        }
-
-        foreach ($this->mime_to_format as $format) {
-            $format_info = explode("_", $format);
-            if ($format_info[0] == $content_type) {
-                return [$content_type, $format_info[1]];
-            }
-        }
-        $this->log->info('No matching content-type to format mapping, falling back to default.');
-        return [$this->default_mimetype, $this->default_format];
+        $this->log->info('No matching content-type, falling back to default.');
+        return [$this->defaults["mimetype"], $this->defaults["format"]];
     }
 
-  /**
-   * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
-   */
-    public function convertOptions()
+    /**
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function convertOptions(): BinaryFileResponse
     {
         return new BinaryFileResponse(
-            __DIR__ . "/../../static/convert.ttl",
+            __DIR__ . "/../../public/static/convert.ttl",
             200,
             ['Content-Type' => 'text/turtle']
         );

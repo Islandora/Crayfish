@@ -1,0 +1,8 @@
+options:
+    path: /
+    methods: OPTIONS
+    controller: App\Islandora\Recast\Controller\RecastController::recastOptions
+recast:
+    path: /{operation}
+    methods: GET
+    controller: App\Islandora\Recast\Controller\RecastController::recast
