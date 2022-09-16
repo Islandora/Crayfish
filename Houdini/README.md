@@ -14,7 +14,7 @@
 
 ## Configuration
 
-Symfony uses `.dotenv` to set environment variables. You can check the [.env](./.env) in the root of the Homarus directory.
+Symfony uses `.dotenv` to set environment variables. You can check the [.env](./.env) in the root of the Houdini directory.
 To alter any settings, create a file called `.env.local` to store your specific changes. You can also set an actual environment
 variable.
 
