@@ -153,7 +153,8 @@ class HomarusController
      * @param string $content_type
      * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
-    public function generateDerivativeResponse(string $cmd_string, string $source, string $path, string $content_type) {
+    public function generateDerivativeResponse(string $cmd_string, string $source, string $path, string $content_type)
+    {
         try {
             $this->cmd->execute($cmd_string, $source);
             return (new BinaryFileResponse(
