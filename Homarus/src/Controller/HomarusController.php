@@ -89,7 +89,7 @@ class HomarusController
 
   /**
    * @param \Symfony\Component\HttpFoundation\Request $request
-   * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\StreamedResponse
+   * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
    */
     public function convert(Request $request)
     {
@@ -133,7 +133,7 @@ class HomarusController
                 400
             );
         }
-      
+
         // Add -loglevel error so large files can be processed.
         $args .= ' -loglevel error';
         $this->log->debug("X-Islandora-Args:", ['args' => $args]);
@@ -143,10 +143,21 @@ class HomarusController
         $this->log->debug('Ffmpeg Command:', ['cmd' => $cmd_string]);
 
         // Return response.
+        return $this->generateDerivativeResponse($cmd_string, $source, $temp_file_path, $content_type);
+    }
+
+    /**
+     * @param string $cmd_string
+     * @param string $source
+     * @param string $path
+     * @param string $content_type
+     * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function generateDerivativeResponse(string $cmd_string, string $source, string $path, string $content_type) {
         try {
             $this->cmd->execute($cmd_string, $source);
             return (new BinaryFileResponse(
-                $temp_file_path,
+                $path,
                 200,
                 ['Content-Type' => $content_type]
             ))->deleteFileAfterSend(true);
