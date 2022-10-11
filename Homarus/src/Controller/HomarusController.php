@@ -113,7 +113,7 @@ class HomarusController
         $cmd_params = "";
         if ($format == "mp4") {
             $cmd_params = " -vcodec libx264 -preset medium -acodec aac " .
-                "-strict -2 -ab 128k -ac 2 -async 1 -movflags " .
+                "-strict -2 -ab 128k -ac 2 -async 1 -y -movflags " .
                 "faststart ";
         }
 
