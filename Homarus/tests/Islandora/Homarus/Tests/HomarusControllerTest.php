@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -219,15 +220,27 @@ class HomarusControllerTest extends TestCase
         $mock_service = $prophecy->reveal();
 
         // Create a controller.
-        $controller = new HomarusController(
-            $mock_service,
-            $this->content_types,
-            $this->default_content_type,
-            'convert',
-            $this->prophesize(Logger::class)->reveal(),
-            $this->mime_to_format,
-            $this->default_format
-        );
+        $controller = $this->getMockBuilder(HomarusController::class)
+            ->onlyMethods(['generateDerivativeResponse'])
+            ->setConstructorArgs([
+                $mock_service,
+                $this->content_types,
+                $this->default_content_type,
+                'convert',
+                $this->prophesize(Logger::class)->reveal(),
+                $this->mime_to_format,
+                $this->default_format,
+            ])
+            ->getMock();
+
+        $controller->method('generateDerivativeResponse')
+            ->will($this->returnCallback(function ($cmd_string, $source, $path, $content_type) {
+                return new BinaryFileResponse(
+                    __DIR__ . "/../../../fixtures/foo.mp4",
+                    200,
+                    ['Content-Type' => $content_type]
+                );
+            }));
         return $controller;
     }
 

@@ -1,14 +1,11 @@
 <?php
 namespace Islandora\Homarus\Controller;
 
-use GuzzleHttp\Psr7\StreamWrapper;
 use Islandora\Crayfish\Commons\CmdExecuteService;
 use Islandora\Crayfish\Commons\ApixFedoraResourceRetriever;
-use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Class HomarusController
@@ -92,7 +89,7 @@ class HomarusController
 
   /**
    * @param \Symfony\Component\HttpFoundation\Request $request
-   * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\StreamedResponse
+   * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
    */
     public function convert(Request $request)
     {
@@ -116,9 +113,12 @@ class HomarusController
         $cmd_params = "";
         if ($format == "mp4") {
             $cmd_params = " -vcodec libx264 -preset medium -acodec aac " .
-                "-strict -2 -ab 128k -ac 2 -async 1 -movflags " .
-                "frag_keyframe+empty_moov ";
+                "-strict -2 -ab 128k -ac 2 -async 1 -y -movflags " .
+                "faststart ";
         }
+
+        $temp_file_path = __DIR__ . "/../../static/" . basename($source) . "." . $format;
+        $this->log->debug('Tempfile: ' . $temp_file_path);
 
         // Arguments to ffmpeg command are sent as a custom header.
         $args = $request->headers->get('X-Islandora-Args');
@@ -133,22 +133,35 @@ class HomarusController
                 400
             );
         }
-      
+
         // Add -loglevel error so large files can be processed.
         $args .= ' -loglevel error';
         $this->log->debug("X-Islandora-Args:", ['args' => $args]);
         $token = $request->headers->get('Authorization');
         $headers = "'Authorization:  $token'";
-        $cmd_string = "$this->executable -headers $headers -i $source  $args $cmd_params -f $format -";
+        $cmd_string = "$this->executable -headers $headers -i $source  $args $cmd_params -f $format $temp_file_path";
         $this->log->debug('Ffmpeg Command:', ['cmd' => $cmd_string]);
 
         // Return response.
+        return $this->generateDerivativeResponse($cmd_string, $source, $temp_file_path, $content_type);
+    }
+
+    /**
+     * @param string $cmd_string
+     * @param string $source
+     * @param string $path
+     * @param string $content_type
+     * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function generateDerivativeResponse(string $cmd_string, string $source, string $path, string $content_type)
+    {
         try {
-            return new StreamedResponse(
-                $this->cmd->execute($cmd_string, $source),
+            $this->cmd->execute($cmd_string, $source);
+            return (new BinaryFileResponse(
+                $path,
                 200,
                 ['Content-Type' => $content_type]
-            );
+            ))->deleteFileAfterSend(true);
         } catch (\RuntimeException $e) {
             $this->log->error("RuntimeException:", ['exception' => $e]);
             return new Response($e->getMessage(), 500);
