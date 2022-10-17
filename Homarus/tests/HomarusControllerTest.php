@@ -225,7 +225,7 @@ class HomarusControllerTest extends TestCase
         $controller->method('generateDerivativeResponse')
           ->will($this->returnCallback(function ($cmd_string, $source, $path, $content_type) {
             return new BinaryFileResponse(
-                __DIR__ . "/../../../fixtures/foo.mp4",
+                __DIR__ . "/fixtures/foo.mp4",
                 200,
                 ['Content-Type' => $content_type]
             );
