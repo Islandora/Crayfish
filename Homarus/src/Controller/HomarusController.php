@@ -10,7 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class HomarusController
+ *
  * @param $log
+ *
  * @package Islandora\Homarus\Controller
  */
 class HomarusController
@@ -77,6 +79,7 @@ class HomarusController
 
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
+     *
      * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function convert(Request $request)
@@ -96,7 +99,7 @@ class HomarusController
 
         // Find the format
         $content_types = $request->getAcceptableContentTypes();
-        list($content_type, $format) = $this->getFfmpegFormat($content_types);
+        [$content_type, $format] = $this->getFfmpegFormat($content_types);
 
         $cmd_params = "";
         if ($format == "mp4") {
@@ -121,7 +124,7 @@ class HomarusController
                 400
             );
         }
-      
+
         // Add -loglevel error so large files can be processed.
         $args .= ' -loglevel error';
         $this->log->debug("X-Islandora-Args:", ['args' => $args]);
@@ -134,30 +137,9 @@ class HomarusController
         return $this->generateDerivativeResponse($cmd_string, $source, $temp_file_path, $content_type);
     }
 
-  /**
-   * @param string $cmd_string
-   * @param string $source
-   * @param string $path
-   * @param string $content_type
-   * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
-   */
-  public function generateDerivativeResponse(string $cmd_string, string $source, string $path, string $content_type)
-  {
-    try {
-      $this->cmd->execute($cmd_string, $source);
-      return (new BinaryFileResponse(
-        $path,
-        200,
-        ['Content-Type' => $content_type]
-      ))->deleteFileAfterSend(true);
-    } catch (\RuntimeException $e) {
-      $this->log->error("RuntimeException:", ['exception' => $e]);
-      return new Response($e->getMessage(), 500);
-    }
-  }
-
     /**
-     * Filters through an array of acceptable content-types and returns a FFmpeg format.
+     * Filters through an array of acceptable content-types and returns a
+     * FFmpeg format.
      *
      * @param array $content_types
      *   The Accept content-types.
@@ -180,6 +162,33 @@ class HomarusController
 
         $this->log->info('No matching content-type, falling back to default.');
         return [$this->defaults["mimetype"], $this->defaults["format"]];
+    }
+
+    /**
+     * @param string $cmd_string
+     * @param string $source
+     * @param string $path
+     * @param string $content_type
+     *
+     * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function generateDerivativeResponse(
+        string $cmd_string,
+        string $source,
+        string $path,
+        string $content_type
+    ) {
+        try {
+            $this->cmd->execute($cmd_string, $source);
+            return (new BinaryFileResponse(
+                $path,
+                200,
+                ['Content-Type' => $content_type]
+            ))->deleteFileAfterSend(true);
+        } catch (\RuntimeException $e) {
+            $this->log->error("RuntimeException:", ['exception' => $e]);
+            return new Response($e->getMessage(), 500);
+        }
     }
 
     /**
