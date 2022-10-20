@@ -83,14 +83,20 @@ class HoudiniController
     public function convert(Request $request)
     {
         $this->log->info('Convert request.');
+        $this->log->debug('Headers received:');
 
+        $pretty_headers = explode("\r\n", (string)$request->headers);
+        foreach ($pretty_headers as $h) {
+            $this->log->debug($h);
+        }
+        $this->log->debug('Processing request.');
         $fedora_resource = $request->attributes->get('fedora_resource');
-        $source_content_type = array_key_exists('Content-Type', $fedora_resource->getHeaders()) ?
-          $fedora_resource->getHeaders()['Content-Type'] : '';
+        $source_content_type = array_key_exists('Content-Type', $fedora_resource->getHeaders()) 
+                               ? $fedora_resource->getHeaders()['Content-Type'] : '';
         if (is_array($source_content_type)) {
             $source_content_type = array_pop($source_content_type);
         }
-        $this->log->debug('source content type:', ['source_content_type' => $source_content_type]);
+        $this->log->debug('Content-Type of source data:', ['source_content_type' => $source_content_type]);
         // Get image as a resource.
         $body = StreamWrapper::getResource($fedora_resource->getBody());
 
@@ -98,10 +104,14 @@ class HoudiniController
         $args = $request->headers->get('X-Islandora-Args');
         $this->log->debug("X-Islandora-Args:", ['args' => $args]);
 
+        // Input arguments to image convert command are sent as a custom header
+        $inputargs = $request->headers->get('X-Islandora-Input-Args', '');
+        $this->log->debug("X-Islandora-Input-Args:", ['inputargs' => $inputargs]);
+
         // Find the correct image type to return
         $content_type = null;
         $content_types = $request->getAcceptableContentTypes();
-        $this->log->debug('Content Types:', is_array($args) ? $args : []);
+        $this->log->debug('Content Types:', is_array($content_types) ? $content_types : []);
         foreach ($content_types as $type) {
             if (in_array($type, $this->formats)) {
                 $content_type = $type;
@@ -119,9 +129,9 @@ class HoudiniController
         $format = count($exploded) == 2 ? $exploded[1] : $exploded[0];
         // If the source is a PDF, must add the  pdf:-[0] to the $cmd_string.
         if ($source_content_type == "application/pdf") {
-            $cmd_string = "$this->executable pdf:-[0] $args $format:-";
+            $cmd_string = "$this->executable $inputargs pdf:-[0] $args $format:-";
         } else {
-            $cmd_string = "$this->executable - $args $format:-";
+            $cmd_string = "$this->executable $inputargs - $args $format:-";
         }
         $this->log->info('Imagemagick Command:', ['cmd' => $cmd_string]);
 
