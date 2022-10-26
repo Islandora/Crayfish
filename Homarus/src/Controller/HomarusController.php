@@ -50,6 +50,13 @@ class HomarusController
     private $executable;
 
     /**
+     * The temp directory.
+     *
+     * @var string
+     */
+    private $tempDirectory;
+
+    /**
      * Controller constructor.
      *
      * @param \Islandora\Crayfish\Commons\CmdExecuteService $cmd
@@ -60,6 +67,8 @@ class HomarusController
      *   The default mimetype and format.
      * @param string $executable
      *   The path to the programs executable.
+     * @param string $tempDirectory
+     *   The temporary directory path.
      * @param \Psr\Log\LoggerInterface $log
      *   The logger.
      */
@@ -68,12 +77,14 @@ class HomarusController
         array $formats,
         array $defaults,
         string $executable,
+        string $tempDirectory,
         LoggerInterface $log
     ) {
         $this->cmd = $cmd;
         $this->formats = $formats;
         $this->defaults = $defaults;
         $this->executable = $executable;
+        $this->tempDirectory = $tempDirectory;
         $this->log = $log;
     }
 
@@ -108,7 +119,7 @@ class HomarusController
                 "faststart -y";
         }
 
-        $temp_file_path = __DIR__ . "/../../public/static/" . basename($source) . "." . $format;
+        $temp_file_path = $this->tempDirectory . basename($source) . "." . $format;
         $this->log->debug('Tempfile: ' . $temp_file_path);
 
         // Arguments to ffmpeg command are sent as a custom header.
