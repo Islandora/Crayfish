@@ -40,6 +40,8 @@ class HomarusControllerTest extends TestCase
             [ 'mimetype' => 'video/x-msvideo', 'format' => 'avi'],
             [ 'mimetype' => 'video/ogg', 'format' => 'ogg'],
         ];
+
+        $this->tempDirectory = '/../public/static/';
     }
 
     /**
@@ -218,6 +220,7 @@ class HomarusControllerTest extends TestCase
             $this->formats,
             $this->defaults,
             'convert',
+            $this->tempDirectory,
             $this->prophesize(Logger::class)->reveal(),
           ])
           ->getMock();
