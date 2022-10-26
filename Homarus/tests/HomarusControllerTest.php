@@ -75,6 +75,7 @@ class HomarusControllerTest extends TestCase
             $this->formats,
             $this->defaults,
             'convert',
+            $this->tempDirectory,
             $this->prophesize(Logger::class)->reveal()
         );
 
