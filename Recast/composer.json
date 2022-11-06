@@ -3,7 +3,6 @@
     "description": "Microservice rewrites Drupal URIs to Fedora URIs",
     "type": "project",
     "require": {
-        "php": "^7.3 || ^7.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "islandora/crayfish-commons": "^3.0",

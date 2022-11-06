@@ -1,5 +1,5 @@
 #!/bin/sh
-
+export SYMFONY_DEPRECATIONS_HELPER=disabled
 FAIL=0
 for D in */; do
   cd $D 
@@ -7,6 +7,7 @@ for D in */; do
   composer test
   if [ $? -ne 0 ]; then 
     FAIL=1
+    exit 1
   fi 
   cd .. 
 done

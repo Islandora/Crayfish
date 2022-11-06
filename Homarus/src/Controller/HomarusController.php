@@ -128,7 +128,7 @@ class HomarusController
         // Reject messages that try to set loglevel. We have to force
         // it to be '-loglevel error'. Anything more verbose caues
         // issues with large files.
-        if (strpos($args, '-loglevel') !== false) {
+        if (!is_null($args) && strpos($args, '-loglevel') !== false) {
             $this->log->error("Malformed request, don't try to set loglevel in X-Islandora-Args");
             return new Response(
                 "Malformed request, don't try to set loglevel in X-Islandora-Args",
