@@ -51,4 +51,5 @@ services:
             $formats: '%app.formats.valid%'
             $defaults: '%app.formats.defaults%'
             $executable: '%app.executable%'
+            $tempDirectory: '%app.tempDirectory%'
         tags: ['controller.service_arguments']
