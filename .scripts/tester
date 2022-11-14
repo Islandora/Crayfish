@@ -7,7 +7,6 @@ for D in */; do
   composer test
   if [ $? -ne 0 ]; then 
     FAIL=1
-    exit 1
   fi 
   cd .. 
 done
