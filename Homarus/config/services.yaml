@@ -25,7 +25,7 @@ parameters:
     app.formats.defaults:
         mimetype: video/mp4
         format: mp4
-    app.tempDirectory: /../public/static/
+    app.tempDirectory: /tmp/
 
 services:
     # default configuration for services in *this* file
