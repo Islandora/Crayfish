@@ -7,11 +7,12 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Class HomarusController
+ *
  * @param $log
+ *
  * @package Islandora\Homarus\Controller
  */
 class HomarusController
@@ -49,6 +50,13 @@ class HomarusController
     private $executable;
 
     /**
+     * The temp directory.
+     *
+     * @var string
+     */
+    private $tempDirectory;
+
+    /**
      * Controller constructor.
      *
      * @param \Islandora\Crayfish\Commons\CmdExecuteService $cmd
@@ -59,6 +67,8 @@ class HomarusController
      *   The default mimetype and format.
      * @param string $executable
      *   The path to the programs executable.
+     * @param string $tempDirectory
+     *   The temporary directory path.
      * @param \Psr\Log\LoggerInterface $log
      *   The logger.
      */
@@ -67,18 +77,21 @@ class HomarusController
         array $formats,
         array $defaults,
         string $executable,
+        string $tempDirectory,
         LoggerInterface $log
     ) {
         $this->cmd = $cmd;
         $this->formats = $formats;
         $this->defaults = $defaults;
         $this->executable = $executable;
+        $this->tempDirectory = $tempDirectory;
         $this->log = $log;
     }
 
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
-     * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\StreamedResponse
+     *
+     * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function convert(Request $request)
     {
@@ -97,14 +110,17 @@ class HomarusController
 
         // Find the format
         $content_types = $request->getAcceptableContentTypes();
-        list($content_type, $format) = $this->getFfmpegFormat($content_types);
+        [$content_type, $format] = $this->getFfmpegFormat($content_types);
 
         $cmd_params = "";
         if ($format == "mp4") {
             $cmd_params = " -vcodec libx264 -preset medium -acodec aac " .
                 "-strict -2 -ab 128k -ac 2 -async 1 -movflags " .
-                "frag_keyframe+empty_moov ";
+                "faststart -y";
         }
+
+        $temp_file_path = $this->tempDirectory . basename($source) . "." . $format;
+        $this->log->debug('Tempfile: ' . $temp_file_path);
 
         // Arguments to ffmpeg command are sent as a custom header.
         $args = $request->headers->get('X-Islandora-Args');
@@ -125,24 +141,16 @@ class HomarusController
         $this->log->debug("X-Islandora-Args:", ['args' => $args]);
         $token = $request->headers->get('Authorization');
         $headers = "'Authorization:  $token'";
-        $cmd_string = "$this->executable -headers $headers -i $source  $args $cmd_params -f $format -";
+        $cmd_string = "$this->executable -headers $headers -i $source  $args $cmd_params -f $format $temp_file_path";
         $this->log->debug('Ffmpeg Command:', ['cmd' => $cmd_string]);
 
         // Return response.
-        try {
-            return new StreamedResponse(
-                $this->cmd->execute($cmd_string, $source),
-                200,
-                ['Content-Type' => $content_type]
-            );
-        } catch (\RuntimeException $e) {
-            $this->log->error("RuntimeException:", ['exception' => $e]);
-            return new Response($e->getMessage(), 500);
-        }
+        return $this->generateDerivativeResponse($cmd_string, $source, $temp_file_path, $content_type);
     }
 
     /**
-     * Filters through an array of acceptable content-types and returns a FFmpeg format.
+     * Filters through an array of acceptable content-types and returns a
+     * FFmpeg format.
      *
      * @param array $content_types
      *   The Accept content-types.
@@ -165,6 +173,33 @@ class HomarusController
 
         $this->log->info('No matching content-type, falling back to default.');
         return [$this->defaults["mimetype"], $this->defaults["format"]];
+    }
+
+    /**
+     * @param string $cmd_string
+     * @param string $source
+     * @param string $path
+     * @param string $content_type
+     *
+     * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
+    public function generateDerivativeResponse(
+        string $cmd_string,
+        string $source,
+        string $path,
+        string $content_type
+    ) {
+        try {
+            $this->cmd->execute($cmd_string, $source);
+            return (new BinaryFileResponse(
+                $path,
+                200,
+                ['Content-Type' => $content_type]
+            ))->deleteFileAfterSend(true);
+        } catch (\RuntimeException $e) {
+            $this->log->error("RuntimeException:", ['exception' => $e]);
+            return new Response($e->getMessage(), 500);
+        }
     }
 
     /**

@@ -25,6 +25,7 @@ parameters:
     app.formats.defaults:
         mimetype: video/mp4
         format: mp4
+    app.tempDirectory: /tmp/
 
 services:
     # default configuration for services in *this* file
@@ -50,4 +51,5 @@ services:
             $formats: '%app.formats.valid%'
             $defaults: '%app.formats.defaults%'
             $executable: '%app.executable%'
+            $tempDirectory: '%app.tempDirectory%'
         tags: ['controller.service_arguments']
