@@ -1,5 +1,5 @@
 #!/bin/sh
-
+export SYMFONY_DEPRECATIONS_HELPER=disabled
 FAIL=0
 for D in */; do
   cd $D 

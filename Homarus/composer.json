@@ -4,7 +4,6 @@
     "type": "project",
     "license": "MIT",
     "require": {
-        "php": "^7.3 || ^7.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "islandora/crayfish-commons": "^3.0",
