@@ -124,6 +124,11 @@ class HypercubeControllerTest extends TestCase
         if ($throwException) {
             $prophecy->execute(Argument::any(), Argument::any())
                 ->willThrow(new \RuntimeException("ERROR", 500));
+        } else {
+            $prophecy->execute(Argument::any(), Argument::any())
+                ->willReturn(function () {
+                    return null;
+                });
         }
         $mock_service = $prophecy->reveal();
         $mock_logger = $this->prophesize(LoggerInterface::class)->reveal();

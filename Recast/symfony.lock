@@ -20,6 +20,18 @@
     "islandora/crayfish-commons": {
         "version": "3.0.0"
     },
+    "lexik/jwt-authentication-bundle": {
+        "version": "2.18",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "2.5",
+            "ref": "5b2157bcd5778166a5696e42f552ad36529a07a6"
+        },
+        "files": [
+            "config/packages/lexik_jwt_authentication.yaml"
+        ]
+    },
     "ml/iri": {
         "version": "1.1.4"
     },
@@ -289,17 +301,11 @@
             "tests/bootstrap.php"
         ]
     },
-    "symfony/polyfill-intl-idn": {
-        "version": "v1.23.0"
-    },
     "symfony/polyfill-intl-normalizer": {
         "version": "v1.23.0"
     },
     "symfony/polyfill-mbstring": {
         "version": "v1.23.1"
-    },
-    "symfony/polyfill-php72": {
-        "version": "v1.23.0"
     },
     "symfony/polyfill-php73": {
         "version": "v1.23.0"

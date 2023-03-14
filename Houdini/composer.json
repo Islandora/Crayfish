@@ -18,22 +18,26 @@
     "require": {
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "islandora/crayfish-commons": "^3.0",
-        "symfony/dotenv": "4.4.*",
+        "islandora/crayfish-commons": "dev-upgrade-5.4-symfony",
+        "lexik/jwt-authentication-bundle": "^2.18",
+        "symfony/dotenv": "5.4.*",
         "symfony/flex": "^1.17",
-        "symfony/framework-bundle": "4.4.*",
+        "symfony/framework-bundle": "5.4.*",
         "symfony/monolog-bundle": "^3.4",
-        "symfony/yaml": "4.4.*"
+        "symfony/runtime": "5.4.*",
+        "symfony/string": "5.4.*",
+        "symfony/translation": "5.4.*",
+        "symfony/yaml": "5.4.*"
     },
     "require-dev": {
         "phpspec/prophecy-phpunit": "^2.0",
         "phpunit/phpunit": "^9.5",
         "sebastian/phpcpd": "^6.0",
         "squizlabs/php_codesniffer": "^3.0",
-        "symfony/browser-kit": "4.4.*",
-        "symfony/css-selector": "4.4.*",
-        "symfony/phpunit-bridge": "4.4.*",
-        "symfony/var-dumper": "4.4.*"
+        "symfony/browser-kit": "5.4.*",
+        "symfony/css-selector": "5.4.*",
+        "symfony/phpunit-bridge": "5.4.*",
+        "symfony/var-dumper": "5.4.*"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -43,7 +47,8 @@
         },
         "sort-packages": true,
         "allow-plugins": {
-            "symfony/flex": true
+            "symfony/flex": true,
+            "symfony/runtime": true
         }
     },
     "autoload": {
@@ -80,7 +85,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "4.4.*"
+            "require": "5.4.*"
         }
     }
 }

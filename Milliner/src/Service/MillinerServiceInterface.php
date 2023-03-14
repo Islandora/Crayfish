@@ -28,7 +28,7 @@ interface MillinerServiceInterface
         string $uuid,
         string $jsonld_url,
         string $islandora_fedora_endpoint,
-        string $token = null
+        ?string $token = null
     ): ResponseInterface;
 
     /**
@@ -49,7 +49,7 @@ interface MillinerServiceInterface
         string $source_field,
         string $json_url,
         string $islandora_fedora_endpoint,
-        string $token = null
+        ?string $token = null
     ): ResponseInterface;
 
     /**
@@ -67,7 +67,7 @@ interface MillinerServiceInterface
     public function deleteNode(
         string $uuid,
         string $islandora_fedora_endpoint,
-        string $token = null
+        ?string $token = null
     ): ResponseInterface;
 
     /**
@@ -88,7 +88,7 @@ interface MillinerServiceInterface
         string $uuid,
         string $external_url,
         string $islandora_fedora_endpoint,
-        string $token = null
+        ?string $token = null
     ): ResponseInterface;
 
     /**
@@ -106,7 +106,7 @@ interface MillinerServiceInterface
     public function createVersion(
         string $uuid,
         string $islandora_fedora_endpoint,
-        string $token = null
+        ?string $token = null
     ): ResponseInterface;
 
     /**
@@ -127,6 +127,6 @@ interface MillinerServiceInterface
         string $source_field,
         string $json_url,
         string $islandora_fedora_endpoint,
-        string $token = null
+        ?string $token = null
     ): ResponseInterface;
 }

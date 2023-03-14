@@ -20,22 +20,22 @@ class HypercubeController
     /**
      * @var \Islandora\Crayfish\Commons\CmdExecuteService
      */
-    protected $cmd;
+    protected CmdExecuteService $cmd;
 
     /**
      * @var string
      */
-    protected $tesseract_executable;
+    protected string $tesseract_executable;
 
     /**
      * @var string
      */
-    protected $pdftotext_executable;
+    protected string $pdftotext_executable;
 
     /**
-     * @var \Monolog\Logger
+     * @var \Psr\Log\LoggerInterface
      */
-    protected $log;
+    protected LoggerInterface $log;
 
     /**
      * HypercubeController constructor.
@@ -60,7 +60,7 @@ class HypercubeController
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\StreamedResponse
      */
-    public function ocr(Request $request)
+    public function ocr(Request $request): Response
     {
         // Hack the fedora resource out of the attributes.
         $fedora_resource = $request->attributes->get('fedora_resource');

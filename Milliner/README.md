@@ -47,8 +47,7 @@ resource has been updated more recently.
 `app.isFedora6` determines whether the Fedora instance is version 5.*.* or 6.*.*.
 
 You do NOT need to edit the `fedora_base_url` inside `/path/to/Milliner/config/packages/crayfish_commons.yaml` as this
-re-uses the above setting. However in the same file you can point to the location of your `syn-settings.xml`.
-If you don't have a `syn-settings.xml` look at the [Syn](http://github.com/Islandora/Syn) documentation.
+re-uses the above setting.
 
 ### Logging
 
@@ -60,10 +59,13 @@ environment directory will take precedence over those in the `/path/to/Milliner/
 
 The location specified in the configuration file for the log must be writable by the web server.
 
-### Disabling Syn
+### Enabling JWT authentication
 
 There are instructions in the `/path/to/Milliner/config/packages/security.yaml` file describing what to change and what lines
-to comment out to disable Syn.
+to comment out to enable authentication.
+
+We use the Lexik JWT Authentication Bundle for Symfony, more information here
+https://github.com/lexik/LexikJWTAuthenticationBundle
 
 ## Usage
 

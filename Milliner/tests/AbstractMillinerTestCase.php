@@ -7,7 +7,6 @@ use App\Islandora\Milliner\Service\MillinerServiceInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Islandora\Chullo\IFedoraApi;
-use Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
@@ -31,42 +30,37 @@ class AbstractMillinerTestCase extends TestCase
      * The predicate to compare when checking date modified.
      * @var string
      */
-    protected $modifiedDatePredicate;
+    protected string $modifiedDatePredicate;
 
     /**
      * @var string
      */
-    protected $uuid;
+    protected string $uuid;
 
     /**
      * Is the Fedora of version >= 6.0.0
      * @var bool
      */
-    protected $isFedora6 = false;
+    protected bool $isFedora6 = false;
 
     /**
      * Whether to strip the ?_format=jsonld from URLs
      * @var bool
      */
-    protected $stripJsonLd = false;
+    protected bool $stripJsonLd = false;
 
     /**
      * @var string
      */
-    protected $fedoraBaseUrl;
+    protected string $fedoraBaseUrl;
 
     /**
-     * @var \Islandora\Chullo\IFedoraApi
+     * @var \Islandora\Chullo\IFedoraApi|\Prophecy\Prophecy\ObjectProphecy
      */
     protected $fedora_client_prophecy;
 
     /**
-     * @var \Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface
-     */
-    protected $entity_mapper_prophecy;
-
-    /**
-     * @var \GuzzleHttp\Client
+     * @var \GuzzleHttp\Client|\Prophecy\Prophecy\ObjectProphecy
      */
     protected $drupal_client_prophecy;
 
@@ -74,46 +68,46 @@ class AbstractMillinerTestCase extends TestCase
      * A 200 OK response.
      * @var \GuzzleHttp\Psr7\Response
      */
-    protected $ok_response;
+    protected Response $ok_response;
 
     /**
      * A 201 Created response.
      * @var \GuzzleHttp\Psr7\Response
      */
-    protected $created_response;
+    protected Response $created_response;
 
     /**
      * A 204 No Content response.
      * @var \GuzzleHttp\Psr7\Response
      */
-    protected $no_content_response;
+    protected Response $no_content_response;
 
     /**
      * A 404 Not Found response.
      * @var \GuzzleHttp\Psr7\Response
      */
-    protected $not_found_response;
+    protected Response $not_found_response;
 
     /**
      * A 401 Unauthorized response.
      * @var \GuzzleHttp\Psr7\Response
      */
-    protected $unauthorized_response;
+    protected Response $unauthorized_response;
 
     /**
      * A 403 Forbidden response
      * @var \GuzzleHttp\Psr7\Response
      */
-    protected $forbidden_response;
+    protected Response $forbidden_response;
 
     /**
      * A 410 Gone response
      * @var \GuzzleHttp\Psr7\Response
      */
-    protected $gone_response;
+    protected Response $gone_response;
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     protected function setUp(): void
     {
@@ -128,11 +122,7 @@ class AbstractMillinerTestCase extends TestCase
 
         // Prophecies
         $this->drupal_client_prophecy = $this->prophesize(Client::class);
-        $this->entity_mapper_prophecy = $this->prophesize(EntityMapperInterface::class);
         $this->fedora_client_prophecy = $this->prophesize(IFedoraApi::class);
-
-        $this->entity_mapper_prophecy->getFedoraPath($this->uuid)
-            ->willReturn("{$this->fedoraBaseUrl}/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8");
 
         // Reusable responses
         $this->ok_response = new Response(200);
@@ -165,7 +155,6 @@ class AbstractMillinerTestCase extends TestCase
         return new MillinerService(
             $this->fedora_client_prophecy->reveal(),
             $this->drupal_client_prophecy->reveal(),
-            $this->entity_mapper_prophecy->reveal(),
             $this->logger,
             $this->modifiedDatePredicate,
             $this->stripJsonLd,

@@ -24,8 +24,7 @@ If your `imagemagick` installation is not on your path, then you can configure H
 the `app.executable` parameter in [`/path/to/Houdini/config/services.yaml`](./config/services.yaml).
 
 You also need to set your Fedora Base Url to allow the Fedora Resource to be pulled in automatically. This is done in the
-`/path/to/Houdini/config/packages/crayfish_commons.yaml`. In the same file you can point to the location of your `syn-settings.xml`.
-If you don't have a `syn-settings.xml` look at the [Syn](http://github.com/Islandora/Syn) documentation.
+`/path/to/Houdini/config/packages/crayfish_commons.yaml`.
 
 ### Logging
 
@@ -37,10 +36,13 @@ environment directory will take precedence over those in the `/path/to/Houdini/c
 
 The location specified in the configuration file for the log must be writable by the web server.
 
-### Disabling Syn
+### Enabling JWT authentication
 
 There are instructions in the `/path/to/Houdini/config/packages/security.yaml` file describing what to change and what lines
-to comment out to disable Syn.
+to comment out to enable authentication.
+
+We use the Lexik JWT Authentication Bundle for Symfony, more information here
+https://github.com/lexik/LexikJWTAuthenticationBundle
 
 ## Usage
 
@@ -49,7 +51,7 @@ Houdini sets up two endpoints:
  - /convert/
 
 Houdini is meant for use with API-X, and accepts `GET` and `OPTIONS` requests to those endpoints.  The `OPTIONS` requests are for use with the API-X service loading mechanism, and return RDF describing the
-service for API-X.  The `GET` requests are used to execute the services, and must contain the URI to an image in Fedora in the `ApixLdpResource` header.
+service for API-X.  The `GET` requests are used to execute the services, and must contain the URI to an image in Fedora in the `Apix-Ldp-Resource` header.
 
 ### Identify
 

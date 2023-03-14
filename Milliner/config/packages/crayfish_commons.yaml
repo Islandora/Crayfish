@@ -1,4 +1,0 @@
-crayfish_commons:
-  # Because we define a Fedora parameter in the services.yaml we can re-use it here.
-  fedora_base_uri: '%app.fedora_base_url%'
-  #syn_config: '/path/to/syn-settings.xml'

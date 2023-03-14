@@ -8,7 +8,7 @@ use EasyRdf\Graph;
 use EasyRdf\RdfNamespace;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-use Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface;
+use Islandora\EntityMapper\EntityMapper;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,24 +21,24 @@ class RecastController
 {
 
     /**
-     * @var \Monolog\Logger
+     * @var \Psr\Log\LoggerInterface
      */
-    private $log;
+    private LoggerInterface $log;
 
     /**
-     * @var \Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface
+     * @var \Islandora\EntityMapper\EntityMapper
      */
-    private $entityMapper;
+    private EntityMapper $entityMapper;
 
     /**
      * @var \GuzzleHttp\Client
      */
-    private $http;
+    private Client $http;
 
     /**
      * @var array
      */
-    protected $availableMethods = [
+    protected array $availableMethods = [
         'add',
         'replace',
     ];
@@ -47,24 +47,23 @@ class RecastController
      * The Fedora base url, for URL detection.
      * @var string
      */
-    private $fcrepo_base_url;
+    private string $fcrepo_base_url;
 
     /**
      * The Drupal base url, for URL detection.
      * @var string
      */
-    private $drupal_base_url;
+    private string $drupal_base_url;
 
     /**
      * Array of Fedora namespace prefixes.
      * @var array
      */
-    private $namespaces;
+    private array $namespaces;
 
     /**
      * RecastController constructor.
      *
-     * @param \Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface $entityMapper
      * @param \GuzzleHttp\Client $http
      * @param \Psr\Log\LoggerInterface $log
      * @param string $drupal_base_url
@@ -72,14 +71,13 @@ class RecastController
      * @param array $namespaces
      */
     public function __construct(
-        EntityMapperInterface $entityMapper,
         Client $http,
         LoggerInterface $log,
         string $drupal_base_url,
         string $fcrepo_base_url,
         array $namespaces
     ) {
-        $this->entityMapper = $entityMapper;
+        $this->entityMapper = new EntityMapper();
         $this->http = $http;
         $this->log = $log;
         $this->drupal_base_url = $drupal_base_url;
@@ -313,7 +311,7 @@ class RecastController
                 return rtrim($fcrepo_base_url, '/') . '/' . $this->entityMapper->getFedoraPath($uuid);
             }
         } catch (RequestException $e) {
-            $this->log->warn($e->getMessage());
+            $this->log->warning($e->getMessage());
             return null;
         }
     }

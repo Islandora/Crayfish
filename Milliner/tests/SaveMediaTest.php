@@ -22,9 +22,6 @@ class SaveMediaTest extends AbstractMillinerTestCase
         parent::setUp();
 
         $this->uuid = 'ffb15b4f-54db-44ce-ad0b-3588889a3c9b';
-
-        $this->entity_mapper_prophecy->getFedoraPath($this->uuid)
-            ->willReturn("{$this->fedoraBaseUrl}/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b");
     }
 
     /**
@@ -425,13 +422,10 @@ class SaveMediaTest extends AbstractMillinerTestCase
         $this->fedora_client_prophecy->saveResource(Argument::any(), Argument::any(), Argument::any())
             ->willReturn($fedora_put_response);
 
-        $this->entity_mapper_prophecy->getFedoraPath('f0fd71b3-1fab-45e1-a5e9-78d50e0d7174')
-            ->willReturn("{$this->fedoraBaseUrl}/f0/fd/71/b3/f0fd71b3-1fab-45e1-a5e9-78d50e0d7174");
 
         return new MillinerService(
             $this->fedora_client_prophecy->reveal(),
             $this->drupal_client_prophecy->reveal(),
-            $this->entity_mapper_prophecy->reveal(),
             $this->logger,
             $this->modifiedDatePredicate,
             false,

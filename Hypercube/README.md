@@ -53,8 +53,7 @@ If your `pdftotext` installation is not on your path, then you can configure Hyp
 the `app.pdftotext_executable` parameter in [`/path/to/Hypercube/config/services.yaml`](./config/services.yaml).
 
 You also need to set your Fedora Base Url to allow the Fedora Resource to be pulled in automatically. This is done in the
-`/path/to/Hypercube/config/packages/crayfish_commons.yaml`. In the same file you can point to the location of your `syn-settings.xml`.
-If you don't have a `syn-settings.xml` look at the [Syn](http://github.com/Islandora/Syn) documentation.
+`/path/to/Hypercube/config/packages/crayfish_commons.yaml`.
 
 In order to work on larger images, be sure `post_max_size` is sufficiently large and `max_execution_time` is set to 0 in your PHP
 installation's ini file.  You can determine which ini file is getting used by running the command `$ php --ini`.
@@ -69,10 +68,13 @@ environment directory will take precedence over those in the `/path/to/Hypercube
 
 The location specified in the configuration file for the log must be writable by the web server.
 
-### Disabling Syn
+### Enabling JWT authentication
 
 There are instructions in the `/path/to/Hypercube/config/packages/security.yaml` file describing what to change and what lines
-to comment out to disable Syn.
+to comment out to enable authentication.
+
+We use the Lexik JWT Authentication Bundle for Symfony, more information here
+https://github.com/lexik/LexikJWTAuthenticationBundle
 
 ## Usage
 
