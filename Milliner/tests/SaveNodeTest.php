@@ -2,6 +2,7 @@
 
 namespace App\Islandora\Milliner\Tests;
 
+use donatj\MockWebServer\ResponseByMethod;
 use GuzzleHttp\Psr7\Response;
 use App\Islandora\Milliner\Service\MillinerService;
 use Prophecy\Argument;
@@ -39,7 +40,7 @@ class SaveNodeTest extends AbstractMillinerTestCase
     {
         $milliner = $this->setupMilliner($this->not_found_response, null, $this->unauthorized_response);
 
-        $this->expectException(\RuntimeException::class, null, 403);
+        $this->expectException(\RuntimeException::class, null, 401);
 
         $milliner->saveNode(
             $this->uuid,
@@ -107,10 +108,10 @@ class SaveNodeTest extends AbstractMillinerTestCase
      */
     public function testUpdateNodeThrowsOnFedoraError()
     {
-        $fedora_get_response = new Response(
-            200,
+        $fedora_get_response = new \donatj\MockWebServer\Response(
+            file_get_contents(__DIR__ . '/static/ContentLDP-RS.jsonld'),
             ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/static/ContentLDP-RS.jsonld')
+            200
         );
 
         $milliner = $this->setupMilliner($this->ok_response, $fedora_get_response, $this->unauthorized_response);
@@ -143,10 +144,10 @@ class SaveNodeTest extends AbstractMillinerTestCase
         $this->drupal_client_prophecy->get(Argument::any(), Argument::any())
             ->willReturn($drupal_response);
 
-        $fedora_get_response = new Response(
-            200,
+        $fedora_get_response = new \donatj\MockWebServer\Response(
+            file_get_contents(__DIR__ . '/static/ContentLDP-RS.jsonld'),
             ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/static/ContentLDP-RS.jsonld')
+            200
         );
 
         $this->expectException(\RuntimeException::class, null, 500);
@@ -179,10 +180,10 @@ class SaveNodeTest extends AbstractMillinerTestCase
         $this->drupal_client_prophecy->get(Argument::any(), Argument::any())
             ->willReturn($drupal_response);
 
-        $fedora_get_response = new Response(
-            200,
+        $fedora_get_response = new \donatj\MockWebServer\Response(
+            file_get_contents(__DIR__ . '/static/ContentLDP-RS.jsonld'),
             ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/static/ContentLDP-RS.jsonld')
+            200
         );
 
         $milliner = $this->setupMilliner($this->ok_response, $fedora_get_response, null);
@@ -207,10 +208,10 @@ class SaveNodeTest extends AbstractMillinerTestCase
      */
     public function testUpdateNodeReturnsFedora201()
     {
-        $fedora_get_response = new Response(
-            200,
+        $fedora_get_response = new \donatj\MockWebServer\Response(
+            file_get_contents(__DIR__ . '/static/ContentLDP-RS.jsonld'),
             ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/static/ContentLDP-RS.jsonld')
+            200,
         );
         $milliner = $this->setupMilliner($this->ok_response, $fedora_get_response, $this->created_response);
 
@@ -239,10 +240,10 @@ class SaveNodeTest extends AbstractMillinerTestCase
     public function testUpdateNodeReturnsFedora204()
     {
 
-        $fedora_get_response = new Response(
-            200,
+        $fedora_get_response = new \donatj\MockWebServer\Response(
+            file_get_contents(__DIR__ . '/static/ContentLDP-RS.jsonld'),
             ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/static/ContentLDP-RS.jsonld')
+            200
         );
         $milliner = $this->setupMilliner($this->ok_response, $fedora_get_response, $this->no_content_response);
 
@@ -263,32 +264,38 @@ class SaveNodeTest extends AbstractMillinerTestCase
     /**
      * Utility function to setup a MillinerService
      *
-     * @param Response|null $fedora_head_response
+     * @param \donatj\MockWebServer\Response|null $fedora_head_response
      *   The response Fedora will return to the HEAD request, if null don't set the prophecy.
-     * @param Response|null $fedora_get_response
+     * @param \donatj\MockWebServer\Response|null $fedora_get_response
      *   The response Fedora will return to the GET request, if null don't set the prophecy.
-     * @param Response|null $fedora_save_response
+     * @param \donatj\MockWebServer\Response|null $fedora_save_response
      *   The response Fedora will return to the PUT request, if null don't set the prophecy.
      *
-     * @return \Islandora\Milliner\Service\MillinerService
+     * @return \App\Islandora\Milliner\Service\MillinerService
      */
     private function setupMilliner(
-        $fedora_head_response,
-        $fedora_get_response,
-        $fedora_save_response
+        ?\donatj\MockWebServer\Response $fedora_head_response,
+        ?\donatj\MockWebServer\Response $fedora_get_response,
+        ?\donatj\MockWebServer\Response $fedora_save_response
     ): MillinerService {
 
+        $by_method = [];
         if ($fedora_head_response !== null) {
-            $this->fedora_client_prophecy->getResourceHeaders(Argument::any())
-                ->willReturn($fedora_head_response);
+            $by_method[ResponseByMethod::METHOD_HEAD] = $fedora_head_response;
         }
         if ($fedora_get_response != null) {
-            $this->fedora_client_prophecy->getResource(Argument::any(), Argument::any(), Argument::any())
-                ->willReturn($fedora_get_response);
+            $by_method[ResponseByMethod::METHOD_GET] = $fedora_get_response;
         }
         if ($fedora_save_response !== null) {
-            $this->fedora_client_prophecy->saveResource(Argument::any(), Argument::any(), Argument::any())
-                ->willReturn($fedora_save_response);
+            $by_method[ResponseByMethod::METHOD_PUT] = $fedora_save_response;
+        }
+        if (count($by_method) > 0) {
+            self::$webserver->setResponseOfPath(
+                $this->fedora_path,
+                new ResponseByMethod(
+                    $by_method
+                )
+            );
         }
 
         return $this->getMilliner();

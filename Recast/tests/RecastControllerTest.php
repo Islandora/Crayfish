@@ -216,7 +216,7 @@ class RecastControllerTest extends TestCase
         $prophecy = $this->prophesize(ResponseInterface::class);
         $prophecy->getStatusCode()->willReturn(200);
         $prophecy->getBody()->willReturn($mock_stream);
-        $prophecy->getHeader('Content-type')->willReturn($content_type);
+        $prophecy->getHeader('Content-type')->willReturn([$content_type]);
         // This is to avoid the describes check, should add a test for it.
         $prophecy->hasHeader('Link')->willReturn(false);
         return $prophecy->reveal();
