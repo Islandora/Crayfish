@@ -4,7 +4,6 @@ namespace App\Islandora\Milliner\Tests;
 
 use donatj\MockWebServer\ResponseByMethod;
 use donatj\MockWebServer\ResponseStack;
-use Prophecy\Argument;
 
 /**
  * Class MillinerServiceTest

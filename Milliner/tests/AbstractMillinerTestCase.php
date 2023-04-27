@@ -6,8 +6,6 @@ use App\Islandora\Milliner\Service\MillinerService;
 use App\Islandora\Milliner\Service\MillinerServiceInterface;
 use donatj\MockWebServer\MockWebServer;
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Response;
-use Islandora\Chullo\IFedoraApi;
 use Islandora\EntityMapper\EntityMapper;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;

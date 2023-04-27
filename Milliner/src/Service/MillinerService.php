@@ -9,7 +9,6 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Header;
 use GuzzleHttp\Psr7\Response;
 use Islandora\Chullo\FedoraApi;
-use Islandora\Chullo\IFedoraApi;
 use Islandora\EntityMapper\EntityMapper;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
