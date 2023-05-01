@@ -46,9 +46,6 @@ resource has been updated more recently.
 
 `app.isFedora6` determines whether the Fedora instance is version 5.*.* or 6.*.*.
 
-You do NOT need to edit the `fedora_base_url` inside `/path/to/Milliner/config/packages/crayfish_commons.yaml` as this
-re-uses the above setting.
-
 ### Logging
 
 To change your log settings, edit the `/path/to/Milliner/config/packages/monolog.yaml` file.
@@ -82,7 +79,7 @@ Milliner sets up a multiple endpoints,
 * `/external/{uuid}` which accepts POST requests.
   * POST creates a new external content resource for the Drupal resource
 
-UUID is transformed into a Fedora URI using the [Crayfish-Commons](https://github.com/Islandora/Crayfish-Commons) EntityMapper.
+UUID is transformed into a Fedora URI using the [Islandora to Fedora EntityMapper](https://github.com/Islandora/islandora-fedora-entity-mapper).
 
 ## Maintainers
 

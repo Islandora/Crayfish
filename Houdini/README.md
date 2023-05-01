@@ -12,6 +12,10 @@
 - `$ cd /path/to/Houdini` and run `$ composer install`
 - For production, configure your web server appropriately (e.g. add a VirtualHost for Houdini in Apache)
 
+## Upgrading
+
+Steps for upgrading Houdini can be found in [UPGRADE.md](UPGRADE.md)
+
 ## Configuration
 
 Symfony uses `.dotenv` to set environment variables. You can check the [.env](./.env) in the root of the Houdini directory.
