@@ -46,10 +46,6 @@ resource has been updated more recently.
 
 `app.isFedora6` determines whether the Fedora instance is version 5.*.* or 6.*.*.
 
-You do NOT need to edit the `fedora_base_url` inside `/path/to/Milliner/config/packages/crayfish_commons.yaml` as this
-re-uses the above setting. However in the same file you can point to the location of your `syn-settings.xml`.
-If you don't have a `syn-settings.xml` look at the [Syn](http://github.com/Islandora/Syn) documentation.
-
 ### Logging
 
 To change your log settings, edit the `/path/to/Milliner/config/packages/monolog.yaml` file.
@@ -60,10 +56,13 @@ environment directory will take precedence over those in the `/path/to/Milliner/
 
 The location specified in the configuration file for the log must be writable by the web server.
 
-### Disabling Syn
+### Enabling JWT authentication
 
 There are instructions in the `/path/to/Milliner/config/packages/security.yaml` file describing what to change and what lines
-to comment out to disable Syn.
+to comment out to enable authentication.
+
+We use the Lexik JWT Authentication Bundle for Symfony, more information here
+https://github.com/lexik/LexikJWTAuthenticationBundle
 
 ## Usage
 
@@ -80,7 +79,7 @@ Milliner sets up a multiple endpoints,
 * `/external/{uuid}` which accepts POST requests.
   * POST creates a new external content resource for the Drupal resource
 
-UUID is transformed into a Fedora URI using the [Crayfish-Commons](https://github.com/Islandora/Crayfish-Commons) EntityMapper.
+UUID is transformed into a Fedora URI using the [Islandora to Fedora EntityMapper](https://github.com/Islandora/islandora-fedora-entity-mapper).
 
 ## Maintainers
 

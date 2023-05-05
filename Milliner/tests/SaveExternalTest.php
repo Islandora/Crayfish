@@ -52,9 +52,10 @@ class SaveExternalTest extends AbstractMillinerTestCase
     {
         $this->drupal_client_prophecy->head(Argument::any(), Argument::any())
             ->willReturn(new Response(200, ['Content-Type' => 'image/jpeg']));
-
-        $this->fedora_client_prophecy->saveResource(Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($this->forbidden_response);
+        self::$webserver->setResponseOfPath(
+            $this->fedora_path,
+            $this->forbidden_response
+        );
 
         $milliner = $this->getMilliner();
 

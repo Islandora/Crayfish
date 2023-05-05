@@ -59,10 +59,13 @@ environment directory will take precedence over those in the `/path/to/Recast/co
 
 The location specified in the configuration file for the log must be writable by the web server.
 
-### Disabling Syn
+### Enabling JWT authentication
 
 There are instructions in the `/path/to/Recast/config/packages/security.yaml` file describing what to change and what lines
-to comment out to disable Syn.
+to comment out to enable authentication.
+
+We use the Lexik JWT Authentication Bundle for Symfony, more information here
+https://github.com/lexik/LexikJWTAuthenticationBundle
 
 ## Usage
 

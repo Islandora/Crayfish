@@ -17,12 +17,12 @@ class MillinerController
     /**
      * @var \App\Islandora\Milliner\Service\MillinerServiceInterface
      */
-    protected $milliner;
+    protected MillinerServiceInterface $milliner;
 
     /**
      * @var \Psr\Log\LoggerInterface
      */
-    protected $log;
+    protected LoggerInterface $log;
 
     /**
      * MillinerController constructor.
@@ -41,9 +41,9 @@ class MillinerController
      * @param \Symfony\Component\HttpFoundation\Request $request
      *   The request.
      * @return \Symfony\Component\HttpFoundation\Response
-     *   A response
+     *   The response generated from the response from Fedora.
      */
-    public function saveNode($uuid, Request $request): Response
+    public function saveNode(string $uuid, Request $request): Response
     {
         $token = $request->headers->get("Authorization", null);
         $jsonld_url = $request->headers->get("Content-Location");
@@ -76,10 +76,13 @@ class MillinerController
 
     /**
      * @param string $uuid
+     *  The UUID of the Drupal resource to delete.
      * @param \Symfony\Component\HttpFoundation\Request $request
+     *  The request.
      * @return \Symfony\Component\HttpFoundation\Response
+     *  The response generated from the response from Fedora.
      */
-    public function deleteNode($uuid, Request $request)
+    public function deleteNode(string $uuid, Request $request): Response
     {
         $token = $request->headers->get("Authorization", null);
         $islandora_fedora_endpoint = $request->headers->get("X-Islandora-Fedora-Endpoint");
@@ -104,10 +107,13 @@ class MillinerController
 
     /**
      * @param string $source_field
+     *  The source field of the media being saved.
      * @param \Symfony\Component\HttpFoundation\Request $request
+     *  The request.
      * @return \Symfony\Component\HttpFoundation\Response
+     *  The response generated from the response from Fedora.
      */
-    public function saveMedia($source_field, Request $request)
+    public function saveMedia(string $source_field, Request $request): Response
     {
         $token = $request->headers->get("Authorization", null);
         $json_url = $request->headers->get("Content-Location");
@@ -138,10 +144,13 @@ class MillinerController
 
     /**
      * @param string $uuid
+     *  The UUID of the Drupal resource to save as external.
      * @param \Symfony\Component\HttpFoundation\Request $request
+     *  The request.
      * @return \Symfony\Component\HttpFoundation\Response
+     *  The response generated from the response from Fedora.
      */
-    public function saveExternal($uuid, Request $request)
+    public function saveExternal(string $uuid, Request $request): Response
     {
         $token = $request->headers->get("Authorization", null);
         $external_url = $request->headers->get("Content-Location");
@@ -172,10 +181,13 @@ class MillinerController
 
     /**
      * @param string $uuid
+     *  The UUID of the Drupal resource to create a version of.
      * @param \Symfony\Component\HttpFoundation\Request $request
+     *  The request.
      * @return \Symfony\Component\HttpFoundation\Response
+     *  The response generated from the response from Fedora.
      */
-    public function createNodeVersion($uuid, Request $request)
+    public function createNodeVersion(string $uuid, Request $request): Response
     {
         $token = $request->headers->get("Authorization", null);
         $islandora_fedora_endpoint = $request->headers->get("X-Islandora-Fedora-Endpoint");
@@ -199,10 +211,13 @@ class MillinerController
 
     /**
      * @param string $source_field
+     *  The source field of the Drupal resource to create a version of media.
      * @param \Symfony\Component\HttpFoundation\Request $request
+     *  The request.
      * @return \Symfony\Component\HttpFoundation\Response
+     *  The response generated from the response from Fedora.
      */
-    public function createMediaVersion($source_field, Request $request)
+    public function createMediaVersion(string $source_field, Request $request): Response
     {
         $token = $request->headers->get("Authorization", null);
         $json_url = $request->headers->get("Content-Location");

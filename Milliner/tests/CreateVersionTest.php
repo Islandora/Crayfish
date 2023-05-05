@@ -2,7 +2,8 @@
 
 namespace App\Islandora\Milliner\Tests;
 
-use Prophecy\Argument;
+use donatj\MockWebServer\Response;
+use donatj\MockWebServer\ResponseByMethod;
 
 /**
  * Class MillinerServiceTest
@@ -18,9 +19,22 @@ class CreateVersionTest extends AbstractMillinerTestCase
      */
     public function testCreateVersionReturnsFedora201()
     {
-
-        $this->fedora_client_prophecy->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($this->created_response);
+        self::$webserver->setResponseOfPath(
+            $this->fedora_path . '/fcr:versions',
+            new ResponseByMethod([
+                ResponseByMethod::METHOD_POST => $this->created_response
+            ])
+        );
+        self::$webserver->setResponseOfPath(
+            $this->fedora_path,
+            new ResponseByMethod([
+                ResponseByMethod::METHOD_HEAD => new Response(
+                    '',
+                    ['Link' => '<' . $this->fedora_full_uri . '/fcr:versions>; rel="timemap"'],
+                    200
+                )
+            ])
+        );
 
         $milliner = $this->getMilliner();
 
@@ -44,11 +58,14 @@ class CreateVersionTest extends AbstractMillinerTestCase
 
     public function testCreateVersionReturnsFedora404()
     {
-        $this->fedora_client_prophecy->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($this->not_found_response);
+        self::$webserver->setResponseOfPath(
+            $this->fedora_path,
+            new ResponseByMethod([
+                ResponseByMethod::METHOD_HEAD => $this->not_found_response
+            ])
+        );
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionCode(404);
 
         $milliner = $this->getMilliner();
 
@@ -72,11 +89,14 @@ class CreateVersionTest extends AbstractMillinerTestCase
      */
     public function testcreateVersionThrowsOnFedoraSaveError()
     {
-        $this->fedora_client_prophecy->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($this->forbidden_response);
+        self::$webserver->setResponseOfPath(
+            $this->fedora_path,
+            new ResponseByMethod([
+                ResponseByMethod::METHOD_HEAD => $this->forbidden_response
+            ])
+        );
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionCode(403);
 
         $milliner = $this->getMilliner();
 

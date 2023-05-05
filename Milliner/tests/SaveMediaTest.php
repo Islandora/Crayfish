@@ -2,6 +2,7 @@
 
 namespace App\Islandora\Milliner\Tests;
 
+use donatj\MockWebServer\ResponseByMethod;
 use GuzzleHttp\Psr7\Response;
 use App\Islandora\Milliner\Service\MillinerService;
 use Prophecy\Argument;
@@ -21,10 +22,7 @@ class SaveMediaTest extends AbstractMillinerTestCase
     {
         parent::setUp();
 
-        $this->uuid = 'ffb15b4f-54db-44ce-ad0b-3588889a3c9b';
-
-        $this->entity_mapper_prophecy->getFedoraPath($this->uuid)
-            ->willReturn("{$this->fedoraBaseUrl}/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b");
+        $this->rebuildFedoraUris('ffb15b4f-54db-44ce-ad0b-3588889a3c9b');
     }
 
     /**
@@ -217,13 +215,12 @@ class SaveMediaTest extends AbstractMillinerTestCase
         $this->drupal_client_prophecy->head(Argument::any(), Argument::any())
             ->willReturn($head_response);
 
-        $fedora_get_response = new Response(
-            404
+        self::$webserver->setResponseOfPath(
+            $this->fedora_path,
+            new ResponseByMethod([
+                ResponseByMethod::METHOD_GET => $this->not_found_response,
+            ])
         );
-
-        $this->fedora_client_prophecy->getResource(Argument::any(), Argument::any())
-            ->willReturn($fedora_get_response);
-
         $milliner = $this->getMilliner();
 
         $this->expectException(\RuntimeException::class, null, 404);
@@ -274,14 +271,17 @@ class SaveMediaTest extends AbstractMillinerTestCase
         $this->drupal_client_prophecy->head(Argument::any(), Argument::any())
             ->willReturn($head_response);
 
-        $fedora_get_response = new Response(
-            200,
+        $fedora_get_response = new \donatj\MockWebServer\Response(
+            file_get_contents($this->getStaticFile('MediaLDP-RS.jsonld')),
             ['Content-Type' => 'application/ld+json', 'ETag' => 'W\abc123'],
-            file_get_contents($this->getStaticFile('MediaLDP-RS.jsonld'))
+            200
         );
-
-        $this->fedora_client_prophecy->getResource(Argument::any(), Argument::any())
-            ->willReturn($fedora_get_response);
+        self::$webserver->setResponseOfPath(
+            $this->fedora_path,
+            new ResponseByMethod([
+                ResponseByMethod::METHOD_GET => $fedora_get_response,
+            ])
+        );
 
         $milliner = $this->getMilliner();
 
@@ -376,13 +376,15 @@ class SaveMediaTest extends AbstractMillinerTestCase
      *
      * @param string $mediaResponseFilename
      *   The file to use as the response to the Fedora request.
-     * @param Response $fedora_put_response
+     * @param \donatj\MockWebServer\Response $fedora_put_response
      *   The response to return when attempting to PUT to Fedora.
      *
      * @return \App\Islandora\Milliner\Service\MillinerService
      */
-    private function setupMillinerSave(string $mediaResponseFilename, Response $fedora_put_response): MillinerService
-    {
+    private function setupMillinerSave(
+        string $mediaResponseFilename,
+        \donatj\MockWebServer\Response $fedora_put_response
+    ): MillinerService {
         $link = '<http://localhost:8000/media/6?_format=jsonld>; rel="alternate"; type="application/ld+json"';
         $link .= ',<http://localhost:8000/sites/default/files/2017-07/sample_0.jpeg>; rel="describes"';
         $drupal_json_response = new Response(
@@ -405,7 +407,7 @@ class SaveMediaTest extends AbstractMillinerTestCase
         $this->drupal_client_prophecy->get('http://localhost:8000/media/6?_format=jsonld', Argument::any())
             ->willReturn($drupal_jsonld_response);
 
-        $link = '<http://localhost:8080/fcrepo/rest/ff/b1/5b/4f/ffb15b4f-54db-44ce-ad0b-3588889a3c9b/fcr:metadata>';
+        $link = "<{$this->fedora_full_uri}/fcr:metadata>";
         $link .= '; rel="describedby"';
         $head_response = new Response(
             200,
@@ -414,25 +416,26 @@ class SaveMediaTest extends AbstractMillinerTestCase
         $this->drupal_client_prophecy->head(Argument::any(), Argument::any())
             ->willReturn($head_response);
 
-        $fedora_get_response = new Response(
-            200,
+        $fedora_get_response = new \donatj\MockWebServer\Response(
+            file_get_contents($this->getStaticFile($mediaResponseFilename)),
             ['Content-Type' => 'application/ld+json', 'ETag' => 'W\abc123'],
-            file_get_contents($this->getStaticFile($mediaResponseFilename))
+            200
+        );
+        // This is media tests so we need the responses to be at the
+        // fcr:metadata endpoint for metadata.
+        self::$webserver->setResponseOfPath(
+            $this->fedora_path . '/fcr:metadata',
+            new ResponseByMethod([
+                ResponseByMethod::METHOD_GET => $fedora_get_response,
+                ResponseByMethod::METHOD_PUT => $fedora_put_response,
+            ])
         );
 
-        $this->fedora_client_prophecy->getResource(Argument::any(), Argument::any())
-            ->willReturn($fedora_get_response);
-        $this->fedora_client_prophecy->saveResource(Argument::any(), Argument::any(), Argument::any())
-            ->willReturn($fedora_put_response);
-
-        $this->entity_mapper_prophecy->getFedoraPath('f0fd71b3-1fab-45e1-a5e9-78d50e0d7174')
-            ->willReturn("{$this->fedoraBaseUrl}/f0/fd/71/b3/f0fd71b3-1fab-45e1-a5e9-78d50e0d7174");
 
         return new MillinerService(
-            $this->fedora_client_prophecy->reveal(),
             $this->drupal_client_prophecy->reveal(),
-            $this->entity_mapper_prophecy->reveal(),
             $this->logger,
+            $this->fedoraBaseUrl,
             $this->modifiedDatePredicate,
             false,
             false

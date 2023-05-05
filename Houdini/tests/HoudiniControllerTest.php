@@ -30,7 +30,12 @@ class HoudiniControllerTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->mock_service = $this->prophesize(CmdExecuteService::class)->reveal();
+        $prophecy = $this->prophesize(CmdExecuteService::class);
+        $prophecy->execute(Argument::any(), Argument::any())
+            ->willReturn(function () {
+                return null;
+            });
+        $this->mock_service = $prophecy->reveal();
         $this->mock_logger = $this->prophesize(Logger::class)->reveal();
     }
 

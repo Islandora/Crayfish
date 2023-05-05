@@ -20,6 +20,18 @@
     "islandora/crayfish-commons": {
         "version": "3.0.0"
     },
+    "lexik/jwt-authentication-bundle": {
+        "version": "2.18",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "2.5",
+            "ref": "5b2157bcd5778166a5696e42f552ad36529a07a6"
+        },
+        "files": [
+            "config/packages/lexik_jwt_authentication.yaml"
+        ]
+    },
     "ml/iri": {
         "version": "1.1.4"
     },
@@ -281,16 +293,10 @@
             "tests/.gitignore"
         ]
     },
-    "symfony/polyfill-intl-idn": {
-        "version": "v1.11.0"
-    },
     "symfony/polyfill-intl-normalizer": {
         "version": "v1.20.0"
     },
     "symfony/polyfill-mbstring": {
-        "version": "v1.11.0"
-    },
-    "symfony/polyfill-php72": {
         "version": "v1.11.0"
     },
     "symfony/polyfill-php73": {
@@ -346,6 +352,19 @@
     },
     "symfony/service-contracts": {
         "version": "v1.1.5"
+    },
+    "symfony/translation": {
+        "version": "5.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "5.3",
+            "ref": "da64f5a2b6d96f5dc24914517c0350a5f91dee43"
+        },
+        "files": [
+            "config/packages/translation.yaml",
+            "translations/.gitignore"
+        ]
     },
     "symfony/var-dumper": {
         "version": "4.3.x-dev"

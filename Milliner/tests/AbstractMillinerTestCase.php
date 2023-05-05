@@ -4,10 +4,9 @@ namespace App\Islandora\Milliner\Tests;
 
 use App\Islandora\Milliner\Service\MillinerService;
 use App\Islandora\Milliner\Service\MillinerServiceInterface;
+use donatj\MockWebServer\MockWebServer;
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Response;
-use Islandora\Chullo\IFedoraApi;
-use Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface;
+use Islandora\EntityMapper\EntityMapper;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
@@ -31,117 +30,163 @@ class AbstractMillinerTestCase extends TestCase
      * The predicate to compare when checking date modified.
      * @var string
      */
-    protected $modifiedDatePredicate;
+    protected string $modifiedDatePredicate;
 
     /**
      * @var string
      */
-    protected $uuid;
+    protected string $uuid;
 
     /**
      * Is the Fedora of version >= 6.0.0
      * @var bool
      */
-    protected $isFedora6 = false;
+    protected bool $isFedora6 = false;
 
     /**
      * Whether to strip the ?_format=jsonld from URLs
      * @var bool
      */
-    protected $stripJsonLd = false;
+    protected bool $stripJsonLd = false;
 
     /**
      * @var string
      */
-    protected $fedoraBaseUrl;
+    protected string $fedoraBaseUrl;
 
     /**
-     * @var \Islandora\Chullo\IFedoraApi
+     * @var \Islandora\Chullo\IFedoraApi|\Prophecy\Prophecy\ObjectProphecy
      */
     protected $fedora_client_prophecy;
 
     /**
-     * @var \Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface
-     */
-    protected $entity_mapper_prophecy;
-
-    /**
-     * @var \GuzzleHttp\Client
+     * @var \GuzzleHttp\Client|\Prophecy\Prophecy\ObjectProphecy
      */
     protected $drupal_client_prophecy;
 
     /**
      * A 200 OK response.
-     * @var \GuzzleHttp\Psr7\Response
+     * @var \donatj\MockWebServer\Response
      */
-    protected $ok_response;
+    protected \donatj\MockWebServer\Response $ok_response;
 
     /**
      * A 201 Created response.
-     * @var \GuzzleHttp\Psr7\Response
+     * @var \donatj\MockWebServer\Response
      */
-    protected $created_response;
+    protected \donatj\MockWebServer\Response $created_response;
 
     /**
      * A 204 No Content response.
-     * @var \GuzzleHttp\Psr7\Response
+     * @var \donatj\MockWebServer\Response
      */
-    protected $no_content_response;
+    protected \donatj\MockWebServer\Response $no_content_response;
 
     /**
      * A 404 Not Found response.
-     * @var \GuzzleHttp\Psr7\Response
+     * @var \donatj\MockWebServer\Response
      */
-    protected $not_found_response;
+    protected \donatj\MockWebServer\Response $not_found_response;
 
     /**
      * A 401 Unauthorized response.
-     * @var \GuzzleHttp\Psr7\Response
+     * @var \donatj\MockWebServer\Response
      */
-    protected $unauthorized_response;
+    protected \donatj\MockWebServer\Response $unauthorized_response;
 
     /**
      * A 403 Forbidden response
-     * @var \GuzzleHttp\Psr7\Response
+     * @var \donatj\MockWebServer\Response
      */
-    protected $forbidden_response;
+    protected \donatj\MockWebServer\Response $forbidden_response;
 
     /**
      * A 410 Gone response
-     * @var \GuzzleHttp\Psr7\Response
+     * @var \donatj\MockWebServer\Response
      */
-    protected $gone_response;
+    protected \donatj\MockWebServer\Response $gone_response;
 
     /**
-     * {@inheritDoc}
+     * The mock webserver for Fedora responses.
+     * @var \donatj\MockWebServer\MockWebServer
+     */
+    protected static $webserver;
+
+    /**
+     * An entity mapper.
+     * @var \Islandora\EntityMapper\EntityMapper
+     */
+    protected EntityMapper $entity_mapper;
+
+    /**
+     * The mapped Drupal UUID as a fedora path.
+     * @var string
+     */
+    protected string $fedora_path;
+
+    /**
+     * The full Fedora URI.
+     * @var string
+     */
+    protected string $fedora_full_uri;
+
+    /**
+     * @inheritDoc
+     */
+    public static function setUpBeforeClass(): void
+    {
+        self::$webserver = new MockWebServer();
+        self::$webserver->start();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function tearDownAfterClass(): void
+    {
+        self::$webserver->stop();
+    }
+
+    /**
+     * @inheritDoc
      */
     protected function setUp(): void
     {
         parent::setUp();
         $this->logger = new Logger('milliner');
         $this->logger->pushHandler(new NullHandler());
+        $this->entity_mapper = new EntityMapper();
 
         // Default properties
         $this->modifiedDatePredicate = "http://schema.org/dateModified";
-        $this->fedoraBaseUrl = 'http://localhost:8080/fcrepo/rest';
-        $this->uuid = '9541c0c1-5bee-4973-a9d0-e55c1658bc8';
+        $this->fedoraBaseUrl = 'http://' . self::$webserver->getHost() . ':' .
+            self::$webserver->getPort() . '/fcrepo/rest';
+        $this->rebuildFedoraUris('9541c0c1-5bee-4973-a9d0-e55c1658bc8');
 
         // Prophecies
         $this->drupal_client_prophecy = $this->prophesize(Client::class);
-        $this->entity_mapper_prophecy = $this->prophesize(EntityMapperInterface::class);
-        $this->fedora_client_prophecy = $this->prophesize(IFedoraApi::class);
-
-        $this->entity_mapper_prophecy->getFedoraPath($this->uuid)
-            ->willReturn("{$this->fedoraBaseUrl}/95/41/c0/c1/9541c0c1-5bee-4973-a9d0-e55c1658bc8");
 
         // Reusable responses
-        $this->ok_response = new Response(200);
-        $this->created_response = new Response(201);
-        $this->no_content_response = new Response(204);
-        $this->not_found_response = new Response(404);
-        $this->forbidden_response = new Response(403, [], null, '1.1', 'FORBIDDEN');
-        $this->unauthorized_response = new Response(401, [], null, '1.1', 'UNAUTHORIZED');
-        $this->gone_response = new Response(410);
+        $this->ok_response = new \donatj\MockWebServer\Response("", [], 200);
+        $this->created_response = new \donatj\MockWebServer\Response("", [], 201);
+        $this->no_content_response = new \donatj\MockWebServer\Response("", [], 204);
+        $this->not_found_response = new \donatj\MockWebServer\Response("", [], 404);
+        $this->forbidden_response = new \donatj\MockWebServer\Response("", [], 403);
+        $this->unauthorized_response = new \donatj\MockWebServer\Response("", [], 401);
+        $this->gone_response = new \donatj\MockWebServer\Response("", [], 410);
+    }
+
+    /**
+     * Rebuild all the variables for Fedora URIs based on this UUID.
+     * @param string $uuid the UUID
+     * @return void
+     */
+    protected function rebuildFedoraUris(string $uuid): void
+    {
+        $this->uuid = $uuid;
+        $mapped_path = $this->entity_mapper->getFedoraPath($this->uuid);
+        $this->fedora_path = '/fcrepo/rest/' . $mapped_path;
+        $this->fedora_full_uri = "{$this->fedoraBaseUrl}/$mapped_path";
     }
 
     /**
@@ -163,10 +208,9 @@ class AbstractMillinerTestCase extends TestCase
     protected function getMilliner(): MillinerServiceInterface
     {
         return new MillinerService(
-            $this->fedora_client_prophecy->reveal(),
             $this->drupal_client_prophecy->reveal(),
-            $this->entity_mapper_prophecy->reveal(),
             $this->logger,
+            $this->fedoraBaseUrl,
             $this->modifiedDatePredicate,
             $this->stripJsonLd,
             $this->isFedora6

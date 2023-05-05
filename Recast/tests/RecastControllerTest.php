@@ -2,16 +2,16 @@
 
 namespace App\Islandora\Recast\Tests;
 
-use Islandora\Crayfish\Commons\EntityMapper\EntityMapper;
+use App\Islandora\Recast\Controller\RecastController;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request as GuzzleRequest;
 use GuzzleHttp\Psr7\Response as GuzzleResponse;
-use App\Islandora\Recast\Controller\RecastController;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
+use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,15 +26,15 @@ class RecastControllerTest extends TestCase
 {
     use ProphecyTrait;
 
-    private $http_prophecy;
+    private ObjectProphecy $http_prophecy;
 
-    private $logger_prophecy;
+    private ObjectProphecy $logger_prophecy;
 
-    private $drupal_base_url = 'localhost:8000';
+    private string $drupal_base_url = 'localhost:8000';
 
-    private $fedora_base_url = 'localhost:8080/fcrepo/rest';
+    private string $fedora_base_url = 'localhost:8080/fcrepo/rest';
 
-    private $namespaces = [
+    private array $namespaces = [
         "fedora" => "http://fedora.info/definitions/v4/repository#",
         "pcdm" => "http://pcdm.org/models#",
     ];
@@ -189,7 +189,7 @@ class RecastControllerTest extends TestCase
   /**
    * Generate a mock response containing mock Fedora body stream.
    *
-   * @param string $input_resource
+   * @param string|null $input_resource
    *    The path to the file containing the stream contents.
    * @param string $content_type
    *    The content type of the input_resource.
@@ -197,8 +197,10 @@ class RecastControllerTest extends TestCase
    * @return object
    *   The returned stream object.
    */
-    protected function getMockFedoraStream($input_resource = null, $content_type = 'application/ld+json')
-    {
+    protected function getMockFedoraStream(
+        ?string $input_resource = null,
+        string $content_type = 'application/ld+json'
+    ): object {
         if (is_null($input_resource)) {
             // Provide a default.
             $input_resource = realpath(__DIR__ . '/resources/drupal_image.json');
@@ -214,11 +216,10 @@ class RecastControllerTest extends TestCase
         $prophecy = $this->prophesize(ResponseInterface::class);
         $prophecy->getStatusCode()->willReturn(200);
         $prophecy->getBody()->willReturn($mock_stream);
-        $prophecy->getHeader('Content-type')->willReturn($content_type);
+        $prophecy->getHeader('Content-type')->willReturn([$content_type]);
         // This is to avoid the describes check, should add a test for it.
         $prophecy->hasHeader('Link')->willReturn(false);
-        $mock_fedora_response = $prophecy->reveal();
-        return $mock_fedora_response;
+        return $prophecy->reveal();
     }
 
     /**
@@ -228,7 +229,6 @@ class RecastControllerTest extends TestCase
     private function getController(): RecastController
     {
         return new RecastController(
-            new EntityMapper(),
             $this->http_prophecy->reveal(),
             $this->logger_prophecy->reveal(),
             $this->drupal_base_url,

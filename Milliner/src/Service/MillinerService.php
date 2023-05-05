@@ -8,8 +8,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Header;
 use GuzzleHttp\Psr7\Response;
-use Islandora\Chullo\IFedoraApi;
-use Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface;
+use Islandora\Chullo\FedoraApi;
+use Islandora\EntityMapper\EntityMapper;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
@@ -33,7 +33,7 @@ class MillinerService implements MillinerServiceInterface
 
     /**
      * Entity path mapper instance.
-     * @var \Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface
+     * @var \Islandora\EntityMapper\EntityMapperInterface
      */
     protected $mapper;
 
@@ -64,14 +64,12 @@ class MillinerService implements MillinerServiceInterface
     /**
      * MillinerService constructor.
      *
-     * @param \Islandora\Chullo\IFedoraApi $fedora
-     *   Fedora client.
      * @param \GuzzleHttp\Client $drupal
      *   Http client for Drupal.
-     * @param \Islandora\Crayfish\Commons\EntityMapper\EntityMapperInterface $mapper
-     *   Entity mapper.
      * @param \Psr\Log\LoggerInterface $log
      *   Logger
+     * @param string $fedoraBaseUrl
+     *   The base url to Fedora
      * @param string $modifiedDatePredicate
      *   The modified date predicate to use for comparing last altered datetimes.
      * @param bool $stripFormatJsonld
@@ -80,31 +78,30 @@ class MillinerService implements MillinerServiceInterface
      *   Whether the Fedora we are pointing at is Fedora 6.
      */
     public function __construct(
-        IFedoraApi $fedora,
         Client $drupal,
-        EntityMapperInterface $mapper,
         LoggerInterface $log,
+        string $fedoraBaseUrl,
         string $modifiedDatePredicate,
         bool $stripFormatJsonld,
         bool $isFedora6
     ) {
-        $this->fedora = $fedora;
+        $this->fedora = FedoraApi::create($fedoraBaseUrl);
         $this->drupal = $drupal;
-        $this->mapper = $mapper;
         $this->log = $log;
         $this->modifiedDatePredicate = $modifiedDatePredicate;
         $this->stripFormatJsonld = $stripFormatJsonld;
         $this->isFedora6 = $isFedora6;
+        $this->mapper = new EntityMapper();
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritDoc
      */
     public function saveNode(
         string $uuid,
         string $jsonld_url,
         string $islandora_fedora_endpoint,
-        string $token = null
+        ?string $token = null
     ): ResponseInterface {
         $path = $this->mapper->getFedoraPath($uuid);
         $islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
@@ -131,11 +128,11 @@ class MillinerService implements MillinerServiceInterface
     /**
      * Creates a new LDP-RS in Fedora from a Node.
      *
-     * @param string $jsonld_url
-     * @param string $fedora_url
-     * @param string|null $token
+     * @param string      $jsonld_url The Drupal Json-LD ID of the resource.
+     * @param string      $fedora_url The Fedora ID of the associated resource.
+     * @param string|null $token      The JWT token or null if none.
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return \Psr\Http\Message\ResponseInterface The response from the chullo saveResource call to Fedora.
      *
      * @throws \RuntimeException
      * @throws \GuzzleHttp\Exception\RequestException
@@ -143,8 +140,8 @@ class MillinerService implements MillinerServiceInterface
     protected function createNode(
         string $jsonld_url,
         string $fedora_url,
-        string $token = null
-    ) {
+        ?string $token = null
+    ): ResponseInterface {
         // Get the jsonld from Drupal.
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $drupal_response = $this->drupal->get(
@@ -193,11 +190,11 @@ class MillinerService implements MillinerServiceInterface
     /**
      * Updates an existing LDP-RS in Fedora from a Node.
      *
-     * @param string $jsonld_url
-     * @param string $fedora_url
-     * @param string $token
+     * @param string      $jsonld_url The Drupal Json-LD ID of the resource.
+     * @param string      $fedora_url The Fedora ID of the associated resource.
+     * @param string|null $token      The JWT token or null if none.
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return \Psr\Http\Message\ResponseInterface The response from the chullo saveResource call to Fedora.
      *
      * @throws \RuntimeException
      * @throws \GuzzleHttp\Exception\RequestException
@@ -205,8 +202,8 @@ class MillinerService implements MillinerServiceInterface
     protected function updateNode(
         string $jsonld_url,
         string $fedora_url,
-        string $token = null
-    ) {
+        ?string $token = null
+    ): ResponseInterface {
         // Get the RDF from Fedora.
         $headers = empty($token) ? [] : ['Authorization' => $token];
         $headers['Accept'] = 'application/ld+json';
@@ -315,13 +312,13 @@ class MillinerService implements MillinerServiceInterface
     /**
      * Normalizes Drupal jsonld into a shape Fedora understands.
      *
-     * @param array $jsonld
-     * @param string $drupal_url
-     * @param string $fedora_url
+     * @param array $jsonld The Json-LD array.
+     * @param string $drupal_url The Drupal URL.
+     * @param string $fedora_url The Fedora URL.
      *
-     * @return array
+     * @return array The processed Json-LD array
      */
-    protected function processJsonld(array $jsonld, $drupal_url, $fedora_url)
+    protected function processJsonld(array $jsonld, string $drupal_url, string $fedora_url): array
     {
         $this->log->debug("DRUPAL URL: $drupal_url");
         $this->log->debug("FEDORA URL: $fedora_url");
@@ -350,13 +347,13 @@ class MillinerService implements MillinerServiceInterface
     /**
      * Gets the first value for a predicate in a JSONLD array.
      *
-     * @param $jsonld
-     * @param $predicate
-     * @param $value
+     * @param array $jsonld The Json-LD array.
+     * @param string $predicate the predicate to look for.
+     * @param bool $value Is this a @value and not an @id.
      *
-     * @return mixed string|null
+     * @return string|null
      */
-    protected function getFirstPredicate(array $jsonld, $predicate, $value = true)
+    protected function getFirstPredicate(array $jsonld, string $predicate, bool $value = true): ?string
     {
         $key = $value ? '@value' : '@id';
         $malformed = empty($jsonld) ||
@@ -380,7 +377,7 @@ class MillinerService implements MillinerServiceInterface
      *
      * @throws \RuntimeException
      */
-    protected function getModifiedTimestamp(array $jsonld)
+    protected function getModifiedTimestamp(array $jsonld): int
     {
         $modified = $this->getFirstPredicate(
             $jsonld,
@@ -403,7 +400,7 @@ class MillinerService implements MillinerServiceInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function saveMedia(
         $source_field,
@@ -446,7 +443,7 @@ class MillinerService implements MillinerServiceInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function deleteNode(
         $uuid,

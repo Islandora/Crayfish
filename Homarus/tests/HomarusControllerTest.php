@@ -21,9 +21,9 @@ class HomarusControllerTest extends TestCase
 
     use ProphecyTrait;
 
-    private $defaults;
+    private array $defaults;
 
-    private $formats;
+    private array $formats;
 
     /**
      * Setup to reset to defaults.
@@ -211,6 +211,10 @@ class HomarusControllerTest extends TestCase
     {
         // Mock a CmdExecuteService.
         $prophecy = $this->prophesize(CmdExecuteService::class);
+        $prophecy->execute(Argument::any(), Argument::any())
+            ->willReturn(function () {
+                return null;
+            });
         $mock_service = $prophecy->reveal();
 
         // Create a controller.

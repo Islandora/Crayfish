@@ -2,7 +2,8 @@
 
 namespace App\Islandora\Milliner\Tests;
 
-use Prophecy\Argument;
+use donatj\MockWebServer\ResponseByMethod;
+use donatj\MockWebServer\ResponseStack;
 
 /**
  * Class MillinerServiceTest
@@ -18,8 +19,12 @@ class DeleteTest extends AbstractMillinerTestCase
      */
     public function testDeleteThrowsFedoraError()
     {
-        $this->fedora_client_prophecy->deleteResource(Argument::any(), Argument::any())
-            ->willReturn($this->forbidden_response);
+        self::$webserver->setResponseOfPath(
+            $this->fedora_path,
+            new ResponseByMethod([
+                ResponseByMethod::METHOD_DELETE => $this->forbidden_response,
+            ])
+        );
 
         $milliner = $this->getMilliner();
 
@@ -35,8 +40,20 @@ class DeleteTest extends AbstractMillinerTestCase
      */
     public function testDeleteReturnsFedoraResult()
     {
-        $this->fedora_client_prophecy->deleteResource(Argument::any(), Argument::any())
-            ->willReturn($this->no_content_response);
+        self::$webserver->setResponseOfPath(
+            $this->fedora_path,
+            new ResponseStack(
+                new ResponseByMethod([
+                    ResponseByMethod::METHOD_DELETE => $this->no_content_response,
+                ]),
+                new ResponseByMethod([
+                    ResponseByMethod::METHOD_DELETE => $this->not_found_response,
+                ]),
+                new ResponseByMethod([
+                    ResponseByMethod::METHOD_DELETE => $this->gone_response,
+                ]),
+            )
+        );
 
         $milliner = $this->getMilliner();
 
@@ -47,22 +64,12 @@ class DeleteTest extends AbstractMillinerTestCase
             "Milliner must return 204 when Fedora returns 204.  Received: $status"
         );
 
-        $this->fedora_client_prophecy->deleteResource(Argument::any(), Argument::any())
-            ->willReturn($this->not_found_response);
-
-        $milliner = $this->getMilliner();
-
         $response = $milliner->deleteNode($this->uuid, $this->fedoraBaseUrl, "Bearer islandora");
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 404,
             "Milliner must return 404 when Fedora returns 404.  Received: $status"
         );
-
-        $this->fedora_client_prophecy->deleteResource(Argument::any(), Argument::any())
-            ->willReturn($this->gone_response);
-
-        $milliner = $this->getMilliner();
 
         $response = $milliner->deleteNode($this->uuid, $this->fedoraBaseUrl, "Bearer islandora");
         $status = $response->getStatusCode();
