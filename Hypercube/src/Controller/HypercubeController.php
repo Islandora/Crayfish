@@ -89,7 +89,7 @@ class HypercubeController
             return new StreamedResponse(
                 $this->cmd->execute($cmd_string, $body),
                 200,
-                ['Content-Type' => 'text/plain']
+                ['Content-Type' => $request->headers->get('Accept') ?? 'text/plain']
             );
         } catch (\RuntimeException $e) {
             return new Response($e->getMessage(), 500);
