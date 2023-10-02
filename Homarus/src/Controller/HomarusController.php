@@ -119,7 +119,7 @@ class HomarusController
                 "faststart -y";
         }
 
-        $temp_file_path = $this->tempDirectory . basename($source) . "." . $format;
+        $temp_file_path = $this->tempDirectory . basename(parse_url($source, PHP_URL_PATH)) . "." . $format;
         $this->log->debug('Tempfile: ' . $temp_file_path);
 
         // Arguments to ffmpeg command are sent as a custom header.
