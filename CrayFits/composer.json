@@ -52,8 +52,7 @@
             "@auto-scripts"
         ],
         "test": [
-	    "@check",
-	    "bin/phpunit"
+	    "@check"
 	]
     },
     "conflict": {
