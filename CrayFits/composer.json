@@ -50,7 +50,11 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "test": [
+	    "@check",
+	    "bin/phpunit"
+	]
     },
     "conflict": {
         "symfony/symfony": "*"
