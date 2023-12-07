@@ -2,15 +2,13 @@
 
 namespace App\Controller;
 
-use Islandora\Chullo\IFedoraApi;
+use GuzzleHttp\Psr7\StreamWrapper;
 use App\Service\FitsGenerator;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpFoundation\Request;
 use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
 
 class FitsController {
 
@@ -19,7 +17,6 @@ class FitsController {
   /**
    * FitsController constructor.
    */
-
   public function __construct(FitsGenerator $fitsGenerator) {
     $options = ['base_uri' => $_ENV['FITS_WEBSERVICE_URI']];
     $this->client = new Client($options);
@@ -27,39 +24,36 @@ class FitsController {
 
   /**
    * @param Request $request
-   * @param LoggerInterface $loggerger
    * @return StreamedResponse | Response;
    */
   public function generate_fits(Request $request) {
     set_time_limit(0);
-    $logger = new Logger('islandora_fits');
-    $logger->pushHandler(new StreamHandler('/var/log/islandora/fits.log', Logger::DEBUG));
     $token = $request->headers->get('Authorization');
     $file_uri = $request->headers->get('Apix-Ldp-Resource');
+
     // If no file has been passed it probably because someone is testing the url from their browser.
     if (!$file_uri) {
       return new Response("<h2>The Fits microservice is up and running.</h2>");
     }
-    $context = stream_context_create([
-      "http" => [
-        "header" => "Authorization:  $token",
-      ],
-    ]);
+
     try {
+      $fedora_resource = $request->attributes->get('fedora_resource');
+      $body = StreamWrapper::getResource($fedora_resource->getBody());
+
       $response = $this->client->post('examine', [
         'multipart' => [
           [
             'name' => 'datafile',
             'filename' => $file_uri,
-            'contents' => fopen($file_uri, 'r', FALSE, $context),
+            'contents' => $body,
           ],
         ],
       ]);
     }
     catch (\Exception $e) {
-      $logger->addError('ERROR', [$e->getMessage()]);
+      return new Response("Failed to receive FITS XML", Response::HTTP_INTERNAL_SERVER_ERROR);
     }
-    $logger->addInfo('Response Status', ["Status" => $response->getStatusCode(), "URI" => $file_uri]);
+
     $fits_xml = $response->getBody()->getContents();
     $encoding = mb_detect_encoding($fits_xml, 'UTF-8', TRUE);
     if ($encoding != 'UTF-8') {
