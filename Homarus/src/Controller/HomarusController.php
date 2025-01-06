@@ -5,6 +5,7 @@ namespace App\Islandora\Homarus\Controller;
 use Islandora\Crayfish\Commons\CmdExecuteService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\HeaderBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -112,12 +113,20 @@ class HomarusController
         $content_types = $request->getAcceptableContentTypes();
         [$content_type, $format] = $this->getFfmpegFormat($content_types);
 
-        $cmd_params = "";
-        if ($format == "mp4") {
-            $cmd_params = " -vcodec libx264 -preset medium -acodec aac " .
-                "-strict -2 -ab 128k -ac 2 -async 1 -movflags " .
-                "faststart -y";
-        }
+        $cmd_params = match ($format) {
+            'mp4' => [
+                '-vcodec', 'libx264',
+                '-preset', 'medium',
+                '-acodec', 'aac',
+                '-strict', '-2',
+                '-ab', '128k',
+                '-ac', '2',
+                '-async', '1',
+                '-movflags', 'faststart',
+                '-y',
+            ],
+            default => [],
+        };
 
         $temp_file_path = $this->tempDirectory . basename(parse_url($source, PHP_URL_PATH)) . "." . $format;
         $this->log->debug('Tempfile: ' . $temp_file_path);
@@ -139,13 +148,31 @@ class HomarusController
         // Add -loglevel error so large files can be processed.
         $args .= ' -loglevel error';
         $this->log->debug("X-Islandora-Args:", ['args' => $args]);
-        $token = $request->headers->get('Authorization');
-        $headers = "'Authorization:  $token'";
-        $cmd_string = "$this->executable -headers $headers -i $source  $args $cmd_params -f $format $temp_file_path";
-        $this->log->debug('Ffmpeg Command:', ['cmd' => $cmd_string]);
+
+        $arg_array = array_filter(explode(' ', $args));
+
+        $header_bag = new HeaderBag();
+        if ($token = $request->headers->get('Authorization')) {
+            $header_bag->set('Authorization', $token);
+        }
+
+        $cmd = array_merge(
+            [
+              $this->executable,
+              '-headers', $header_bag,
+              '-i', $source,
+            ],
+            $arg_array,
+            $cmd_params,
+            [
+                '-f', $format,
+                $temp_file_path,
+            ],
+        );
+        $this->log->debug('Ffmpeg Command:', ['cmd' => $cmd]);
 
         // Return response.
-        return $this->generateDerivativeResponse($cmd_string, $source, $temp_file_path, $content_type);
+        return $this->generateDerivativeResponse($cmd, $source, $temp_file_path, $content_type);
     }
 
     /**
@@ -176,7 +203,7 @@ class HomarusController
     }
 
     /**
-     * @param string $cmd_string
+     * @param array $cmd
      * @param string $source
      * @param string $path
      * @param string $content_type
@@ -184,13 +211,13 @@ class HomarusController
      * @return \Symfony\Component\HttpFoundation\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function generateDerivativeResponse(
-        string $cmd_string,
+        array $cmd,
         string $source,
         string $path,
         string $content_type
     ) {
         try {
-            $this->cmd->execute($cmd_string, $source);
+            $this->cmd->execute($cmd, $source);
             return (new BinaryFileResponse(
                 $path,
                 200,
