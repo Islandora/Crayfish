@@ -66,7 +66,11 @@ jobs:
       - name: composer install
         run: |
           cd $GITHUB_WORKSPACE/build_dir
-          for D in */; do (cd $D; composer install) done
+          for D in */; do
+            echo "---- In $D ----"
+            (cd $D; composer install)
+            echo "---- Done in $D ----"
+          done
 
       - name: line endings
         run: $SCRIPT_DIR/line_endings.sh $GITHUB_WORKSPACE
