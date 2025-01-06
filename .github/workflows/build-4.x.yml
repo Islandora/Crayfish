@@ -67,9 +67,9 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/build_dir
           for D in */; do
-            echo "---- In $D ----"
+            echo "::group::composer install under $D"
             (cd $D; composer install)
-            echo "---- Done in $D ----"
+            echo "::endgroup"
           done
 
       - name: line endings
