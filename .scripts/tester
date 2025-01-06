@@ -15,7 +15,7 @@ for D in */; do
 done
 
 echo "::group::Summary"
-if [${#FAILED[@]} -gt 0] ; then
+if [ ${#FAILED[@]} -gt 0 ] ; then
   echo "Failed tests: ${FAILED[@]}"
 else
   echo "All tests passed!"
