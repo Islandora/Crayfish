@@ -64,6 +64,7 @@
         ],
         "test": [
             "@check",
+            "@putenv SYMFONY_PHPUNIT_REQUIRE=\"nikic/php-parser:^4.13\"",
             "bin/phpunit"
         ]
     },
