@@ -1,3 +1,0 @@
-crayfish_commons:
-  fedora_base_uri: 'http://localhost:8080/fcrepo/rest'
-  apix_middleware_enabled: false

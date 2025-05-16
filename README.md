@@ -23,12 +23,7 @@ Many microservices have extra installation requirements.  Please see the README 
 
 Crayfish contains the following services
 
-* [CrayFits](./CrayFits): FITS as a microservice.
-* [Homarus](./Homarus): FFmpeg as a microservice.
-* [Houdini](./Houdini): ImageMagick as a microservice.
-* [Hypercube](./Hypercube): Tesseract as a microservice.
 * [Milliner](./Milliner): Microservice that converts Drupal entities into Fedora resources.
-* [Recast](./Recast): Microservice that remaps Drupal URIs to add Fedora to Fedora links based on associated Drupal URIs in RDF.
 
 See the individual services for more information on their endpoints.
 
