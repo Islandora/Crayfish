@@ -14,7 +14,7 @@
 ### Install FITS webservice
 
 * Download the latest `fits.zip` and `fits.war` from
-[https://projects.iq.harvard.edu/fits/downloads](https://projects.iq.harvard.edu/fits/downloads).
+[https://github.com/harvard-lts/fits/releases](https://github.com/harvard-lts/fits/releases).
 You may need to install a zip library to unzip the file.
 * Copy the `.war` file to your Tomcat webapps directory and test.
 * Edit the Tomcat `conf/catalina.properties` file by adding the
@@ -60,7 +60,7 @@ To use Alpaca as an interface to this microservice, configure
 an [`islandora-connector-derivative`](https://github.com/Islandora/Alpaca#islandora-connector-derivative)
 appropriate to your installation of CrayFits.
 
-[1]: https://projects.iq.harvard.edu/fits
+[1]: https://harvard-lts.github.io/fits/
 [2]: https://getcomposer.org/download/
 
 
