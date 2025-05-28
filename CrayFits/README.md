@@ -13,9 +13,9 @@
 
 ### Install FITS webservice
 
-* Download the latest `fits.zip` and `fits.war` from
-[https://github.com/harvard-lts/fits/releases](https://github.com/harvard-lts/fits/releases).
+* Download the latest `fits.zip` from [harvard-lts/fits project releases][3].
 You may need to install a zip library to unzip the file.
+* Download the latest `fits.war` from [harvard-lts/FITS-servlet project releases][4]
 * Copy the `.war` file to your Tomcat webapps directory and test.
 * Edit the Tomcat `conf/catalina.properties` file by adding the
 following two lines to the bottom of the file:
@@ -62,5 +62,5 @@ appropriate to your installation of CrayFits.
 
 [1]: https://harvard-lts.github.io/fits/
 [2]: https://getcomposer.org/download/
-
-
+[3]: https://github.com/harvard-lts/fits/releases
+[4]: https://github.com/harvard-lts/FITSservlet/releases
