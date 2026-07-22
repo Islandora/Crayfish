@@ -1,25 +1,6 @@
 #!/bin/bash
-export SYMFONY_DEPRECATIONS_HELPER=disabled
-FAIL=0
-FAILED=()
-for D in */; do
-  echo "::group::Testing $D"
-  cd $D
-  composer test
-  if [ $? -ne 0 ]; then 
-    FAIL=1
-    FAILED+=($D)
-  fi 
-  cd ..
-  echo "::endgroup"
-done
 
-echo "::group::Summary"
-if [ ${#FAILED[@]} -gt 0 ] ; then
-  echo "Failed tests: ${FAILED[@]}"
-else
-  echo "All tests passed!"
-fi
-echo "::endgroup"
+set -euo pipefail
 
-exit $FAIL
+cd "$(dirname "$0")/../Milliner"
+composer test

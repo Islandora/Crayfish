@@ -429,7 +429,7 @@ class MillinerService implements MillinerServiceInterface
      * @return null|string
      *   The first matching header or null if none match.
      */
-    protected function getLinkHeader(ResponseInterface $response, string $rel_name, string $type = null): ?string
+    protected function getLinkHeader(ResponseInterface $response, string $rel_name, ?string $type = null): ?string
     {
         $parsed = Header::parse($response->getHeader("Link"));
         foreach ($parsed as $header) {
@@ -618,7 +618,7 @@ class MillinerService implements MillinerServiceInterface
         string $source_field,
         string $json_url,
         string $islandora_fedora_endpoint,
-        string $token = null
+        ?string $token = null
     ): array {
         // GET request for link headers and file UUID.
         $headers = empty($token) ? [] : ['Authorization' => $token];

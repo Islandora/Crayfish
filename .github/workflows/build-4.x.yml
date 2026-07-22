@@ -1,85 +1,52 @@
-# This is a basic workflow to help you get started with Actions
+name: CI - PHP 8.4 / Symfony 8.1
 
-name: CI - 4.x
-
-# Controls when the action will run.
 on:
-  # Triggers the workflow on push or pull request events but only for the 7.x branch
   push:
-    branches: [ 4.x ]
+    branches: [4.x, 5.x]
   pull_request:
-    branches: [ 4.x ]
-
-  # Allows you to run this workflow manually from the Actions tab
+    branches: [4.x, 5.x]
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+permissions:
+  contents: read
+
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        php-versions: ["8.1", "8.2", "8.3"]
-
-    name: PHP ${{ matrix.php-versions }}
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    name: PHP 8.4
+    defaults:
+      run:
+        working-directory: Milliner
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          path: build_dir
-
-      - name: Checkout islandora_ci
-        uses: actions/checkout@v3
-        with:
-          repository: islandora/islandora_ci
-          ref: github-actions
-          path: islandora_ci
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
         with:
-          php-version: ${{ matrix.php-versions }}
+          php-version: "8.4"
           tools: composer:v2
+          coverage: xdebug
 
-      - name: Set environment variables
-        run: |
-          echo "SCRIPT_DIR=$GITHUB_WORKSPACE/islandora_ci" >> $GITHUB_ENV
+      - name: Validate Composer configuration
+        run: composer validate --strict --no-check-publish
 
-      - name: Get composer cache directory
-        id: composer-cache
-        run: |
-          cd $GITHUB_WORKSPACE/build_dir/Milliner
-          echo "composer-cache-dir=$(composer config cache-files-dir)" >> $GITHUB_ENV
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
 
-      - name: Cache Composer dependencies
-        uses: actions/cache@v3
+      - name: Audit dependencies
+        run: composer audit --locked --abandoned=fail
+
+      - name: Check coding standards
+        run: composer check
+
+      - name: Test with coverage
+        run: composer coverage
+        env:
+          XDEBUG_MODE: coverage
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@04b047e8bb82a0c002c8312c1c880fbc6a999d45 # v5
         with:
-          path: ${{ env.composer-cache-dir }}
-          key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-${{ matrix.php-version }}
-
-      - name: composer install
-        run: |
-          cd $GITHUB_WORKSPACE/build_dir
-          for D in */; do
-            echo "::group::composer install under $D"
-            (cd $D; composer install)
-            echo "::endgroup"
-          done
-
-      - name: line endings
-        run: $SCRIPT_DIR/line_endings.sh $GITHUB_WORKSPACE
-
-      - name: test scripts
-        run: |
-          cd $GITHUB_WORKSPACE/build_dir
-          .scripts/tester
-
-      - name: codecov
-        uses: codecov/codecov-action@v3
-
+          files: Milliner/clover.xml
+          fail_ci_if_error: true

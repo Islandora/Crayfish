@@ -4,9 +4,15 @@
 
 Microservice that converts Drupal entities into Fedora resources.
 
+## Requirements
+
+* PHP 8.4.1+
+* Composer 2
+* Symfony 8.1 (installed through Composer)
+
 ## Installation
 
-Milliner requires a functioning [Drupal](https://www.drupal.org/) 8 or 9
+Milliner requires a functioning [Drupal](https://www.drupal.org/)
 installation with the [jsonld](http://github.com/Islandora/jsonld) module enabled.
 
 It also requires a functioning [Fedora](http://fedorarepository.org/) repository.

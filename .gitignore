@@ -1,12 +1,15 @@
 .idea
 .php_cs.cache
 .phpunit
+.phpunit.cache
 .phpunit.result.cache
 *.key
 *.lock
+!Milliner/composer.lock
 *.log
 */cfg/config.yaml
 clover.xml
+Milliner/var/
 config/settings.dev.yml
 config/settings.yml
 coverage.xml

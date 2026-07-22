@@ -2,30 +2,35 @@
     "name": "islandora/milliner",
     "description": "Microservice that puts Drupal content in Fedora",
     "type": "project",
+    "license": "MIT",
     "require": {
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "ext-sodium": "*",
+        "guzzlehttp/guzzle": "^7.4",
+        "guzzlehttp/psr7": "^2.7",
         "islandora/chullo": "^2.0",
         "islandora/fedora-entity-mapper": "^1.0",
-        "lexik/jwt-authentication-bundle": "^2.18",
-        "symfony/dotenv": "5.4.*",
-        "symfony/flex": "^1.3.1",
-        "symfony/framework-bundle": "5.4.*",
-        "symfony/monolog-bundle": "^3.4",
-        "symfony/runtime": "5.4.*",
-        "symfony/string": "5.4.*",
-        "symfony/translation": "5.4.*",
-        "symfony/yaml": "5.4.*"
+        "lexik/jwt-authentication-bundle": "^3.2",
+        "php": "^8.4.1",
+        "psr/http-message": "^2.0",
+        "psr/log": "^3.0",
+        "symfony/dotenv": "8.1.*",
+        "symfony/flex": "^2.11",
+        "symfony/framework-bundle": "8.1.*",
+        "symfony/monolog-bundle": "^4.0",
+        "symfony/runtime": "8.1.*",
+        "symfony/security-bundle": "8.1.*",
+        "symfony/string": "8.1.*",
+        "symfony/translation": "8.1.*",
+        "symfony/yaml": "8.1.*"
     },
     "require-dev": {
-        "donatj/mock-webserver": "^2.6",
-        "phpspec/prophecy-phpunit": "^2.0",
-        "phpunit/phpunit": "^9.5",
-        "sebastian/phpcpd": "^6.0",
-        "squizlabs/php_codesniffer": "^3.0",
-        "symfony/browser-kit": "5.4.*",
-        "symfony/css-selector": "5.4.*",
-        "symfony/phpunit-bridge": "5.4.*"
+        "donatj/mock-webserver": "^2.10",
+        "phpspec/prophecy-phpunit": "^2.5",
+        "phpunit/phpunit": "^12.5",
+        "squizlabs/php_codesniffer": "^3.13",
+        "symfony/phpunit-bridge": "8.1.*"
     },
     "authors": [
         {
@@ -44,8 +49,6 @@
             "role": "Developer"
         }
     ],
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "config": {
         "preferred-install": {
             "*": "dist"
@@ -66,23 +69,15 @@
             "App\\Islandora\\Milliner\\Tests\\": "tests/"
         }
     },
-    "replace": {
-        "paragonie/random_compat": "2.*",
-        "symfony/polyfill-ctype": "*",
-        "symfony/polyfill-iconv": "*",
-        "symfony/polyfill-php71": "*",
-        "symfony/polyfill-php70": "*",
-        "symfony/polyfill-php56": "*"
-    },
     "scripts": {
         "check": [
-            "vendor/bin/phpcs --standard=PSR2 src tests",
-            "vendor/bin/phpcpd --suffix *.php src tests"
+            "vendor/bin/phpcs --standard=PSR2 src tests"
         ],
         "test": [
             "@check",
-            "bin/phpunit"
-        ]
+            "vendor/bin/phpunit"
+        ],
+        "coverage": "vendor/bin/phpunit --coverage-clover clover.xml"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -90,7 +85,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "5.4.*"
+            "require": "8.1.*"
         }
     }
 }
