@@ -79,7 +79,7 @@ jobs:
           ./scripts/ping.sh
 
       - name: Test Drupal to Milliner to Fedora lifecycle
-        run: ./crayfish/Milliner/tests/Integration/site-template.sh
+        run: docker compose exec -T milliner composer integration:site-template
 
       - name: Collect service logs
         if: failure()

@@ -77,7 +77,8 @@
             "@check",
             "vendor/bin/phpunit --exclude-group integration"
         ],
-        "integration": "vendor/bin/phpunit --group integration",
+        "integration": "vendor/bin/phpunit --group integration --exclude-group site-template",
+        "integration:site-template": "vendor/bin/phpunit --group site-template",
         "coverage": "vendor/bin/phpunit --exclude-group integration --coverage-clover clover.xml"
     },
     "conflict": {

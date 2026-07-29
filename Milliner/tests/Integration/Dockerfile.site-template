@@ -24,7 +24,6 @@ COPY --from=packaged --chown=nginx:nginx \
 RUN --mount=type=cache,id=milliner-pr-composer-${TARGETARCH},sharing=locked,target=/root/.composer/cache \
     composer install \
         --working-dir=/var/www/crayfish/Milliner \
-        --no-dev \
         --no-interaction \
         --no-progress \
         --prefer-dist \
