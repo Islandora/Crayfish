@@ -6,6 +6,11 @@ created_title="Milliner integration create"
 updated_title="Milliner integration update"
 
 create_output=$(docker compose exec -T drupal drush php:eval '
+  $account = \Drupal\user\Entity\User::load(1);
+  if ($account === null) {
+    throw new \RuntimeException("The Drupal administrator account is missing");
+  }
+  \Drupal::currentUser()->setAccount($account);
   $models = \Drupal::entityTypeManager()
     ->getStorage("taxonomy_term")
     ->loadByProperties(["vid" => "islandora_models", "name" => "Collection"]);
@@ -80,6 +85,11 @@ wait_for_absence() {
 wait_for_title "$created_title"
 
 docker compose exec -T drupal drush php:eval "
+  \$account = \\Drupal\\user\\Entity\\User::load(1);
+  if (\$account === null) {
+    throw new \\RuntimeException('The Drupal administrator account is missing');
+  }
+  \\Drupal::currentUser()->setAccount(\$account);
   \$node = \\Drupal\\node\\Entity\\Node::load(${node_id});
   if (\$node === null) {
     throw new \\RuntimeException('Integration node is missing');
@@ -91,6 +101,11 @@ docker compose exec -T drupal drush php:eval "
 wait_for_title "$updated_title"
 
 docker compose exec -T drupal drush php:eval "
+  \$account = \\Drupal\\user\\Entity\\User::load(1);
+  if (\$account === null) {
+    throw new \\RuntimeException('The Drupal administrator account is missing');
+  }
+  \\Drupal::currentUser()->setAccount(\$account);
   \$node = \\Drupal\\node\\Entity\\Node::load(${node_id});
   if (\$node === null) {
     throw new \\RuntimeException('Integration node is missing');
