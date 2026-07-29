@@ -1,0 +1,119 @@
+name: Milliner site-template integration
+
+on:
+  pull_request:
+    branches: [5.x]
+    paths:
+      - "Milliner/**"
+      - ".github/workflows/milliner-site-template.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: milliner-site-template-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration:
+    name: Drupal to Fcrepo6 lifecycle
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      TERM: xterm-256color
+    steps:
+      - name: Checkout site template
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          repository: Islandora-Devops/isle-site-template
+          ref: 91d2b491553be329f5b27f19fd7a9f1e2d71c101
+          persist-credentials: false
+
+      - name: Checkout Crayfish under test
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          path: crayfish
+          persist-credentials: false
+
+      - name: Checkout PHP 8.4 buildkit
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          repository: Islandora-Devops/isle-buildkit
+          # Pin the Alpine 3.24/PHP 8.4 migration until that branch reaches main.
+          ref: 8c31f6f13ba553bf95d871113f5dacd542e62de1
+          path: isle-buildkit
+          persist-credentials: false
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4
+
+      - name: Build Milliner from the pull request source
+        env:
+          SOURCE_REPOSITORY: ${{ github.repository }}
+          SOURCE_REVISION: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          source_url="https://github.com/${SOURCE_REPOSITORY}/archive/${SOURCE_REVISION}.tar.gz"
+          source_archive="${RUNNER_TEMP}/crayfish-${SOURCE_REVISION}.tar.gz"
+          curl --fail --location --retry 3 --output "$source_archive" "$source_url"
+          source_sha256=$(sha256sum "$source_archive" | awk '{print $1}')
+          cd isle-buildkit
+          BRANCH=milliner-ci REPOSITORY=local TAGS=ci \
+            docker buildx bake \
+              --builder "${{ steps.buildx.outputs.name }}" \
+              --load \
+              --set "crayfish.args.COMMIT=${SOURCE_REVISION}" \
+              --set "crayfish.args.URL=${source_url}" \
+              --set "crayfish.args.SHA256=${source_sha256}" \
+              milliner
+          docker image inspect local/milliner:ci >/dev/null
+
+      - name: Select local Milliner and Fcrepo6 main
+        run: cp crayfish/Milliner/tests/Integration/site-template.override.yml docker-compose.override.yml
+
+      - name: Install mkcert
+        env:
+          MKCERT_SHA256: 6d31c65b03972c6dc4a14ab429f2928300518b26503f58723e532d1b0a3bbb52
+          MKCERT_VERSION: v1.4.4
+        run: |
+          set -euo pipefail
+          mkcert_path="${RUNNER_TEMP}/mkcert"
+          curl --fail --location --retry 3 \
+            --output "$mkcert_path" \
+            "https://github.com/FiloSottile/mkcert/releases/download/${MKCERT_VERSION}/mkcert-${MKCERT_VERSION}-linux-amd64"
+          printf '%s  %s\n' "$MKCERT_SHA256" "$mkcert_path" | sha256sum --check
+          sudo install --mode 0755 "$mkcert_path" /usr/local/bin/mkcert
+
+      - name: Start the ISLE site template
+        run: |
+          make overwrite-starter-site init up \
+            ISLANDORA_TAG=main \
+            STARTER_SITE_BRANCH=heads/main \
+            STARTER_SITE_OWNER=Islandora-Devops \
+            GITHUB_ACTIONS=true \
+            TERM=xterm-256color
+          ./scripts/ping.sh
+
+      - name: Test Drupal to Milliner to Fedora lifecycle
+        run: ./crayfish/Milliner/tests/Integration/site-template.sh
+
+      - name: Collect service logs
+        if: failure()
+        run: |
+          mkdir -p logs
+          for service in drupal activemq alpaca milliner fcrepo; do
+            docker compose logs --no-color --tail 500 "$service" >"logs/${service}.log" 2>&1 || true
+          done
+
+      - name: Upload service logs
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: milliner-site-template-logs
+          path: logs/*
+
+      - name: Clean up site template
+        if: always()
+        run: docker compose down --volumes --remove-orphans

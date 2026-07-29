@@ -1,0 +1,8 @@
+services:
+  milliner:
+    image: local/milliner:ci
+    pull_policy: never
+  fcrepo:
+    # This is the forward-compatibility canary; the surrounding workflow is commit-pinned.
+    image: islandora/fcrepo6:main
+    pull_policy: always

@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Header;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Uri;
 use Islandora\Chullo\FedoraApi;
 use Islandora\EntityMapper\EntityMapper;
 use Psr\Http\Message\ResponseInterface;
@@ -107,7 +108,8 @@ class MillinerService implements MillinerServiceInterface
         $islandora_fedora_endpoint = rtrim($islandora_fedora_endpoint, "/");
         $fedora_url = "$islandora_fedora_endpoint/$path";
 
-        $response = $this->fedora->getResourceHeaders($fedora_url);
+        $headers = empty($token) ? [] : ['Authorization' => $token];
+        $response = $this->fedora->getResourceHeaders($fedora_url, $headers);
         if ($response->getStatusCode() == 404) {
             $this->log->debug("GOT A 404");
             return $this->createNode(
@@ -154,7 +156,7 @@ class MillinerService implements MillinerServiceInterface
             true
         );
 
-        $subject_url = $this->stripFormatJsonld ? rtrim($jsonld_url, '?_format=jsonld') : $jsonld_url;
+        $subject_url = $this->getJsonLdSubjectUrl($jsonld_url);
 
         // Mash it into the shape Fedora accepts.
         $jsonld = $this->processJsonld(
@@ -262,7 +264,7 @@ class MillinerService implements MillinerServiceInterface
         // Mash it into the shape Fedora accepts.
         $subject_url = $this->getLinkHeader($drupal_response, "describes");
         if (empty($subject_url)) {
-            $subject_url = $this->stripFormatJsonld ? rtrim($jsonld_url, '?_format=jsonld') : $jsonld_url;
+            $subject_url = $this->getJsonLdSubjectUrl($jsonld_url);
         }
         $drupal_jsonld = $this->processJsonld(
             $drupal_jsonld,
@@ -326,15 +328,32 @@ class MillinerService implements MillinerServiceInterface
         // Strip out everything other than the resource in question.
         // Ignore http/https.
         $parts = parse_url($drupal_url);
+        if ($parts === false || !isset($parts['host'], $parts['path'])) {
+            throw new \RuntimeException("Invalid Drupal resource URL: $drupal_url", 500);
+        }
+
         $subject_url = $parts['host'] . $parts['path'];
-        $resource = array_filter(
-            $jsonld['@graph'],
+        $resource = array_values(array_filter(
+            $jsonld['@graph'] ?? [],
             function (array $elem) use ($subject_url) {
+                if (!isset($elem['@id'])) {
+                    return false;
+                }
                 $parts = parse_url($elem['@id']);
+                if ($parts === false || !isset($parts['host'], $parts['path'])) {
+                    return false;
+                }
                 $other_url = $parts['host'] . $parts['path'];
                 return $other_url == $subject_url;
             }
-        );
+        ));
+
+        if (empty($resource)) {
+            throw new \RuntimeException(
+                "Could not find Drupal resource $drupal_url in JSON-LD graph",
+                500
+            );
+        }
 
         // Put in an fedora url for the resource.
         $resource[0]['@id'] = $fedora_url;
@@ -342,6 +361,18 @@ class MillinerService implements MillinerServiceInterface
 
         $this->log->debug("AFTER: " . json_encode($resource));
         return $resource;
+    }
+
+    /**
+     * Gets the Drupal subject URL represented by a JSON-LD response URL.
+     */
+    protected function getJsonLdSubjectUrl(string $jsonldUrl): string
+    {
+        if (!$this->stripFormatJsonld) {
+            return $jsonldUrl;
+        }
+
+        return (string) Uri::withoutQueryValue(new Uri($jsonldUrl), '_format');
     }
 
     /**
@@ -395,6 +426,10 @@ class MillinerService implements MillinerServiceInterface
             DateTimeInterface::W3C,
             $modified
         );
+
+        if ($date === false) {
+            throw new \RuntimeException("Invalid modified date: $modified", 500);
+        }
 
         return $date->getTimestamp();
     }

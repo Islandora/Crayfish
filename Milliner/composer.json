@@ -75,9 +75,10 @@
         ],
         "test": [
             "@check",
-            "vendor/bin/phpunit"
+            "vendor/bin/phpunit --exclude-group integration"
         ],
-        "coverage": "vendor/bin/phpunit --coverage-clover clover.xml"
+        "integration": "vendor/bin/phpunit --group integration",
+        "coverage": "vendor/bin/phpunit --exclude-group integration --coverage-clover clover.xml"
     },
     "conflict": {
         "symfony/symfony": "*"

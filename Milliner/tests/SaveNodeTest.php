@@ -40,7 +40,8 @@ class SaveNodeTest extends AbstractMillinerTestCase
     {
         $milliner = $this->setupMilliner($this->not_found_response, null, $this->unauthorized_response);
 
-        $this->expectException(\RuntimeException::class, null, 401);
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionCode(401);
 
         $milliner->saveNode(
             $this->uuid,
@@ -114,9 +115,10 @@ class SaveNodeTest extends AbstractMillinerTestCase
             200
         );
 
-        $milliner = $this->setupMilliner($this->ok_response, $fedora_get_response, $this->unauthorized_response);
+        $milliner = $this->setupMilliner($this->ok_response, $fedora_get_response, $this->forbidden_response);
 
-        $this->expectException(\RuntimeException::class, null, 403);
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionCode(403);
 
         $milliner->saveNode(
             $this->uuid,
@@ -136,10 +138,15 @@ class SaveNodeTest extends AbstractMillinerTestCase
      */
     public function testUpdateNodeThrows500OnBadDatePredicate()
     {
+        $drupal_jsonld = json_decode(
+            file_get_contents(__DIR__ . '/static/StaleContent.jsonld'),
+            true
+        );
+        $drupal_jsonld['@graph'][0]['http://schema.org/dateModified'][0]['@value'] = 'not-a-date';
         $drupal_response = new Response(
             200,
             ['Content-Type' => 'application/ld+json'],
-            file_get_contents(__DIR__ . '/static/StaleContent.jsonld')
+            json_encode($drupal_jsonld)
         );
         $this->drupal_client_prophecy->get(Argument::any(), Argument::any())
             ->willReturn($drupal_response);
@@ -150,7 +157,8 @@ class SaveNodeTest extends AbstractMillinerTestCase
             200
         );
 
-        $this->expectException(\RuntimeException::class, null, 500);
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionCode(500);
 
         $milliner = $this->setupMilliner($this->ok_response, $fedora_get_response, null);
 
@@ -188,7 +196,8 @@ class SaveNodeTest extends AbstractMillinerTestCase
 
         $milliner = $this->setupMilliner($this->ok_response, $fedora_get_response, null);
 
-        $this->expectException(\RuntimeException::class, null, 412);
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionCode(412);
 
         $milliner->saveNode(
             $this->uuid,
@@ -259,6 +268,148 @@ class SaveNodeTest extends AbstractMillinerTestCase
             $status == 204,
             "Milliner must return 204 when Fedora returns 204.  Received: $status"
         );
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::saveNode
+     * @covers ::updateNode
+     * @covers ::processJsonld
+     * @covers ::getModifiedTimestamp
+     * @covers ::getFirstPredicate
+     */
+    public function testUpdateNodeUsesFedora6StateTokenHeaders()
+    {
+        $this->isFedora6 = true;
+        $fedoraGetResponse = new \donatj\MockWebServer\Response(
+            file_get_contents(__DIR__ . '/static/ContentLDP-RS.jsonld'),
+            [
+                'Content-Type' => 'application/ld+json',
+                'X-State-Token' => 'abc123',
+            ],
+            200
+        );
+        $milliner = $this->setupMilliner(
+            $this->ok_response,
+            $fedoraGetResponse,
+            $this->no_content_response
+        );
+
+        $response = $milliner->saveNode(
+            $this->uuid,
+            'http://localhost:8000/node/1?_format=jsonld',
+            $this->fedoraBaseUrl,
+            'Bearer islandora'
+        );
+
+        $this->assertSame(204, $response->getStatusCode());
+        $headRequest = self::$webserver->getRequestByOffset(-3);
+        $getRequest = self::$webserver->getRequestByOffset(-2);
+        $putRequest = self::$webserver->getRequestByOffset(-1);
+        $this->assertNotNull($headRequest);
+        $this->assertNotNull($getRequest);
+        $this->assertNotNull($putRequest);
+        $headHeaders = array_change_key_case($headRequest->getHeaders(), CASE_LOWER);
+        $getHeaders = array_change_key_case($getRequest->getHeaders(), CASE_LOWER);
+        $putHeaders = array_change_key_case($putRequest->getHeaders(), CASE_LOWER);
+
+        $this->assertSame('HEAD', $headRequest->getRequestMethod());
+        $this->assertSame('Bearer islandora', $headHeaders['authorization']);
+        $this->assertSame('GET', $getRequest->getRequestMethod());
+        $this->assertSame(
+            'return=representation; omit="http://fedora.info/definitions/v4/repository#ServerManaged"',
+            $getHeaders['prefer']
+        );
+        $this->assertSame('PUT', $putRequest->getRequestMethod());
+        $this->assertSame('"abc123"', $putHeaders['x-if-state-match']);
+        $this->assertSame('handling=lenient', $putHeaders['prefer']);
+        $this->assertStringNotContainsString('received=minimal', $putHeaders['prefer']);
+        $payload = json_decode($putRequest->getInput(), true);
+        $this->assertSame($this->fedora_full_uri, $payload[0]['@id']);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::saveNode
+     * @covers ::createNode
+     * @covers ::processJsonld
+     */
+    public function testCreateNodeFindsSubjectAfterOtherGraphEntries()
+    {
+        $jsonld = json_decode(file_get_contents(__DIR__ . '/static/Content.jsonld'), true);
+        array_unshift($jsonld['@graph'], ['@id' => 'http://localhost:8000/node/other']);
+        $this->drupal_client_prophecy->get(Argument::any(), Argument::any())
+            ->willReturn(new Response(200, ['Content-Type' => 'application/ld+json'], json_encode($jsonld)));
+        $milliner = $this->setupMilliner($this->not_found_response, null, $this->created_response);
+
+        $response = $milliner->saveNode(
+            $this->uuid,
+            'http://localhost:8000/node/1?_format=jsonld',
+            $this->fedoraBaseUrl,
+            'Bearer islandora'
+        );
+
+        $this->assertSame(201, $response->getStatusCode());
+        $request = self::$webserver->getLastRequest();
+        $this->assertNotNull($request);
+        $payload = json_decode($request->getInput(), true);
+        $this->assertSame($this->fedora_full_uri, $payload[0]['@id']);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::saveNode
+     * @covers ::createNode
+     * @covers ::processJsonld
+     */
+    public function testCreateNodeThrowsWhenSubjectIsMissingFromGraph()
+    {
+        $jsonld = ['@graph' => [['@id' => 'http://localhost:8000/node/other']]];
+        $this->drupal_client_prophecy->get(Argument::any(), Argument::any())
+            ->willReturn(new Response(200, ['Content-Type' => 'application/ld+json'], json_encode($jsonld)));
+        $milliner = $this->setupMilliner($this->not_found_response, null, null);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionCode(500);
+        $this->expectExceptionMessage('Could not find Drupal resource');
+
+        $milliner->saveNode(
+            $this->uuid,
+            'http://localhost:8000/node/1?_format=jsonld',
+            $this->fedoraBaseUrl,
+            'Bearer islandora'
+        );
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::saveNode
+     * @covers ::createNode
+     * @covers ::processJsonld
+     * @covers ::getJsonLdSubjectUrl
+     */
+    public function testFormatRemovalDoesNotTrimCharactersFromDrupalPath()
+    {
+        $this->stripJsonLd = true;
+        $drupalUrl = 'http://localhost:8000/node/abcd?_format=jsonld';
+        $jsonld = [
+            '@graph' => [[
+                '@id' => 'http://localhost:8000/node/abcd',
+                'http://schema.org/dateModified' => [['@value' => '2026-07-29T10:00:00+00:00']],
+            ]],
+        ];
+        $this->drupal_client_prophecy->get(Argument::any(), Argument::any())
+            ->willReturn(new Response(200, ['Content-Type' => 'application/ld+json'], json_encode($jsonld)));
+        $milliner = $this->setupMilliner($this->not_found_response, null, $this->created_response);
+
+        $response = $milliner->saveNode(
+            $this->uuid,
+            $drupalUrl,
+            $this->fedoraBaseUrl,
+            'Bearer islandora'
+        );
+
+        $this->assertSame(201, $response->getStatusCode());
     }
 
     /**
