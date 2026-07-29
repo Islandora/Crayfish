@@ -1,0 +1,33 @@
+# syntax=docker/dockerfile:1.20.0
+
+# Reuse the published PHP 8.4 runtime so this application contract test does
+# not also become a test of isle-buildkit's Alpine package pins.
+FROM islandora/milliner:alpine-3-24@sha256:8e55e01806940d3a8f6e587f9e579e6ecf74a8f70978472adc7abea838ccf2b4 AS packaged
+
+FROM packaged
+
+ARG TARGETARCH
+
+RUN rm -rf /var/www/crayfish/Milliner
+
+COPY --chown=nginx:nginx Milliner/ /var/www/crayfish/Milliner/
+
+# Restore the deployment configuration that isle-buildkit layers over the
+# source tree so this test keeps production JWT behavior.
+COPY --from=packaged --chown=nginx:nginx \
+    /var/www/crayfish/Milliner/config/packages/lexik_jwt_authentication.yaml \
+    /var/www/crayfish/Milliner/config/packages/lexik_jwt_authentication.yaml
+COPY --from=packaged --chown=nginx:nginx \
+    /var/www/crayfish/Milliner/config/packages/security.yaml \
+    /var/www/crayfish/Milliner/config/packages/security.yaml
+
+RUN --mount=type=cache,id=milliner-pr-composer-${TARGETARCH},sharing=locked,target=/root/.composer/cache \
+    composer install \
+        --working-dir=/var/www/crayfish/Milliner \
+        --no-dev \
+        --no-interaction \
+        --no-progress \
+        --prefer-dist \
+        --classmap-authoritative && \
+    cleanup.sh && \
+    chown -R nginx:nginx /var/www/crayfish/Milliner

@@ -4,7 +4,6 @@
 [![Build Status](https://github.com/islandora/crayfish/actions/workflows/build-4.x.yml/badge.svg?branch=5.x)](https://github.com/Islandora/Crayfish/actions)
 [![Contribution Guidelines](http://img.shields.io/badge/CONTRIBUTING-Guidelines-blue.svg)](./CONTRIBUTING.md)
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
-[![codecov](https://codecov.io/gh/Islandora/Crayfish/branch/5.x/graphs/badge.svg?branch=5.x)](https://codecov.io/gh/Islandora/Crayfish)
 
 ## Introduction
 
