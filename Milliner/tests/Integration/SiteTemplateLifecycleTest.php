@@ -73,7 +73,7 @@ final class SiteTemplateLifecycleTest extends TestCase
 
         try {
             $modelId = $this->collectionModelId();
-            $created = $this->drupal->post('entity/node?_format=json', [
+            $created = $this->drupal->post('node?_format=json', [
                 'json' => [
                     'type' => [['target_id' => 'islandora_object']],
                     'title' => [['value' => $createdTitle]],

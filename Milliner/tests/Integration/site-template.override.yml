@@ -4,7 +4,7 @@ services:
     pull_policy: never
     environment:
       MILLINER_SITE_TEMPLATE_TEST: "1"
-      MILLINER_SITE_DRUPAL_URL: http://drupal
+      MILLINER_SITE_DRUPAL_URL: http://${DOMAIN}
       MILLINER_SITE_DRUPAL_HOST: ${DOMAIN}
       MILLINER_SITE_FEDORA_URL: http://fcrepo:8080/fcrepo/rest
     secrets:
