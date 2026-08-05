@@ -25,14 +25,14 @@ jobs:
       TERM: xterm-256color
     steps:
       - name: Checkout site template
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: Islandora-Devops/isle-site-template
           ref: 91d2b491553be329f5b27f19fd7a9f1e2d71c101
           persist-credentials: false
 
       - name: Checkout Crayfish under test
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: crayfish
           persist-credentials: false
