@@ -51,7 +51,7 @@ jobs:
           echo "SCRIPT_DIR=$GITHUB_WORKSPACE/islandora_ci" >> $GITHUB_ENV
 
       - name: Cache Composer dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v6
         with:
           path: /tmp/composer-cache
           key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
