@@ -1,85 +1,100 @@
-# This is a basic workflow to help you get started with Actions
+name: CI - PHP 8.4 / Symfony 8.1
 
-name: CI - 4.x
-
-# Controls when the action will run.
 on:
-  # Triggers the workflow on push or pull request events but only for the 7.x branch
   push:
-    branches: [ 4.x ]
+    branches: [4.x, 5.x]
   pull_request:
-    branches: [ 4.x ]
-
-  # Allows you to run this workflow manually from the Actions tab
+    branches: [4.x, 5.x]
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+permissions:
+  contents: read
+
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        php-versions: ["8.1", "8.2", "8.3"]
-
-    name: PHP ${{ matrix.php-versions }}
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    name: PHP 8.4
+    defaults:
+      run:
+        working-directory: Milliner
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          path: build_dir
-
-      - name: Checkout islandora_ci
-        uses: actions/checkout@v3
-        with:
-          repository: islandora/islandora_ci
-          ref: github-actions
-          path: islandora_ci
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
         with:
-          php-version: ${{ matrix.php-versions }}
+          php-version: "8.4"
           tools: composer:v2
+          coverage: none
 
-      - name: Set environment variables
-        run: |
-          echo "SCRIPT_DIR=$GITHUB_WORKSPACE/islandora_ci" >> $GITHUB_ENV
+      - name: Validate Composer configuration
+        run: composer validate --strict --no-check-publish
 
-      - name: Get composer cache directory
-        id: composer-cache
-        run: |
-          cd $GITHUB_WORKSPACE/build_dir/Milliner
-          echo "composer-cache-dir=$(composer config cache-files-dir)" >> $GITHUB_ENV
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
 
-      - name: Cache Composer dependencies
-        uses: actions/cache@v3
+      - name: Audit dependencies
+        run: composer audit --locked --abandoned=fail
+
+      - name: Check coding standards
+        run: composer check
+
+      - name: Test
+        run: vendor/bin/phpunit --exclude-group integration
+
+  fedora6-integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    name: Fcrepo6 main contract
+    defaults:
+      run:
+        working-directory: Milliner
+    services:
+      activemq:
+        image: islandora/activemq:main@sha256:d97a3ddbaa8495ec68cc7295cc54bbe63aa5ef3f5c5c44e71693c43cedf01c32
+        options: >-
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 24
+      fcrepo:
+        # Intentionally track main so Fedora compatibility regressions surface on Milliner changes.
+        image: islandora/fcrepo6:main
+        env:
+          FCREPO_DISABLE_SYN: "true"
+          FCREPO_PERSISTENCE_TYPE: file
+          TOMCAT_ADMIN_NAME: admin
+          TOMCAT_ADMIN_PASSWORD: password
+        ports:
+          - 8080:8080
+        options: >-
+          --health-cmd "curl --fail --silent --user admin:password http://localhost:8080/fcrepo/rest/fcr:systeminfo | jq -e .version"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 36
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
         with:
-          path: ${{ env.composer-cache-dir }}
-          key: ${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-${{ matrix.php-version }}
+          php-version: "8.4"
+          tools: composer:v2
+          coverage: none
 
-      - name: composer install
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Test Milliner against Fcrepo6 main
+        run: composer integration
+        env:
+          MILLINER_FEDORA6_URL: http://127.0.0.1:8080/fcrepo/rest
+          MILLINER_FEDORA6_TOKEN: Basic YWRtaW46cGFzc3dvcmQ=
+
+      - name: Show service logs on failure
+        if: failure()
+        working-directory: .
         run: |
-          cd $GITHUB_WORKSPACE/build_dir
-          for D in */; do
-            echo "::group::composer install under $D"
-            (cd $D; composer install)
-            echo "::endgroup"
-          done
-
-      - name: line endings
-        run: $SCRIPT_DIR/line_endings.sh $GITHUB_WORKSPACE
-
-      - name: test scripts
-        run: |
-          cd $GITHUB_WORKSPACE/build_dir
-          .scripts/tester
-
-      - name: codecov
-        uses: codecov/codecov-action@v3
-
+          docker logs "${{ job.services.activemq.id }}" || true
+          docker logs "${{ job.services.fcrepo.id }}" || true

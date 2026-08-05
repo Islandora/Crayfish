@@ -1,37 +1,33 @@
 # ![Crayfish](https://cloud.githubusercontent.com/assets/2371345/15409657/2dfb463a-1dec-11e6-9089-06df94ef3f37.png) Crayfish
 
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%208.0-8892BF.svg?style=flat-square)](https://php.net/)
-[![Build Status](https://github.com/islandora/crayfish/actions/workflows/build-dev.yml/badge.svg)](https://github.com/Islandora/Crayfish/actions)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%208.4.1-8892BF.svg?style=flat-square)](https://php.net/)
+[![Build Status](https://github.com/islandora/crayfish/actions/workflows/build-4.x.yml/badge.svg?branch=5.x)](https://github.com/Islandora/Crayfish/actions)
 [![Contribution Guidelines](http://img.shields.io/badge/CONTRIBUTING-Guidelines-blue.svg)](./CONTRIBUTING.md)
 [![LICENSE](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
-[![codecov](https://codecov.io/gh/Islandora/Crayfish/branch/dev/graphs/badge.svg?branch=dev)](https://codecov.io/gh/Islandora/Crayfish)
 
 ## Introduction
 
-A collection of Islandora 8 microservices, lovingly known as Crayfish.  Some of the microservices are built specifically for use with a Fedora Repository and API-X, while others are just for general use within Islandora 8.
+Crayfish houses Milliner, the Islandora microservice that writes Drupal content to Fedora.
 
 ## Requirements
 
-The minimum requirements for any microservice are
+The supported Milliner application requires:
 
-* PHP 8.0+
-* [Composer](https://getcomposer.org/)
-
-Many microservices have extra installation requirements.  Please see the README of each microservice for additional details.
+* PHP 8.4.1+
+* Composer 2
 
 ## Services
 
-Crayfish contains the following services
+Crayfish contains the following supported service:
 
 * [Milliner](./Milliner): Microservice that converts Drupal entities into Fedora resources.
 
-See the individual services for more information on their endpoints.
+CrayFits, Homarus, Houdini, Hypercube, and Recast are deprecated. They are not installed or tested by the PHP 8.4 CI workflow.
 
 ## Security
 
-Crayfish microservices use JWTs to handle authentication like the rest of the Islandora 8.
-It is disabled by default. To enable, set `security enabled` to `true` in `cfg/cfg.php` for any microservice.
-You can also set the path to an xml configuration file for security a la [Syn][9] with the `security config` parameter.
+Milliner can validate Islandora JWTs with LexikJWTAuthenticationBundle. Authentication is disabled by default; see
+[`Milliner/config/packages/security.yaml`](./Milliner/config/packages/security.yaml) for the settings to enable it.
 
 ## Development
 
@@ -73,5 +69,4 @@ This project has been sponsored by:
 [6]: http://islandora.ca/sites/default/files/islandora_cla.pdf
 [7]: http://islandora.ca/sites/default/files/islandora_ccla.pdf
 [8]: http://islandora.ca/resources/contributors
-[9]: https://github.com/Islandora/Syn/blob/main/conf/syn-settings.example.xml
 [10]: https://github.com/Islandora-Devops/islandora-playbook

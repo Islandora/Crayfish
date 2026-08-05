@@ -112,4 +112,37 @@ class CreateVersionTest extends AbstractMillinerTestCase
             "Milliner must return 403 when Fedora returns 403.  Received: $status"
         );
     }
+
+    /**
+     * @covers ::__construct
+     * @covers ::createVersion
+     */
+    public function testCreateVersionThrowsOnUnexpectedFedoraResponse()
+    {
+        self::$webserver->setResponseOfPath(
+            $this->fedora_path . '/fcr:versions',
+            new ResponseByMethod([
+                ResponseByMethod::METHOD_POST => $this->no_content_response,
+            ])
+        );
+        self::$webserver->setResponseOfPath(
+            $this->fedora_path,
+            new ResponseByMethod([
+                ResponseByMethod::METHOD_HEAD => new Response(
+                    '',
+                    ['Link' => '<' . $this->fedora_full_uri . '/fcr:versions>; rel="timemap"'],
+                    200
+                ),
+            ])
+        );
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionCode(204);
+
+        $this->getMilliner()->createVersion(
+            $this->uuid,
+            $this->fedoraBaseUrl,
+            'Bearer islandora'
+        );
+    }
 }

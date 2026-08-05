@@ -245,6 +245,30 @@ class MillinerControllerTest extends AbstractMillinerTestCase
 
     /**
      * @covers ::__construct
+     * @covers ::createMediaVersion
+     */
+    public function testCreateMediaVersionReturns400WithoutContentLocation()
+    {
+        $sourceField = 'field_image';
+        $request = Request::create(
+            "http://localhost:8000/milliner/media/$sourceField/version",
+            'POST',
+            ['source_field' => $sourceField],
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer islandora',
+                'HTTP_X_ISLANDORA_FEDORA_ENDPOINT' => 'http://localhost:8080/fcrepo/rest',
+            ]
+        );
+
+        $response = $this->controller->createMediaVersion($sourceField, $request);
+
+        $this->assertSame(400, $response->getStatusCode());
+    }
+
+    /**
+     * @covers ::__construct
      * @covers ::saveExternal
      */
     public function testSaveExternalReturns400WithoutContentLocation()
@@ -459,7 +483,7 @@ class MillinerControllerTest extends AbstractMillinerTestCase
 
         $uuid = '630e0c1d-1a38-4e3b-84f9-68d519bdc026';
         $request = Request::create(
-            "http://localhost:8000/milliner/resource/$uuid",
+            "http://localhost:8000/milliner/node/$uuid",
             "DELETE",
             ['uuid' => $uuid],
             [],
@@ -485,7 +509,7 @@ class MillinerControllerTest extends AbstractMillinerTestCase
     public function testCreateNodeVersionReturnsSuccessOnSuccess()
     {
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+        $milliner->createVersion(Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(201));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
@@ -512,7 +536,7 @@ class MillinerControllerTest extends AbstractMillinerTestCase
         );
 
         $milliner = $this->prophesize(MillinerServiceInterface::class);
-        $milliner->createVersion(Argument::any(), Argument::any(), Argument::any(), Argument::any())
+        $milliner->createVersion(Argument::any(), Argument::any(), Argument::any())
             ->willReturn(new Response(204));
         $milliner = $milliner->reveal();
         $controller = new MillinerController($milliner, $this->logger);
@@ -550,7 +574,6 @@ class MillinerControllerTest extends AbstractMillinerTestCase
         $controller = new MillinerController($milliner, $this->logger);
 
         // Nodes.
-        $uuid = '630e0c1d-1a38-4e3b-84f9-68d519bdc026';
         $source_field = 'field_image';
         $request = Request::create(
             "http://localhost:8000/milliner/media/$source_field/version",
@@ -564,7 +587,7 @@ class MillinerControllerTest extends AbstractMillinerTestCase
                 'HTTP_X_ISLANDORA_FEDORA_ENDPOINT' => 'http://localhost:8080/fcrepo/rest',
             ]
         );
-        $response = $controller->createMediaVersion($uuid, $request);
+        $response = $controller->createMediaVersion($source_field, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 201,
@@ -589,7 +612,7 @@ class MillinerControllerTest extends AbstractMillinerTestCase
                 'HTTP_X_ISLANDORA_FEDORA_ENDPOINT' => 'http://localhost:8080/fcrepo/rest',
             ]
         );
-        $response = $controller->createMediaVersion($uuid, $request);
+        $response = $controller->createMediaVersion($source_field, $request);
         $status = $response->getStatusCode();
         $this->assertTrue(
             $status == 204,

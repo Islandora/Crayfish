@@ -1,0 +1,15 @@
+services:
+  milliner:
+    image: local/milliner:ci
+    pull_policy: never
+    environment:
+      MILLINER_SITE_TEMPLATE_TEST: "1"
+      MILLINER_SITE_DRUPAL_URL: http://${DOMAIN}
+      MILLINER_SITE_DRUPAL_HOST: ${DOMAIN}
+      MILLINER_SITE_FEDORA_URL: http://fcrepo:8080/fcrepo/rest
+    secrets:
+      - source: DRUPAL_DEFAULT_ACCOUNT_PASSWORD
+  fcrepo:
+    # This is the forward-compatibility canary; the surrounding workflow is commit-pinned.
+    image: islandora/fcrepo6:main
+    pull_policy: always

@@ -223,6 +223,10 @@ class MillinerController
         $json_url = $request->headers->get("Content-Location");
         $islandora_fedora_endpoint = $request->headers->get("X-Islandora-Fedora-Endpoint");
 
+        if (empty($json_url)) {
+            return new Response("Expected JSON url in Content-Location header", 400);
+        }
+
         try {
             $response = $this->milliner->createMediaVersion(
                 $source_field,
