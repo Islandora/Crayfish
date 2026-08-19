@@ -7,7 +7,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-sodium": "*",
-        "guzzlehttp/guzzle": "^7.4",
+        "guzzlehttp/guzzle": "^8.0",
         "guzzlehttp/psr7": "^2.7",
         "islandora/chullo": "^2.0",
         "islandora/fedora-entity-mapper": "^1.0",
