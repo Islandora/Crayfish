@@ -52,7 +52,7 @@ jobs:
         working-directory: Milliner
     services:
       activemq:
-        image: islandora/activemq:main@sha256:ba2b26d7234b16d5cf033400914cef0861f2f445d6116ea4d667da345bbdaad6
+        image: islandora/activemq:main@sha256:ea488fdcdc4e3027bc467905eab7eb2ddc814f42286a64ecd90ffb33559895cc
         options: >-
           --health-interval 5s
           --health-timeout 5s
