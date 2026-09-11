@@ -76,22 +76,66 @@ class HypercubeController
 
         $this->log->debug("Got Content-Type:", ['type' => $content_type]);
 
-        if ($content_type == 'application/pdf') {
-            $cmd_string = $this->pdftotext_executable . " $args - -";
-        } else {
-            $cmd_string = $this->tesseract_executable . " stdin stdout $args";
-        }
+        $tmp_path = null;
+        $data = $body;
 
-        $this->log->debug("Executing command:", ['cmd' => $cmd_string]);
-
-        // Return response.
         try {
+            if ($content_type == 'application/pdf') {
+                // Write the body to a temp file and give pdftotext a real path
+                // instead of stdin ("-"). Poppler's malformed-PDF recovery
+                // logic behaves very differently depending on whether its
+                // input is seekable: given a file path it fails fast; given a
+                // non-seekable pipe it can spin at ~100% CPU for the entire
+                // process, relying solely on the timeout wrapper to kill it.
+                // A real path also sidesteps the classic write-stdin-before
+                // -draining-stdout deadlock in CmdExecuteService::execute()
+                // for large outputs.
+                $tmp_path = tempnam(sys_get_temp_dir(), 'hypercube_');
+                if ($tmp_path === false) {
+                    throw new \RuntimeException('Unable to create temp file for pdftotext input.');
+                }
+
+                $tmp = fopen($tmp_path, 'wb');
+                if ($tmp === false) {
+                    throw new \RuntimeException('Unable to open temp file for pdftotext input.');
+                }
+
+                if (stream_copy_to_stream($body, $tmp) === false) {
+                    fclose($tmp);
+                    throw new \RuntimeException('Failed writing request body to temp file.');
+                }
+                fclose($tmp);
+                fclose($body);
+
+                $cmd_string = $this->pdftotext_executable . " $args " . escapeshellarg($tmp_path) . " -";
+                $data = null;
+            } else {
+                $cmd_string = $this->tesseract_executable . " stdin stdout $args";
+            }
+
+            $this->log->debug("Executing command:", ['cmd' => $cmd_string]);
+
+            $streamer = $this->cmd->execute($cmd_string, $data);
+
+            if ($tmp_path !== null) {
+                $streamer = function () use ($streamer, $tmp_path) {
+                    try {
+                        $streamer();
+                    } finally {
+                        @unlink($tmp_path);
+                    }
+                };
+            }
+
             return new StreamedResponse(
-                $this->cmd->execute($cmd_string, $body),
+                $streamer,
                 200,
                 ['Content-Type' => $request->headers->get('Accept') ?? 'text/plain']
             );
         } catch (\RuntimeException $e) {
+            if ($tmp_path !== null) {
+                @unlink($tmp_path);
+            }
             return new Response($e->getMessage(), 500);
         }
     }
