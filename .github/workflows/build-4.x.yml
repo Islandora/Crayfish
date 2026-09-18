@@ -44,7 +44,7 @@ jobs:
         run: vendor/bin/phpunit --exclude-group integration
 
   fedora6-integration:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     name: Fcrepo6 main contract
     defaults:
