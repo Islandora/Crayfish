@@ -3,5 +3,7 @@
   "extends": [
     "config:recommended",
     "schedule:automergeEarlyMondays"
-  ]
+  ],
+  "automerge": true,
+  "platformAutomerge": false
 }
